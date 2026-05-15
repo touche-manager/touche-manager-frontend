@@ -1,0 +1,18 @@
+<main class="min-h-screen bg-slate-50 text-slate-900">
+  <header class="border-b bg-white">
+    <div class="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
+      <span class="text-lg font-semibold">Touche Manager</span>
+      <nav class="text-sm text-slate-600">
+        <a class="mr-3 hover:text-slate-900" routerLink="/auth">Auth</a>
+        <a class="mr-3 hover:text-slate-900" routerLink="/athlete">Athlete</a>
+        <a class="mr-3 hover:text-slate-900" routerLink="/tournament">Tournament</a>
+        <a class="hover:text-slate-900" routerLink="/bout">Bout</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="mx-auto max-w-5xl">
+    <router-outlet />
+  </div>
+</main>
+
