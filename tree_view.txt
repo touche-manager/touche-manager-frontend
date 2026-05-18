@@ -1,0 +1,73 @@
+touche-manager-frontend/
+│
+├── src/
+│   ├── app/
+│   │   ├── core/
+│   │   │   ├── guards/
+│   │   │   │   └── auth.guard.ts
+│   │   │   ├── interceptors/
+│   │   │   │   └── auth.interceptor.ts
+│   │   │   ├── models/                    (placeholder - no files yet)
+│   │   │   └── services/
+│   │   │       ├── base/                  (.gitkeep only)
+│   │   │       └── auth.service.ts
+│   │   │
+│   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   │   ├── auth.page.ts          (standalone component)
+│   │   │   │   ├── auth.page.html
+│   │   │   │   ├── auth.page.css
+│   │   │   │   └── auth.routes.ts
+│   │   │   │
+│   │   │   ├── athlete/
+│   │   │   │   ├── athlete.page.ts       (standalone component)
+│   │   │   │   ├── athlete.page.html
+│   │   │   │   ├── athlete.page.css
+│   │   │   │   └── athlete.routes.ts
+│   │   │   │
+│   │   │   ├── tournament/
+│   │   │   │   ├── tournament.page.ts    (standalone component)
+│   │   │   │   ├── tournament.page.html
+│   │   │   │   ├── tournament.page.css
+│   │   │   │   └── tournament.routes.ts
+│   │   │   │
+│   │   │   └── bout/
+│   │   │       ├── bout.page.ts          (standalone component)
+│   │   │       ├── bout.page.html
+│   │   │       ├── bout.page.css
+│   │   │       └── bout.routes.ts
+│   │   │
+│   │   ├── shared/
+│   │   │   ├── components/               (placeholder)
+│   │   │   └── pipes/                    (placeholder)
+│   │   │
+│   │   ├── app.component.ts              (root component, standalone)
+│   │   ├── app.component.html
+│   │   ├── app.component.css
+│   │   ├── app.component.spec.ts
+│   │   ├── app.config.ts                 (application config with providers)
+│   │   └── app.routes.ts                 (main routing config)
+│   │
+│   ├── environments/
+│   │   └── environment.ts                (apiUrl config)
+│   │
+│   ├── main.ts                           (bootstrap entry point)
+│   ├── styles.css                        (global styles - Tailwind)
+│   └── index.html                        (HTML entry point)
+│
+├── public/
+│   └── icons/
+│
+├── angular.json                          (Angular CLI config)
+├── tsconfig.json                         (TypeScript root config)
+├── tsconfig.app.json                     (app TypeScript config)
+├── tsconfig.spec.json                    (test TypeScript config)
+├── package.json                          (dependencies)
+├── package-lock.json
+├── ngsw-config.json                      (service worker config)
+├── .vscode/
+│   ├── extensions.json
+│   ├── launch.json
+│   └── tasks.json
+└── node_modules/
+

@@ -29,6 +29,7 @@ src/app/
 ```
 
 ## Convenciones de código
+- **TODO DEBE ESTAR EN INGLÉS**: nombres de componentes, métodos, variables, mensajes en UI, labels, placeholders, comentarios. Excepción: documentación en README.md puede estar en español.
 - Todos los componentes son standalone (no declarar en NgModule)
 - Usar signals para estado local: `signal()`, `computed()`, `effect()`
 - Formularios reactivos (ReactiveFormsModule), no template-driven
