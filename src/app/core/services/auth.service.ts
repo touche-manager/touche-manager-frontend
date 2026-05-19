@@ -44,12 +44,16 @@ export class AuthService {
       .pipe(
         map(res => {
           const data = res.data;
-          if (data.token) {
+          if (data.roles && data.roles.length > 0) {
+            // Multiple roles — store pending list and temp token
+            this.pendingRolesSignal.set(data.roles);
+            if (data.token) {
+              localStorage.setItem('touche_token', data.token);
+              this.tokenSignal.set(data.token);
+            }
+          } else if (data.token) {
             // Single role — store token immediately
             this.setToken(data.token);
-          } else if (data.roles) {
-            // Multiple roles — store pending list for the select-role screen
-            this.pendingRolesSignal.set(data.roles);
           }
           return data;
         })

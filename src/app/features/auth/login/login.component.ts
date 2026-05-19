@@ -34,11 +34,12 @@ export class LoginComponent {
 
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: (res) => {
-        if (res.token) {
-          this.navigateToDashboard();
-        } else {
+        if (res.roles && res.roles.length > 0) {
           // Multiple roles → go to select-role screen
           this.router.navigate(['/auth/select-role']);
+        } else {
+          // Single role — token already stored by auth.service
+          this.navigateToDashboard();
         }
       },
       error: (err) => {
