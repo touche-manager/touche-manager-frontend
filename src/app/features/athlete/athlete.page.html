@@ -1,4 +1,214 @@
-<section class="p-6">
-  <h1 class="text-2xl font-semibold">Athlete</h1>
-  <p class="mt-2 text-sm text-slate-600">Modulo de atletas.</p>
-</section>
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex justify-center">
+  <div class="max-w-2xl w-full space-y-8 bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-gray-100">
+    
+    <!-- Header -->
+    <div class="text-center">
+      <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+        {{ isEditMode() ? 'Perfil de Atleta' : 'Crear Perfil de Atleta' }}
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        {{ isEditMode() ? 'Actualiza tus datos de atleta y membresía del club' : 'Completa tus datos para configurar tu perfil de atleta' }}
+      </p>
+    </div>
+
+    <!-- Alert Success -->
+    <div *ngIf="success()" class="rounded-md bg-green-50 p-4 border border-green-200">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-green-800">
+            ¡Perfil guardado con éxito!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Error -->
+    <div *ngIf="error()" class="rounded-md bg-red-50 p-4 border border-red-200">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-red-800">
+            {{ error() }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading() && !athleteForm.touched" class="flex justify-center items-center py-12">
+      <svg class="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="ml-3 text-gray-500 font-medium">Cargando datos del perfil...</span>
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!loading() || athleteForm.touched" [formGroup]="athleteForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- First Name -->
+        <div>
+          <label for="firstName" class="block text-sm font-semibold text-gray-700">Nombre</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            placeholder="Ej. Juan"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('firstName') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          />
+          <p *ngIf="isFieldInvalid('firstName')" class="mt-1 text-sm text-red-600">
+            El nombre es obligatorio.
+          </p>
+        </div>
+
+        <!-- Last Name -->
+        <div>
+          <label for="lastName" class="block text-sm font-semibold text-gray-700">Apellido</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            placeholder="Ej. Pérez"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('lastName') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          />
+          <p *ngIf="isFieldInvalid('lastName')" class="mt-1 text-sm text-red-600">
+            El apellido es obligatorio.
+          </p>
+        </div>
+
+        <!-- DNI -->
+        <div>
+          <label for="dni" class="block text-sm font-semibold text-gray-700">DNI (Número de Documento)</label>
+          <input
+            type="text"
+            id="dni"
+            formControlName="dni"
+            placeholder="Ej. 12345678"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('dni') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          />
+          <p *ngIf="isFieldInvalid('dni') && athleteForm.get('dni')?.errors?.['required']" class="mt-1 text-sm text-red-600">
+            El DNI es obligatorio.
+          </p>
+          <p *ngIf="isFieldInvalid('dni') && athleteForm.get('dni')?.errors?.['pattern']" class="mt-1 text-sm text-red-600">
+            El DNI debe ser numérico y tener entre 7 y 10 dígitos.
+          </p>
+        </div>
+
+        <!-- Birth Date -->
+        <div>
+          <label for="birthDate" class="block text-sm font-semibold text-gray-700">Fecha de Nacimiento</label>
+          <input
+            type="date"
+            id="birthDate"
+            formControlName="birthDate"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('birthDate') ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          />
+          <p *ngIf="isFieldInvalid('birthDate')" class="mt-1 text-sm text-red-600">
+            La fecha de nacimiento es obligatoria y debe ser en el pasado.
+          </p>
+        </div>
+
+        <!-- Gender -->
+        <div>
+          <label for="gender" class="block text-sm font-semibold text-gray-700">Género</label>
+          <select
+            id="gender"
+            formControlName="gender"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('gender') ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          >
+            <option value="" disabled>Seleccionar Género</option>
+            <option value="MASCULINO">Masculino</option>
+            <option value="FEMENINO">Femenino</option>
+          </select>
+          <p *ngIf="isFieldInvalid('gender')" class="mt-1 text-sm text-red-600">
+            El género es obligatorio.
+          </p>
+        </div>
+
+        <!-- Dominant Hand -->
+        <div>
+          <label for="dominantHand" class="block text-sm font-semibold text-gray-700">Mano Hábil</label>
+          <select
+            id="dominantHand"
+            formControlName="dominantHand"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('dominantHand') ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          >
+            <option value="" disabled>Seleccionar Mano Hábil</option>
+            <option value="DIESTRO">Diestro</option>
+            <option value="ZURDO">Zurdo</option>
+          </select>
+          <p *ngIf="isFieldInvalid('dominantHand')" class="mt-1 text-sm text-red-600">
+            La mano hábil es obligatoria.
+          </p>
+        </div>
+
+        <!-- Club -->
+        <div>
+          <label for="club" class="block text-sm font-semibold text-gray-700">Club</label>
+          <input
+            type="text"
+            id="club"
+            formControlName="club"
+            placeholder="Ej. Club de Esgrima"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('club') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          />
+          <p *ngIf="isFieldInvalid('club')" class="mt-1 text-sm text-red-600">
+            El club es obligatorio.
+          </p>
+        </div>
+
+        <!-- Province -->
+        <div>
+          <label for="province" class="block text-sm font-semibold text-gray-700">Provincia</label>
+          <input
+            type="text"
+            id="province"
+            formControlName="province"
+            placeholder="Ej. Córdoba"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            [ngClass]="isFieldInvalid('province') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
+          />
+          <p *ngIf="isFieldInvalid('province')" class="mt-1 text-sm text-red-600">
+            La provincia es obligatoria.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Action Button -->
+      <div class="pt-4 border-t border-gray-100 flex justify-end">
+        <button
+          type="submit"
+          [disabled]="athleteForm.invalid || loading()"
+          class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-semibold rounded-md text-white shadow-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          [ngClass]="(athleteForm.invalid || loading()) ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'"
+        >
+          <!-- Loading Spinner in Button -->
+          <svg *ngIf="loading()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isEditMode() ? 'Guardar Cambios' : 'Crear Perfil' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
