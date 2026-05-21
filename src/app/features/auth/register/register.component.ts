@@ -80,7 +80,7 @@ export class RegisterComponent {
       password: password!,
       roles: this.selectedRoles
     }).subscribe({
-      next: () => this.router.navigate(['/auth/login']),
+      next: () => this.router.navigate(['/auth/login'], { replaceUrl: true }),
       error: (err) => {
         const msg: string = err.error?.message ?? 'Error al registrarse. Intente nuevamente.';
         this.errorMessage.set(msg);

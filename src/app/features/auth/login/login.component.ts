@@ -35,10 +35,10 @@ export class LoginComponent {
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: (res) => {
         if (res.roles && res.roles.length > 0) {
-          // Multiple roles → go to select-role screen
-          this.router.navigate(['/auth/select-role']);
+          // Multiple roles → go to select-role screen (replace login in history)
+          this.router.navigate(['/auth/select-role'], { replaceUrl: true });
         } else {
-          // Single role — token already stored by auth.service
+          // Single role — token already stored by auth.service (replace login in history)
           this.navigateToDashboard();
         }
       },
@@ -53,11 +53,11 @@ export class LoginComponent {
   private navigateToDashboard(): void {
     const rol = this.authService.currentRol();
     switch (rol) {
-      case 'ATLETA':      this.router.navigate(['/athlete']); break;
-      case 'ARBITRO':     this.router.navigate(['/bout']); break;
-      case 'ORGANIZADOR': this.router.navigate(['/tournament']); break;
-      case 'ADMIN':       this.router.navigate(['/tournament']); break;
-      default:            this.router.navigate(['/auth/login']);
+      case 'ATLETA':      this.router.navigate(['/athlete'], { replaceUrl: true }); break;
+      case 'ARBITRO':     this.router.navigate(['/bout'], { replaceUrl: true }); break;
+      case 'ORGANIZADOR': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      case 'ADMIN':       this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      default:            this.router.navigate(['/auth/login'], { replaceUrl: true });
     }
   }
 }

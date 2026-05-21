@@ -50,7 +50,7 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(mockAuthService.login).toHaveBeenCalledWith({ email: 'test@test.com', password: 'password123' });
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/select-role']);
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/select-role'], { replaceUrl: true });
   });
 
   it('should navigate to dashboard if response only has token', () => {
@@ -61,7 +61,7 @@ describe('LoginComponent', () => {
     component.onSubmit();
 
     expect(mockAuthService.login).toHaveBeenCalledWith({ email: 'test@test.com', password: 'password123' });
-    expect(router.navigate).toHaveBeenCalledWith(['/athlete']);
+    expect(router.navigate).toHaveBeenCalledWith(['/athlete'], { replaceUrl: true });
   });
 
   it('should set error message on login failure', () => {

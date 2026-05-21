@@ -63,10 +63,10 @@ export class SelectRoleComponent {
 
   private navigateToDashboard(rol: NombreRol): void {
     switch (rol) {
-      case 'ATLETA':      this.router.navigate(['/athlete']); break;
-      case 'ARBITRO':     this.router.navigate(['/bout']); break;
-      case 'ORGANIZADOR': this.router.navigate(['/tournament']); break;
-      case 'ADMIN':       this.router.navigate(['/tournament']); break;
+      case 'ATLETA':      this.router.navigate(['/athlete'], { replaceUrl: true }); break;
+      case 'ARBITRO':     this.router.navigate(['/bout'], { replaceUrl: true }); break;
+      case 'ORGANIZADOR': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      case 'ADMIN':       this.router.navigate(['/tournament'], { replaceUrl: true }); break;
     }
   }
 }
