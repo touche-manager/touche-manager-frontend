@@ -40,3 +40,11 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
 }
+
+// User profile
+export interface UserProfile {
+  id: number;
+  email: string;
+  roles: NombreRol[];
+  profilePictureUrl: string | null;
+}

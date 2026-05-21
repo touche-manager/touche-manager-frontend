@@ -10,7 +10,8 @@ import {
   NombreRol,
   RegisterRequest,
   RegisterResponse,
-  SelectRoleRequest
+  SelectRoleRequest,
+  UserProfile
 } from '../models/auth.models';
 
 @Injectable({ providedIn: 'root' })
@@ -25,11 +26,13 @@ export class AuthService {
   private readonly rolesSignal = signal<NombreRol[]>(
     JSON.parse(localStorage.getItem('touche_roles') || '[]')
   );
+  private readonly profileSignal = signal<UserProfile | null>(null);
 
   readonly token = this.tokenSignal.asReadonly();
   readonly currentRol = this.rolSignal.asReadonly();
   readonly pendingRoles = this.pendingRolesSignal.asReadonly();
   readonly roles = this.rolesSignal.asReadonly();
+  readonly profile = this.profileSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
   readonly hasMultipleRoles = computed(() => this.rolesSignal().length > 1);
 
@@ -123,6 +126,7 @@ export class AuthService {
     this.rolSignal.set(null);
     this.pendingRolesSignal.set(null);
     this.rolesSignal.set([]);
+    this.profileSignal.set(null);
   }
 
   private decodePayload(token: string): Record<string, unknown> | null {
@@ -132,5 +136,42 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  // ── Profile management ────────────────────────────────────────────────────────
+
+  fetchProfile(): Observable<UserProfile> {
+    return this.http
+      .get<ApiResponse<UserProfile>>(`${environment.apiUrl}/users/profile`)
+      .pipe(
+        map(res => {
+          this.profileSignal.set(res.data);
+          return res.data;
+        })
+      );
+  }
+
+  uploadProfilePicture(file: File): Observable<UserProfile> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http
+      .post<ApiResponse<UserProfile>>(`${environment.apiUrl}/users/profile/picture`, formData)
+      .pipe(
+        map(res => {
+          this.profileSignal.set(res.data);
+          return res.data;
+        })
+      );
+  }
+
+  deleteProfilePicture(): Observable<UserProfile> {
+    return this.http
+      .delete<ApiResponse<UserProfile>>(`${environment.apiUrl}/users/profile/picture`)
+      .pipe(
+        map(res => {
+          this.profileSignal.set(res.data);
+          return res.data;
+        })
+      );
   }
 }
