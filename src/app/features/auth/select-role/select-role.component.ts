@@ -12,7 +12,7 @@ const ROLE_LABELS: Record<NombreRol, string> = {
 
 const ROLE_DESCRIPTIONS: Record<NombreRol, string> = {
   ATLETA: 'Gestiona tu perfil y documentos',
-  ARBITRO: 'Puntúa combates en tiempo real',
+  ARBITRO: 'Puntúa asaltos en tiempo real',
   ORGANIZADOR: 'Crea y gestiona torneos',
   ADMIN: 'Administración total del sistema'
 };
