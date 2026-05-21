@@ -4,7 +4,12 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../core/models/auth.models';
-import { AthleteRequest, AthleteResponse } from '../../../core/models/athlete.models';
+import {
+  AthleteRequest,
+  AthleteResponse,
+  AthleteDocumentResponse,
+  DocumentType
+} from '../../../core/models/athlete.models';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +35,39 @@ export class AthleteService {
     const payload = this.mapToBackend(request);
     return this.http.put<ApiResponse<any>>(this.apiUrl, payload).pipe(
       map(res => this.mapFromBackend(res.data))
+    );
+  }
+
+  // ── Document management ──────────────────────────────────────────────────────
+
+  getDocuments(): Observable<AthleteDocumentResponse[]> {
+    return this.http.get<ApiResponse<AthleteDocumentResponse[]>>(`${environment.apiUrl}/athletes/profile/documents`).pipe(
+      map(res => res.data)
+    );
+  }
+
+  uploadDocument(file: File, type: DocumentType, description?: string): Observable<AthleteDocumentResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('documentType', type);
+    if (description) {
+      formData.append('description', description);
+    }
+
+    return this.http.post<ApiResponse<AthleteDocumentResponse>>(`${environment.apiUrl}/athletes/profile/documents`, formData).pipe(
+      map(res => res.data)
+    );
+  }
+
+  downloadDocument(documentId: number): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/athletes/profile/documents/${documentId}`, {
+      responseType: 'blob'
+    });
+  }
+
+  deleteDocument(documentId: number): Observable<void> {
+    return this.http.delete<ApiResponse<void>>(`${environment.apiUrl}/athletes/profile/documents/${documentId}`).pipe(
+      map(() => undefined)
     );
   }
 

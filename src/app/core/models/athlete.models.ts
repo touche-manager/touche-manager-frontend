@@ -25,3 +25,20 @@ export interface AthleteResponse {
   club: string;
   province: string;
 }
+
+export type DocumentType = 'MEDICAL_CLEARANCE' | 'PAYMENT_RECEIPT';
+
+export interface AthleteDocumentResponse {
+  id: number;
+  athleteId: number;
+  fileName: string;
+  contentType: string;
+  documentType: DocumentType;
+  description?: string;
+  uploadDate: string;
+}
+
+export const DocumentTypeLabels: Record<DocumentType, string> = {
+  MEDICAL_CLEARANCE: 'Apto Médico',
+  PAYMENT_RECEIPT: 'Comprobante de Pago'
+};

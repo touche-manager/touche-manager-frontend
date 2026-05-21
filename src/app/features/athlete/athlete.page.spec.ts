@@ -11,7 +11,15 @@ describe('AthletePageComponent', () => {
   let athleteServiceSpy: jasmine.SpyObj<AthleteService>;
 
   beforeEach(async () => {
-    const spy = jasmine.createSpyObj('AthleteService', ['getProfile', 'createProfile', 'updateProfile']);
+    const spy = jasmine.createSpyObj('AthleteService', [
+      'getProfile',
+      'createProfile',
+      'updateProfile',
+      'getDocuments',
+      'uploadDocument',
+      'downloadDocument',
+      'deleteDocument'
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [AthletePageComponent, ReactiveFormsModule],
@@ -21,6 +29,7 @@ describe('AthletePageComponent', () => {
     }).compileComponents();
 
     athleteServiceSpy = TestBed.inject(AthleteService) as jasmine.SpyObj<AthleteService>;
+    athleteServiceSpy.getDocuments.and.returnValue(of([]));
   });
 
   it('should create the component', () => {
@@ -291,6 +300,23 @@ describe('AthletePageComponent', () => {
 
       firstNameControl?.setValue('Juan');
       expect(component.isFieldInvalid('firstName')).toBeFalse();
+    });
+  });
+
+  describe('Document Management', () => {
+    beforeEach(() => {
+      athleteServiceSpy.getProfile.and.returnValue(of({ id: 10 } as AthleteResponse));
+    });
+
+    it('should load documents when switching to documents tab', () => {
+      const fixture = TestBed.createComponent(AthletePageComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      component.setTab('documents');
+
+      expect(component.activeTab()).toBe('documents');
+      expect(athleteServiceSpy.getDocuments).toHaveBeenCalled();
     });
   });
 });

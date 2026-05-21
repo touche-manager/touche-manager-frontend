@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AthleteService } from './services/athlete.service';
-import { AthleteRequest } from '../../core/models/athlete.models';
+import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../../core/models/athlete.models';
 
 @Component({
   selector: 'app-athlete-page',
@@ -21,7 +21,20 @@ export class AthletePageComponent implements OnInit {
   readonly success = signal<boolean>(false);
   readonly isEditMode = signal<boolean>(false);
 
+  // Tabs management
+  readonly activeTab = signal<'profile' | 'documents'>('profile');
+
+  // Documents state
+  readonly documents = signal<AthleteDocumentResponse[]>([]);
+  readonly loadingDocuments = signal<boolean>(false);
+  readonly documentError = signal<string | null>(null);
+  readonly documentSuccess = signal<boolean>(false);
+  readonly uploading = signal<boolean>(false);
+  readonly documentTypeLabels = DocumentTypeLabels;
+
   athleteForm!: FormGroup;
+  uploadForm!: FormGroup;
+  selectedFile: File | null = null;
 
   ngOnInit(): void {
     this.initForm();
@@ -39,6 +52,11 @@ export class AthletePageComponent implements OnInit {
       club: ['', [Validators.required]],
       province: ['', [Validators.required]]
     });
+
+    this.uploadForm = this.fb.group({
+      documentType: ['', [Validators.required]],
+      description: ['', [Validators.maxLength(200)]]
+    });
   }
 
   private loadProfile(): void {
@@ -50,6 +68,8 @@ export class AthletePageComponent implements OnInit {
         this.isEditMode.set(true);
         this.athleteForm.patchValue(profile);
         this.loading.set(false);
+        // Load documents if in edit mode
+        this.loadDocuments();
       },
       error: (err: HttpErrorResponse) => {
         this.loading.set(false);
@@ -85,6 +105,7 @@ export class AthletePageComponent implements OnInit {
         this.isEditMode.set(true);
         this.athleteForm.patchValue(profile);
         this.loading.set(false);
+        this.loadDocuments();
         // Clear success message after 5 seconds
         setTimeout(() => this.success.set(false), 5000);
       },
@@ -98,5 +119,111 @@ export class AthletePageComponent implements OnInit {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.athleteForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+
+  setTab(tab: 'profile' | 'documents'): void {
+    this.activeTab.set(tab);
+    if (tab === 'documents') {
+      this.loadDocuments();
+    }
+  }
+
+  // ── Documents Logic ────────────────────────────────────────────────────────
+
+  loadDocuments(): void {
+    if (!this.isEditMode()) return;
+
+    this.loadingDocuments.set(true);
+    this.documentError.set(null);
+
+    this.athleteService.getDocuments().subscribe({
+      next: (docs) => {
+        this.documents.set(docs);
+        this.loadingDocuments.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loadingDocuments.set(false);
+        this.documentError.set(err.error?.message || 'Error al cargar los documentos.');
+      }
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    } else {
+      this.selectedFile = null;
+    }
+  }
+
+  onUploadDocument(): void {
+    if (this.uploadForm.invalid || !this.selectedFile) {
+      this.uploadForm.markAllAsTouched();
+      return;
+    }
+
+    this.uploading.set(true);
+    this.documentError.set(null);
+    this.documentSuccess.set(false);
+
+    const type = this.uploadForm.value.documentType;
+    const desc = this.uploadForm.value.description;
+
+    this.athleteService.uploadDocument(this.selectedFile, type, desc).subscribe({
+      next: (newDoc) => {
+        this.documents.update(docs => [...docs, newDoc]);
+        this.documentSuccess.set(true);
+        this.uploading.set(false);
+        this.selectedFile = null;
+        this.uploadForm.reset({ documentType: '', description: '' });
+
+        // Reset file input in HTML
+        const fileInput = document.getElementById('file-input') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+
+        setTimeout(() => this.documentSuccess.set(false), 5000);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.uploading.set(false);
+        this.documentError.set(err.error?.message || 'Error al subir el documento.');
+      }
+    });
+  }
+
+  onDownloadDocument(doc: AthleteDocumentResponse): void {
+    this.athleteService.downloadDocument(doc.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.download = doc.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.documentError.set('Error al descargar el archivo.');
+      }
+    });
+  }
+
+  onDeleteDocument(docId: number): void {
+    if (!confirm('¿Estás seguro de que deseas eliminar este documento?')) return;
+
+    this.documentError.set(null);
+
+    this.athleteService.deleteDocument(docId).subscribe({
+      next: () => {
+        this.documents.update(docs => docs.filter(d => d.id !== docId));
+      },
+      error: (err: HttpErrorResponse) => {
+        this.documentError.set(err.error?.message || 'Error al eliminar el documento.');
+      }
+    });
   }
 }
