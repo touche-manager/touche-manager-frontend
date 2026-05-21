@@ -4,6 +4,15 @@
 
 :root {
   color-scheme: light;
+  --touche-navy:    #1A1A3E;
+  --touche-celeste: #75AADB;
+  --touche-gold:    #C9A227;
+  --touche-alert:   #D94F3D;
+  --touche-slate:   #F4F5F7;
+}
+
+body {
+  background-color: var(--touche-slate);
 }
 
 /* You can add global styles to this file, and also import other style files */

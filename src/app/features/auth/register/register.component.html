@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+<div class="min-h-screen bg-touche-slate flex items-center justify-center px-4 py-12">
   <div class="w-full max-w-md">
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-900">Crear cuenta</h1>
+      <h1 class="text-3xl font-bold text-touche-navy">Crear cuenta</h1>
       <p class="mt-2 text-sm text-slate-500">Completa tus datos para registrarte</p>
     </div>
 
@@ -20,8 +20,8 @@
             formControlName="email"
             autocomplete="email"
             placeholder="tu@correo.com"
-            class="w-full rounded-lg border px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition
-                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+            class="w-full rounded-lg border px-4 py-2.5 text-sm text-touche-navy placeholder-slate-400 outline-none transition
+                   focus:ring-2 focus:ring-touche-celeste focus:border-touche-celeste
                    [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
                    border-slate-300"
           />
@@ -43,8 +43,8 @@
               formControlName="password"
               autocomplete="new-password"
               placeholder="Mínimo 8 caracteres"
-              class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition
-                     focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+              class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-touche-navy placeholder-slate-400 outline-none transition
+                     focus:ring-2 focus:ring-touche-celeste focus:border-touche-celeste
                      [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
                      border-slate-300"
             />
@@ -84,8 +84,8 @@
               formControlName="confirmPassword"
               autocomplete="new-password"
               placeholder="Repite tu contraseña"
-              class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition
-                     focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+              class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-touche-navy placeholder-slate-400 outline-none transition
+                     focus:ring-2 focus:ring-touche-celeste focus:border-touche-celeste
                      border-slate-300"
               [class.border-red-400]="passwordsMismatch"
               [class.ring-2]="passwordsMismatch"
@@ -121,18 +121,13 @@
             @for (rol of availableRoles; track rol.value; let i = $index) {
               <label
                 class="flex items-center gap-2 cursor-pointer select-none rounded-lg border px-4 py-2.5 text-sm transition
-                       hover:bg-indigo-50 hover:border-indigo-300"
-                [class.bg-indigo-50]="rolesArray.at(i).value"
-                [class.border-indigo-400]="rolesArray.at(i).value"
-                [class.text-indigo-700]="rolesArray.at(i).value"
-                [class.font-medium]="rolesArray.at(i).value"
-                [class.border-slate-200]="!rolesArray.at(i).value"
-                [class.text-slate-600]="!rolesArray.at(i).value"
+                       hover:bg-touche-celeste/10 hover:border-touche-celeste"
+                [ngClass]="rolesArray.at(i).value ? 'bg-touche-celeste/10 border-touche-celeste text-touche-navy font-medium' : 'border-slate-200 text-slate-600'"
               >
                 <input
                   type="checkbox"
                   [formControlName]="i"
-                  class="w-4 h-4 rounded accent-indigo-600"
+                  class="w-4 h-4 rounded accent-touche-celeste"
                 />
                 {{ rol.label }}
               </label>
@@ -154,10 +149,10 @@
         <button
           type="submit"
           [disabled]="loading()"
-          class="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition
-                 hover:bg-indigo-700 active:bg-indigo-800
+          class="w-full rounded-lg bg-touche-navy border-t-2 border-touche-celeste py-2.5 text-sm font-semibold text-white transition
+                 hover:bg-[#14143A] active:bg-[#0F0F2E]
                  disabled:opacity-60 disabled:cursor-not-allowed
-                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                 focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-2"
         >
           @if (loading()) {
             <span class="flex items-center justify-center gap-2">
@@ -178,7 +173,7 @@
     <!-- Link to login -->
     <p class="mt-6 text-center text-sm text-slate-500">
       ¿Ya tienes una cuenta?
-      <a routerLink="/auth/login" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Iniciar sesión</a>
+      <a routerLink="/auth/login" class="font-medium text-touche-celeste hover:text-touche-celeste ml-1">Iniciar sesión</a>
     </p>
 
   </div>

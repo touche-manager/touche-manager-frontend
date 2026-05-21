@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex justify-center">
+<div class="min-h-screen bg-touche-slate py-8 px-4 sm:px-6 lg:px-8 flex justify-center">
   <div class="max-w-2xl w-full space-y-8 bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-gray-100">
     
     <!-- Header -->
     <div class="text-center">
-      <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+      <h2 class="text-3xl font-extrabold text-touche-navy tracking-tight">
         {{ isEditMode() ? 'Perfil de Atleta' : 'Crear Perfil de Atleta' }}
       </h2>
       <p class="mt-2 text-sm text-gray-600">
@@ -45,7 +45,7 @@
 
     <!-- Loading State -->
     <div *ngIf="loading() && !athleteForm.touched" class="flex justify-center items-center py-12">
-      <svg class="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-8 w-8 text-touche-celeste" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
@@ -64,7 +64,7 @@
             id="firstName"
             formControlName="firstName"
             placeholder="Ej. Juan"
-            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('firstName') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           />
           <p *ngIf="isFieldInvalid('firstName')" class="mt-1 text-sm text-red-600">
@@ -80,7 +80,7 @@
             id="lastName"
             formControlName="lastName"
             placeholder="Ej. Pérez"
-            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('lastName') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           />
           <p *ngIf="isFieldInvalid('lastName')" class="mt-1 text-sm text-red-600">
@@ -96,7 +96,7 @@
             id="dni"
             formControlName="dni"
             placeholder="Ej. 12345678"
-            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('dni') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           />
           <p *ngIf="isFieldInvalid('dni') && athleteForm.get('dni')?.errors?.['required']" class="mt-1 text-sm text-red-600">
@@ -114,7 +114,7 @@
             type="date"
             id="birthDate"
             formControlName="birthDate"
-            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('birthDate') ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           />
           <p *ngIf="isFieldInvalid('birthDate')" class="mt-1 text-sm text-red-600">
@@ -128,7 +128,7 @@
           <select
             id="gender"
             formControlName="gender"
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('gender') ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           >
             <option value="" disabled>Seleccionar Género</option>
@@ -146,7 +146,7 @@
           <select
             id="dominantHand"
             formControlName="dominantHand"
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('dominantHand') ? 'border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           >
             <option value="" disabled>Seleccionar Mano Hábil</option>
@@ -166,7 +166,7 @@
             id="club"
             formControlName="club"
             placeholder="Ej. Club de Esgrima"
-            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('club') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           />
           <p *ngIf="isFieldInvalid('club')" class="mt-1 text-sm text-red-600">
@@ -182,7 +182,7 @@
             id="province"
             formControlName="province"
             placeholder="Ej. Córdoba"
-            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white"
+            class="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-touche-celeste focus:border-touche-celeste sm:text-sm text-touche-navy bg-white"
             [ngClass]="isFieldInvalid('province') ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'"
           />
           <p *ngIf="isFieldInvalid('province')" class="mt-1 text-sm text-red-600">
@@ -197,8 +197,8 @@
         <button
           type="submit"
           [disabled]="athleteForm.invalid || loading()"
-          class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-semibold rounded-md text-white shadow-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          [ngClass]="(athleteForm.invalid || loading()) ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'"
+          class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-semibold rounded-md text-white shadow-sm transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-touche-celeste"
+          [ngClass]="(athleteForm.invalid || loading()) ? 'bg-touche-navy/60 cursor-not-allowed' : 'bg-touche-navy hover:bg-[#14143A]'"
         >
           <!-- Loading Spinner in Button -->
           <svg *ngIf="loading()" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">

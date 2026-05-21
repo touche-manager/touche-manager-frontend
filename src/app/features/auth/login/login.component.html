@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+<div class="min-h-screen bg-touche-slate flex items-center justify-center px-4 py-12">
   <div class="w-full max-w-md">
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-900">Iniciar sesión</h1>
+      <h1 class="text-3xl font-bold text-touche-navy">Iniciar sesión</h1>
       <p class="mt-2 text-sm text-slate-500">Bienvenido de nuevo a Touché Manager</p>
     </div>
 
@@ -20,8 +20,8 @@
             formControlName="email"
             autocomplete="email"
             placeholder="tu@correo.com"
-            class="w-full rounded-lg border px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition
-                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+            class="w-full rounded-lg border px-4 py-2.5 text-sm text-touche-navy placeholder-slate-400 outline-none transition
+                   focus:ring-2 focus:ring-touche-celeste focus:border-touche-celeste
                    [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
                    border-slate-300"
           />
@@ -43,8 +43,8 @@
               formControlName="password"
               autocomplete="current-password"
               placeholder="Tu contraseña"
-              class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition
-                     focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+              class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-touche-navy placeholder-slate-400 outline-none transition
+                     focus:ring-2 focus:ring-touche-celeste focus:border-touche-celeste
                      [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
                      border-slate-300"
             />
@@ -82,10 +82,10 @@
         <button
           type="submit"
           [disabled]="loading()"
-          class="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white transition
-                 hover:bg-indigo-700 active:bg-indigo-800
+          class="w-full rounded-lg bg-touche-navy border-t-2 border-touche-celeste py-2.5 text-sm font-semibold text-white transition
+                 hover:bg-[#14143A] active:bg-[#0F0F2E]
                  disabled:opacity-60 disabled:cursor-not-allowed
-                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                 focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-2"
         >
           @if (loading()) {
             <span class="flex items-center justify-center gap-2">
@@ -106,7 +106,7 @@
     <!-- Link to register -->
     <p class="mt-6 text-center text-sm text-slate-500">
       ¿No tienes una cuenta?
-      <a routerLink="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Registrarse</a>
+      <a routerLink="/auth/register" class="font-medium text-touche-celeste hover:text-touche-celeste ml-1">Registrarse</a>
     </p>
 
   </div>

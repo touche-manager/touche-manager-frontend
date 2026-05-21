@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+<div class="min-h-screen bg-touche-slate flex items-center justify-center px-4 py-12">
   <div class="w-full max-w-md">
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-900">Elige tu rol</h1>
+      <h1 class="text-3xl font-bold text-touche-navy">Elige tu rol</h1>
       <p class="mt-2 text-sm text-slate-500">Tu cuenta tiene múltiples roles. Selecciona cómo deseas continuar.</p>
     </div>
 
@@ -15,13 +15,13 @@
           (click)="selectRole(rol)"
           [disabled]="loading()"
           class="w-full text-left rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition
-                 hover:border-indigo-400 hover:shadow-md hover:bg-indigo-50
-                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                 hover:border-touche-celeste hover:shadow-md hover:bg-touche-celeste/10
+                 focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-2
                  disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-semibold text-slate-900">{{ roleLabels[rol] }}</p>
+              <p class="text-sm font-semibold text-touche-navy">{{ roleLabels[rol] }}</p>
               <p class="mt-0.5 text-xs text-slate-500">{{ roleDescriptions[rol] }}</p>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,7 +35,7 @@
     <!-- Loading indicator -->
     @if (loading()) {
       <div class="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500">
-        <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-4 w-4 text-touche-celeste" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
         </svg>
