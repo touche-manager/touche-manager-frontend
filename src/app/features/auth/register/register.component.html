@@ -3,8 +3,8 @@
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-900">Create account</h1>
-      <p class="mt-2 text-sm text-slate-500">Fill in your details to register</p>
+      <h1 class="text-3xl font-bold text-slate-900">Crear cuenta</h1>
+      <p class="mt-2 text-sm text-slate-500">Completa tus datos para registrarte</p>
     </div>
 
     <!-- Card -->
@@ -13,13 +13,13 @@
 
         <!-- Email -->
         <div>
-          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
           <input
             id="email"
             type="email"
             formControlName="email"
             autocomplete="email"
-            placeholder="your@email.com"
+            placeholder="tu@correo.com"
             class="w-full rounded-lg border px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition
                    focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                    [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
@@ -27,22 +27,22 @@
           />
           @if (form.get('email')?.invalid && form.get('email')?.touched) {
             <p class="mt-1 text-xs text-red-500">
-              @if (form.get('email')?.hasError('required')) { Email is required. }
-              @else { Enter a valid email. }
+              @if (form.get('email')?.hasError('required')) { El correo electrónico es obligatorio. }
+              @else { Ingresa un correo electrónico válido. }
             </p>
           }
         </div>
 
         <!-- Password -->
         <div>
-          <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
           <div class="relative">
             <input
               id="password"
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               autocomplete="new-password"
-              placeholder="Minimum 8 characters"
+              placeholder="Mínimo 8 caracteres"
               class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition
                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                      [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
@@ -68,22 +68,22 @@
           </div>
           @if (form.get('password')?.invalid && form.get('password')?.touched) {
             <p class="mt-1 text-xs text-red-500">
-              @if (form.get('password')?.hasError('required')) { Password is required. }
-              @else { Password must be at least 8 characters. }
+              @if (form.get('password')?.hasError('required')) { La contraseña es obligatoria. }
+              @else { La contraseña debe tener al menos 8 caracteres. }
             </p>
           }
         </div>
 
         <!-- Confirm Password -->
         <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1">Confirm password</label>
+          <label for="confirmPassword" class="block text-sm font-medium text-slate-700 mb-1">Confirmar contraseña</label>
           <div class="relative">
             <input
               id="confirmPassword"
               [type]="showConfirm() ? 'text' : 'password'"
               formControlName="confirmPassword"
               autocomplete="new-password"
-              placeholder="Repeat your password"
+              placeholder="Repite tu contraseña"
               class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition
                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                      border-slate-300"
@@ -110,13 +110,13 @@
             </button>
           </div>
           @if (passwordsMismatch) {
-            <p class="mt-1 text-xs text-red-500">Passwords do not match.</p>
+            <p class="mt-1 text-xs text-red-500">Las contraseñas no coinciden.</p>
           }
         </div>
 
         <!-- Roles -->
         <div>
-          <span class="block text-sm font-medium text-slate-700 mb-2">Role(s)</span>
+          <span class="block text-sm font-medium text-slate-700 mb-2">Rol(es)</span>
           <div class="flex flex-wrap gap-3" formArrayName="roles">
             @for (rol of availableRoles; track rol.value; let i = $index) {
               <label
@@ -139,7 +139,7 @@
             }
           </div>
           @if (form.touched && selectedRoles.length === 0) {
-            <p class="mt-1 text-xs text-red-500">Select at least one role.</p>
+            <p class="mt-1 text-xs text-red-500">Selecciona al menos un rol.</p>
           }
         </div>
 
@@ -165,10 +165,10 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
-              Registering...
+              Registrando...
             </span>
           } @else {
-            Create account
+            Crear cuenta
           }
         </button>
 
@@ -177,8 +177,8 @@
 
     <!-- Link to login -->
     <p class="mt-6 text-center text-sm text-slate-500">
-      Already have an account?
-      <a routerLink="/auth/login" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Sign in</a>
+      ¿Ya tienes una cuenta?
+      <a routerLink="/auth/login" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Iniciar sesión</a>
     </p>
 
   </div>

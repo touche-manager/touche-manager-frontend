@@ -3,8 +3,8 @@
 
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-slate-900">Sign in</h1>
-      <p class="mt-2 text-sm text-slate-500">Welcome back to Touché Manager</p>
+      <h1 class="text-3xl font-bold text-slate-900">Iniciar sesión</h1>
+      <p class="mt-2 text-sm text-slate-500">Bienvenido de nuevo a Touché Manager</p>
     </div>
 
     <!-- Card -->
@@ -13,13 +13,13 @@
 
         <!-- Email -->
         <div>
-          <label for="login-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <label for="login-email" class="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
           <input
             id="login-email"
             type="email"
             formControlName="email"
             autocomplete="email"
-            placeholder="your@email.com"
+            placeholder="tu@correo.com"
             class="w-full rounded-lg border px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition
                    focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                    [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
@@ -27,22 +27,22 @@
           />
           @if (form.get('email')?.invalid && form.get('email')?.touched) {
             <p class="mt-1 text-xs text-red-500">
-              @if (form.get('email')?.hasError('required')) { Email is required. }
-              @else { Enter a valid email. }
+              @if (form.get('email')?.hasError('required')) { El correo electrónico es obligatorio. }
+              @else { Ingresa un correo electrónico válido. }
             </p>
           }
         </div>
 
         <!-- Password -->
         <div>
-          <label for="login-password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <label for="login-password" class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
           <div class="relative">
             <input
               id="login-password"
               [type]="showPassword() ? 'text' : 'password'"
               formControlName="password"
               autocomplete="current-password"
-              placeholder="Your password"
+              placeholder="Tu contraseña"
               class="w-full rounded-lg border px-4 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition
                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                      [&.ng-invalid.ng-touched]:border-red-400 [&.ng-invalid.ng-touched]:ring-red-200
@@ -67,7 +67,7 @@
             </button>
           </div>
           @if (form.get('password')?.invalid && form.get('password')?.touched) {
-            <p class="mt-1 text-xs text-red-500">Password is required.</p>
+            <p class="mt-1 text-xs text-red-500">La contraseña es obligatoria.</p>
           }
         </div>
 
@@ -93,10 +93,10 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
-              Signing in...
+              Iniciando sesión...
             </span>
           } @else {
-            Sign in
+            Iniciar sesión
           }
         </button>
 
@@ -105,8 +105,8 @@
 
     <!-- Link to register -->
     <p class="mt-6 text-center text-sm text-slate-500">
-      Don't have an account?
-      <a routerLink="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Sign up</a>
+      ¿No tienes una cuenta?
+      <a routerLink="/auth/register" class="font-medium text-indigo-600 hover:text-indigo-500 ml-1">Registrarse</a>
     </p>
 
   </div>

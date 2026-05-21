@@ -4,17 +4,17 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NombreRol } from '../../../core/models/auth.models';
 
 const ROLE_LABELS: Record<NombreRol, string> = {
-  ATLETA: 'Athlete',
-  ARBITRO: 'Referee',
-  ORGANIZADOR: 'Organizer',
-  ADMIN: 'Administrator'
+  ATLETA: 'Atleta',
+  ARBITRO: 'Árbitro',
+  ORGANIZADOR: 'Organizador',
+  ADMIN: 'Administrador'
 };
 
 const ROLE_DESCRIPTIONS: Record<NombreRol, string> = {
-  ATLETA: 'Manage your profile and documents',
-  ARBITRO: 'Score bouts in real time',
-  ORGANIZADOR: 'Create and manage tournaments',
-  ADMIN: 'Full system administration'
+  ATLETA: 'Gestiona tu perfil y documentos',
+  ARBITRO: 'Puntúa combates en tiempo real',
+  ORGANIZADOR: 'Crea y gestiona torneos',
+  ADMIN: 'Administración total del sistema'
 };
 
 @Component({
@@ -48,7 +48,7 @@ export class SelectRoleComponent {
     this.authService.selectRole({ rol }).subscribe({
       next: () => this.navigateToDashboard(rol),
       error: (err) => {
-        const msg: string = err.error?.message ?? 'Could not select role. Please try again.';
+        const msg: string = err.error?.message ?? 'No se pudo seleccionar el rol. Por favor intenta de nuevo.';
         this.errorMessage.set(msg);
         this.loading.set(false);
       }

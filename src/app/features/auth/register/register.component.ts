@@ -30,9 +30,9 @@ export class RegisterComponent {
   private readonly router = inject(Router);
 
   readonly availableRoles: { label: string; value: NombreRol }[] = [
-    { label: 'Athlete', value: 'ATLETA' },
-    { label: 'Referee', value: 'ARBITRO' },
-    { label: 'Organizer', value: 'ORGANIZADOR' }
+    { label: 'Atleta', value: 'ATLETA' },
+    { label: 'Árbitro', value: 'ARBITRO' },
+    { label: 'Organizador', value: 'ORGANIZADOR' }
   ];
 
   readonly form = this.fb.group(
