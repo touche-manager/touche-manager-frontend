@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AthleteService } from './services/athlete.service';
 import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../../core/models/athlete.models';
 
@@ -15,6 +16,7 @@ import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../
 export class AthletePageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly athleteService = inject(AthleteService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
@@ -31,6 +33,13 @@ export class AthletePageComponent implements OnInit {
   readonly documentSuccess = signal<boolean>(false);
   readonly uploading = signal<boolean>(false);
   readonly documentTypeLabels = DocumentTypeLabels;
+
+  // Integrated Preview state
+  readonly previewUrl = signal<SafeResourceUrl | null>(null);
+  readonly previewType = signal<'pdf' | 'image' | 'unsupported' | null>(null);
+  readonly previewFileName = signal<string>('');
+  readonly isPreviewOpen = signal<boolean>(false);
+  private rawPreviewUrl: string | null = null;
 
   athleteForm!: FormGroup;
   uploadForm!: FormGroup;
@@ -193,23 +202,60 @@ export class AthletePageComponent implements OnInit {
     });
   }
 
-  onDownloadDocument(doc: AthleteDocumentResponse): void {
+  onPreviewDocument(doc: AthleteDocumentResponse): void {
+    this.documentError.set(null);
+
     this.athleteService.downloadDocument(doc.id).subscribe({
       next: (blob) => {
+        // Clean up previous preview URL to avoid leaks
+        if (this.rawPreviewUrl) {
+          window.URL.revokeObjectURL(this.rawPreviewUrl);
+        }
+
+        // Determine preview type based on contentType
+        const contentType = doc.contentType.toLowerCase();
+        if (contentType.includes('pdf')) {
+          this.previewType.set('pdf');
+        } else if (contentType.includes('image') || contentType.includes('png') || contentType.includes('jpg') || contentType.includes('jpeg')) {
+          this.previewType.set('image');
+        } else {
+          this.previewType.set('unsupported');
+        }
+
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.download = doc.fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        this.rawPreviewUrl = url;
+        
+        // Sanitize the URL for Angular binding
+        this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+        this.previewFileName.set(doc.fileName);
+        this.isPreviewOpen.set(true);
       },
       error: (err: HttpErrorResponse) => {
-        this.documentError.set('Error al descargar el archivo.');
+        this.documentError.set('Error al descargar el archivo para previsualización.');
       }
     });
+  }
+
+  closePreview(): void {
+    if (this.rawPreviewUrl) {
+      window.URL.revokeObjectURL(this.rawPreviewUrl);
+      this.rawPreviewUrl = null;
+    }
+    this.previewUrl.set(null);
+    this.previewType.set(null);
+    this.previewFileName.set('');
+    this.isPreviewOpen.set(false);
+  }
+
+  downloadCurrentFile(): void {
+    if (!this.rawPreviewUrl) return;
+    
+    const a = document.createElement('a');
+    a.href = this.rawPreviewUrl;
+    a.download = this.previewFileName();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   onDeleteDocument(docId: number): void {
