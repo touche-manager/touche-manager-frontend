@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -10,17 +11,17 @@ export const routes: Routes = [
   {
     path: 'athlete',
     loadComponent: () => import('./features/athlete/athlete.page').then(m => m.AthletePageComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard(['ATLETA', 'ADMIN'])]
   },
   {
     path: 'tournament',
     loadComponent: () => import('./features/tournament/tournament.page').then(m => m.TournamentPageComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard(['ORGANIZADOR', 'ADMIN'])]
   },
   {
     path: 'bout',
     loadComponent: () => import('./features/bout/bout.page').then(m => m.BoutPageComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard(['ARBITRO', 'ADMIN'])]
   },
   { path: '**', redirectTo: 'auth' }
 ];

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NombreRol } from '../../../core/models/auth.models';
@@ -27,7 +27,13 @@ export class SelectRoleComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly roles = this.authService.pendingRoles;
+  readonly roles = computed(() => {
+    const pending = this.authService.pendingRoles();
+    if (pending && pending.length > 0) {
+      return pending;
+    }
+    return this.authService.roles();
+  });
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
@@ -35,8 +41,8 @@ export class SelectRoleComponent {
   readonly roleDescriptions = ROLE_DESCRIPTIONS;
 
   constructor() {
-    // Redirect to login if arrived here without pending roles
-    if (!this.authService.pendingRoles()) {
+    // Redirect to login if not authenticated or no roles available
+    if (!this.authService.isAuthenticated() || this.roles().length === 0) {
       this.router.navigate(['/auth/login']);
     }
   }

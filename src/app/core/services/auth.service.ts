@@ -22,11 +22,16 @@ export class AuthService {
     localStorage.getItem('touche_rol') as NombreRol | null
   );
   private readonly pendingRolesSignal = signal<NombreRol[] | null>(null);
+  private readonly rolesSignal = signal<NombreRol[]>(
+    JSON.parse(localStorage.getItem('touche_roles') || '[]')
+  );
 
   readonly token = this.tokenSignal.asReadonly();
   readonly currentRol = this.rolSignal.asReadonly();
   readonly pendingRoles = this.pendingRolesSignal.asReadonly();
+  readonly roles = this.rolesSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  readonly hasMultipleRoles = computed(() => this.rolesSignal().length > 1);
 
   // ── Registration ────────────────────────────────────────────────────────────
 
@@ -47,6 +52,8 @@ export class AuthService {
           if (data.roles && data.roles.length > 0) {
             // Multiple roles — store pending list and temp token
             this.pendingRolesSignal.set(data.roles);
+            localStorage.setItem('touche_roles', JSON.stringify(data.roles));
+            this.rolesSignal.set(data.roles);
             if (data.token) {
               localStorage.setItem('touche_token', data.token);
               this.tokenSignal.set(data.token);
@@ -54,6 +61,12 @@ export class AuthService {
           } else if (data.token) {
             // Single role — store token immediately
             this.setToken(data.token);
+            const payload = this.decodePayload(data.token);
+            const rol = payload?.['rol'] as NombreRol | null;
+            if (rol) {
+              localStorage.setItem('touche_roles', JSON.stringify([rol]));
+              this.rolesSignal.set([rol]);
+            }
           }
           return data;
         })
@@ -105,9 +118,11 @@ export class AuthService {
   private clearSession(): void {
     localStorage.removeItem('touche_token');
     localStorage.removeItem('touche_rol');
+    localStorage.removeItem('touche_roles');
     this.tokenSignal.set(null);
     this.rolSignal.set(null);
     this.pendingRolesSignal.set(null);
+    this.rolesSignal.set([]);
   }
 
   private decodePayload(token: string): Record<string, unknown> | null {
