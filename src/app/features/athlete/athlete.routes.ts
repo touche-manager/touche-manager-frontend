@@ -1,4 +1,12 @@
 import { Routes } from '@angular/router';
-import { AthletePageComponent } from './athlete.page';
 
-export const athleteRoutes: Routes = [{ path: '', component: AthletePageComponent }];
+export const athleteRoutes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./dashboard/dashboard.page').then(m => m.DashboardPageComponent)
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./athlete.page').then(m => m.AthletePageComponent)
+  }
+];

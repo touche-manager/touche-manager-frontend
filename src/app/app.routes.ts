@@ -10,7 +10,7 @@ export const routes: Routes = [
   },
   {
     path: 'athlete',
-    loadComponent: () => import('./features/athlete/athlete.page').then(m => m.AthletePageComponent),
+    loadChildren: () => import('./features/athlete/athlete.routes').then(m => m.athleteRoutes),
     canActivate: [authGuard, roleGuard(['ATLETA', 'ADMIN'])]
   },
   {
