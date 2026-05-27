@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# IDEs and local files
+*.iml
+test-output.txt
+tree_view.txt
+src/environments/environment.local.ts
