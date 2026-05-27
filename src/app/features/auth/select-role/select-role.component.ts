@@ -1,20 +1,20 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { NombreRol } from '../../../core/models/auth.models';
+import { RoleName } from '../../../core/models/auth.models';
 
-const ROLE_LABELS: Record<NombreRol, string> = {
-  ATLETA: 'Atleta',
-  ARBITRO: 'Árbitro',
-  ORGANIZADOR: 'Organizador',
-  ADMIN: 'Administrador'
+const ROLE_LABELS: Record<RoleName, string> = {
+  ATHLETE:  'Atleta',
+  REFEREE:  'Árbitro',
+  ORGANIZER:'Organizador',
+  ADMIN:    'Administrador'
 };
 
-const ROLE_DESCRIPTIONS: Record<NombreRol, string> = {
-  ATLETA: 'Gestiona tu perfil y documentos',
-  ARBITRO: 'Puntúa asaltos en tiempo real',
-  ORGANIZADOR: 'Crea y gestiona torneos',
-  ADMIN: 'Administración total del sistema'
+const ROLE_DESCRIPTIONS: Record<RoleName, string> = {
+  ATHLETE:  'Gestiona tu perfil y documentos',
+  REFEREE:  'Puntúa asaltos en tiempo real',
+  ORGANIZER:'Crea y gestiona torneos',
+  ADMIN:    'Administración total del sistema'
 };
 
 @Component({
@@ -47,12 +47,12 @@ export class SelectRoleComponent {
     }
   }
 
-  selectRole(rol: NombreRol): void {
+  selectRole(role: RoleName): void {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.selectRole({ rol }).subscribe({
-      next: () => this.navigateToDashboard(rol),
+    this.authService.selectRole({ role }).subscribe({
+      next: () => this.navigateToDashboard(role),
       error: (err) => {
         const msg: string = err.error?.message ?? 'No se pudo seleccionar el rol. Por favor intenta de nuevo.';
         this.errorMessage.set(msg);
@@ -61,12 +61,12 @@ export class SelectRoleComponent {
     });
   }
 
-  private navigateToDashboard(rol: NombreRol): void {
-    switch (rol) {
-      case 'ATLETA':      this.router.navigate(['/athlete'], { replaceUrl: true }); break;
-      case 'ARBITRO':     this.router.navigate(['/bout'], { replaceUrl: true }); break;
-      case 'ORGANIZADOR': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
-      case 'ADMIN':       this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+  private navigateToDashboard(role: RoleName): void {
+    switch (role) {
+      case 'ATHLETE':   this.router.navigate(['/athlete'], { replaceUrl: true }); break;
+      case 'REFEREE':   this.router.navigate(['/bout'], { replaceUrl: true }); break;
+      case 'ORGANIZER': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      case 'ADMIN':     this.router.navigate(['/tournament'], { replaceUrl: true }); break;
     }
   }
 }

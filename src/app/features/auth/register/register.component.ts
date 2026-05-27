@@ -10,7 +10,7 @@ import {
   Validators
 } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
-import { NombreRol } from '../../../core/models/auth.models';
+import { RoleName } from '../../../core/models/auth.models';
 
 function passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
@@ -30,10 +30,10 @@ export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly availableRoles: { label: string; value: NombreRol }[] = [
-    { label: 'Atleta', value: 'ATLETA' },
-    { label: 'Árbitro', value: 'ARBITRO' },
-    { label: 'Organizador', value: 'ORGANIZADOR' }
+  readonly availableRoles: { label: string; value: RoleName }[] = [
+    { label: 'Atleta', value: 'ATHLETE' },
+    { label: 'Árbitro', value: 'REFEREE' },
+    { label: 'Organizador', value: 'ORGANIZER' }
   ];
 
   readonly form = this.fb.group(
@@ -55,7 +55,7 @@ export class RegisterComponent {
     return this.form.get('roles') as FormArray;
   }
 
-  get selectedRoles(): NombreRol[] {
+  get selectedRoles(): RoleName[] {
     return this.availableRoles
       .filter((_, i) => this.rolesArray.at(i).value)
       .map(r => r.value);

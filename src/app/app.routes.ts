@@ -11,17 +11,17 @@ export const routes: Routes = [
   {
     path: 'athlete',
     loadChildren: () => import('./features/athlete/athlete.routes').then(m => m.athleteRoutes),
-    canActivate: [authGuard, roleGuard(['ATLETA', 'ADMIN'])]
+    canActivate: [authGuard, roleGuard(['ATHLETE', 'ADMIN'])]
   },
   {
     path: 'tournament',
     loadComponent: () => import('./features/tournament/tournament.page').then(m => m.TournamentPageComponent),
-    canActivate: [authGuard, roleGuard(['ORGANIZADOR', 'ADMIN'])]
+    canActivate: [authGuard, roleGuard(['ORGANIZER', 'ADMIN'])]
   },
   {
     path: 'bout',
     loadComponent: () => import('./features/bout/bout.page').then(m => m.BoutPageComponent),
-    canActivate: [authGuard, roleGuard(['ARBITRO', 'ADMIN'])]
+    canActivate: [authGuard, roleGuard(['REFEREE', 'ADMIN'])]
   },
   { path: '**', redirectTo: 'auth' }
 ];

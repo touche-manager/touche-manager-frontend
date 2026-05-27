@@ -7,7 +7,7 @@ import {
   ApiResponse,
   LoginRequest,
   LoginResponse,
-  NombreRol,
+  RoleName,
   RegisterRequest,
   RegisterResponse,
   SelectRoleRequest,
@@ -19,17 +19,17 @@ export class AuthService {
   private readonly http = inject(HttpClient);
 
   private readonly tokenSignal = signal<string | null>(localStorage.getItem('touche_token'));
-  private readonly rolSignal = signal<NombreRol | null>(
-    localStorage.getItem('touche_rol') as NombreRol | null
+  private readonly roleSignal = signal<RoleName | null>(
+    localStorage.getItem('touche_role') as RoleName | null
   );
-  private readonly pendingRolesSignal = signal<NombreRol[] | null>(null);
-  private readonly rolesSignal = signal<NombreRol[]>(
+  private readonly pendingRolesSignal = signal<RoleName[] | null>(null);
+  private readonly rolesSignal = signal<RoleName[]>(
     JSON.parse(localStorage.getItem('touche_roles') || '[]')
   );
   private readonly profileSignal = signal<UserProfile | null>(null);
 
   readonly token = this.tokenSignal.asReadonly();
-  readonly currentRol = this.rolSignal.asReadonly();
+  readonly currentRol = this.roleSignal.asReadonly();
   readonly pendingRoles = this.pendingRolesSignal.asReadonly();
   readonly roles = this.rolesSignal.asReadonly();
   readonly profile = this.profileSignal.asReadonly();
@@ -65,10 +65,10 @@ export class AuthService {
             // Single role — store token immediately
             this.setToken(data.token);
             const payload = this.decodePayload(data.token);
-            const rol = payload?.['rol'] as NombreRol | null;
-            if (rol) {
-              localStorage.setItem('touche_roles', JSON.stringify([rol]));
-              this.rolesSignal.set([rol]);
+            const role = payload?.['role'] as RoleName | null;
+            if (role) {
+              localStorage.setItem('touche_roles', JSON.stringify([role]));
+              this.rolesSignal.set([role]);
             }
           }
           return data;
@@ -98,14 +98,14 @@ export class AuthService {
   setToken(token: string | null): void {
     if (token) {
       const payload = this.decodePayload(token);
-      const rol = payload?.['rol'] as NombreRol | null;
+      const role = payload?.['role'] as RoleName | null;
 
       localStorage.setItem('touche_token', token);
       this.tokenSignal.set(token);
 
-      if (rol) {
-        localStorage.setItem('touche_rol', rol);
-        this.rolSignal.set(rol);
+      if (role) {
+        localStorage.setItem('touche_role', role);
+        this.roleSignal.set(role);
       }
     } else {
       this.clearSession();
@@ -120,10 +120,10 @@ export class AuthService {
 
   private clearSession(): void {
     localStorage.removeItem('touche_token');
-    localStorage.removeItem('touche_rol');
+    localStorage.removeItem('touche_role');
     localStorage.removeItem('touche_roles');
     this.tokenSignal.set(null);
-    this.rolSignal.set(null);
+    this.roleSignal.set(null);
     this.pendingRolesSignal.set(null);
     this.rolesSignal.set([]);
     this.profileSignal.set(null);

@@ -53,10 +53,10 @@ export class LoginComponent {
   private navigateToDashboard(): void {
     const rol = this.authService.currentRol();
     switch (rol) {
-      case 'ATLETA':      this.router.navigate(['/athlete'], { replaceUrl: true }); break;
-      case 'ARBITRO':     this.router.navigate(['/bout'], { replaceUrl: true }); break;
-      case 'ORGANIZADOR': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
-      case 'ADMIN':       this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      case 'ATHLETE':   this.router.navigate(['/athlete'], { replaceUrl: true }); break;
+      case 'REFEREE':   this.router.navigate(['/bout'], { replaceUrl: true }); break;
+      case 'ORGANIZER': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      case 'ADMIN':     this.router.navigate(['/tournament'], { replaceUrl: true }); break;
       default:            this.router.navigate(['/auth/login'], { replaceUrl: true });
     }
   }

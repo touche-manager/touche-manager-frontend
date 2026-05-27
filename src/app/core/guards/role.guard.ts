@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { NombreRol } from '../models/auth.models';
+import { RoleName } from '../models/auth.models';
 
-export const roleGuard = (allowedRoles: NombreRol[]): CanActivateFn => {
+export const roleGuard = (allowedRoles: RoleName[]): CanActivateFn => {
   return () => {
     const authService = inject(AuthService);
     const router = inject(Router);
@@ -26,12 +26,12 @@ export const roleGuard = (allowedRoles: NombreRol[]): CanActivateFn => {
   };
 };
 
-function getDefaultRouteForRole(rol: NombreRol): string {
-  switch (rol) {
-    case 'ATLETA': return '/athlete';
-    case 'ORGANIZADOR': return '/tournament';
-    case 'ARBITRO': return '/bout';
-    case 'ADMIN': return '/tournament';
-    default: return '/auth/login';
+function getDefaultRouteForRole(role: RoleName): string {
+  switch (role) {
+    case 'ATHLETE':   return '/athlete';
+    case 'ORGANIZER': return '/tournament';
+    case 'REFEREE':   return '/bout';
+    case 'ADMIN':     return '/tournament';
+    default:          return '/auth/login';
   }
 }

@@ -2,6 +2,7 @@ import { Component, effect, inject, signal, untracked } from '@angular/core';
 import { Router,RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
+import { RoleName } from './core/models/auth.models';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -55,6 +56,16 @@ export class AppComponent {
       return `${baseUrl}${url}`;
     }
     return `${environment.apiUrl}${url}`;
+  }
+
+  getRoleLabel(role: RoleName | null | undefined): string {
+    const labels: Record<RoleName, string> = {
+      ATHLETE:  'Atleta',
+      REFEREE:  'Árbitro',
+      ORGANIZER: 'Organizador',
+      ADMIN:    'Administrador'
+    };
+    return role ? (labels[role] ?? role) : '';
   }
 
   onFileSelected(event: Event): void {

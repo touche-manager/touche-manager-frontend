@@ -1,16 +1,16 @@
-export type NombreRol = 'ATLETA' | 'ARBITRO' | 'ORGANIZADOR' | 'ADMIN';
+export type RoleName = 'ATHLETE' | 'REFEREE' | 'ORGANIZER' | 'ADMIN';
 
 // Registration
 export interface RegisterRequest {
   email: string;
   password: string;
-  roles: NombreRol[];
+  roles: RoleName[];
 }
 
 export interface RegisterResponse {
   id: number;
   email: string;
-  roles: NombreRol[];
+  roles: RoleName[];
 }
 
 // Login
@@ -26,12 +26,12 @@ export interface LoginRequest {
  */
 export interface LoginResponse {
   token?: string;
-  roles?: NombreRol[];
+  roles?: RoleName[];
 }
 
 // Select role
 export interface SelectRoleRequest {
-  rol: NombreRol;
+  role: RoleName;
 }
 
 // Shared API wrapper
@@ -45,6 +45,6 @@ export interface ApiResponse<T> {
 export interface UserProfile {
   id: number;
   email: string;
-  roles: NombreRol[];
+  roles: RoleName[];
   profilePictureUrl: string | null;
 }

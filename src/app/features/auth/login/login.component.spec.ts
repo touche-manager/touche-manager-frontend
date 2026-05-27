@@ -45,7 +45,7 @@ describe('LoginComponent', () => {
 
   it('should navigate to select-role if response has roles', () => {
     component.form.setValue({ email: 'test@test.com', password: 'password123' });
-    mockAuthService.login.and.returnValue(of({ roles: ['ATLETA', 'ORGANIZADOR'], token: null }));
+    mockAuthService.login.and.returnValue(of({ roles: ['ATHLETE', 'ORGANIZER'], token: null }));
     
     component.onSubmit();
 
@@ -56,7 +56,7 @@ describe('LoginComponent', () => {
   it('should navigate to dashboard if response only has token', () => {
     component.form.setValue({ email: 'test@test.com', password: 'password123' });
     mockAuthService.login.and.returnValue(of({ roles: [], token: 'fake-token' }));
-    mockAuthService.currentRol = signal('ATLETA'); // mock signal value
+    mockAuthService.currentRol = signal('ATHLETE'); // mock signal value
     
     component.onSubmit();
 

@@ -18,7 +18,7 @@
         <span
           class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-touche-celeste/10 text-touche-celeste border border-touche-celeste/20 uppercase tracking-wider"
         >
-          {{ currentRol() }}
+          {{ getRoleLabel(currentRol()) }}
         </span>
 
         <!-- Change Role Button -->
@@ -192,7 +192,7 @@
                       'bg-white/5 text-white/70 border-white/10': rol !== currentRol()
                     }"
                   >
-                    {{ rol }} @if (rol === currentRol()) { (activo) }
+                    {{ getRoleLabel(rol) }} @if (rol === currentRol()) { (activo) }
                   </span>
                 }
               </div>
