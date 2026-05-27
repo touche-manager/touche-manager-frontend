@@ -10,27 +10,6 @@
           Touché Manager
         </span>
 
-        <!-- Navigation Links (only shown when authenticated) -->
-        <nav *ngIf="isAuthenticated()" class="text-sm font-semibold text-touche-celeste/80 flex items-center space-x-1 overflow-x-auto scrollbar-none py-1">
-          <a
-            *ngIf="currentRol() === 'ORGANIZADOR' || currentRol() === 'ADMIN'"
-            routerLink="/tournament"
-            routerLinkActive="text-white bg-white/10"
-            [routerLinkActiveOptions]="{exact: false}"
-            class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/5 transition-colors duration-150 whitespace-nowrap"
-          >
-            Torneos
-          </a>
-          <a
-            *ngIf="currentRol() === 'ARBITRO' || currentRol() === 'ADMIN'"
-            routerLink="/bout"
-            routerLinkActive="text-white bg-white/10"
-            [routerLinkActiveOptions]="{exact: false}"
-            class="px-3 py-1.5 rounded-lg hover:text-white hover:bg-white/5 transition-colors duration-150 whitespace-nowrap"
-          >
-            Asaltos
-          </a>
-        </nav>
       </div>
 
       <!-- User Role and Logout Controls (only shown when authenticated) -->

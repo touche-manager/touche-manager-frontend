@@ -31,7 +31,6 @@ export type DocumentType = 'MEDICAL_CLEARANCE' | 'PAYMENT_RECEIPT';
 export interface AthleteDocumentResponse {
   id: number;
   athleteId: number;
-  fileName: string;
   contentType: string;
   documentType: DocumentType;
   description?: string;

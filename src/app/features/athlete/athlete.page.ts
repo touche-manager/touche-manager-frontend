@@ -228,7 +228,20 @@ export class AthletePageComponent implements OnInit {
         
         // Sanitize the URL for Angular binding
         this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
-        this.previewFileName.set(doc.fileName);
+        
+        // Compute preview/download filename dynamically
+        const typeLabel = this.documentTypeLabels[doc.documentType];
+        const year = new Date(doc.uploadDate).getFullYear();
+        let extension = '';
+        if (contentType.includes('pdf')) {
+          extension = '.pdf';
+        } else if (contentType.includes('png')) {
+          extension = '.png';
+        } else if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+          extension = '.jpg';
+        }
+        this.previewFileName.set(`${typeLabel} ${year}${extension}`);
+
         this.isPreviewOpen.set(true);
       },
       error: (err: HttpErrorResponse) => {

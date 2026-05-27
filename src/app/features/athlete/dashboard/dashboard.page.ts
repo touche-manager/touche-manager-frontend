@@ -15,6 +15,8 @@ export class DashboardPageComponent implements OnInit {
 
   readonly profileExists = signal<boolean | null>(null);
   readonly hasMedicalClearance = signal<boolean>(false);
+  readonly hasPaymentReceipt = signal<boolean>(false);
+  readonly isDocumentationComplete = signal<boolean>(false);
   readonly loading = signal<boolean>(true);
 
   ngOnInit(): void {
@@ -24,7 +26,10 @@ export class DashboardPageComponent implements OnInit {
         this.athleteService.getDocuments().subscribe({
           next: (docs) => {
             const hasClearance = docs.some(d => d.documentType === 'MEDICAL_CLEARANCE');
+            const hasPayment = docs.some(d => d.documentType === 'PAYMENT_RECEIPT');
             this.hasMedicalClearance.set(hasClearance);
+            this.hasPaymentReceipt.set(hasPayment);
+            this.isDocumentationComplete.set(hasClearance && hasPayment);
             this.loading.set(false);
           },
           error: () => {

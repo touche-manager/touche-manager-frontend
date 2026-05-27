@@ -29,7 +29,6 @@ describe('DashboardPageComponent', () => {
     id: 1,
     athleteId: 1,
     documentType: 'MEDICAL_CLEARANCE',
-    fileName: 'medical.pdf',
     contentType: 'application/pdf',
     uploadDate: '2024-01-01T00:00:00Z'
   };
@@ -38,7 +37,6 @@ describe('DashboardPageComponent', () => {
     id: 2,
     athleteId: 1,
     documentType: 'PAYMENT_RECEIPT',
-    fileName: 'payment.pdf',
     contentType: 'application/pdf',
     uploadDate: '2024-01-01T00:00:00Z'
   };
@@ -85,20 +83,7 @@ describe('DashboardPageComponent', () => {
     expect(component.loading()).toBeFalse();
   });
 
-  it('should set hasMedicalClearance to false when profile exists but no medical doc', () => {
-    athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
-    athleteServiceSpy.getDocuments.and.returnValue(of([mockPaymentDoc]));
-
-    const fixture = TestBed.createComponent(DashboardPageComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component.profileExists()).toBeTrue();
-    expect(component.hasMedicalClearance()).toBeFalse();
-    expect(component.loading()).toBeFalse();
-  });
-
-  it('should set hasMedicalClearance to true when profile exists and has MEDICAL_CLEARANCE doc', () => {
+  it('should set state correctly when both medical clearance and payment receipt are loaded', () => {
     athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
     athleteServiceSpy.getDocuments.and.returnValue(of([mockMedicalDoc, mockPaymentDoc]));
 
@@ -108,6 +93,53 @@ describe('DashboardPageComponent', () => {
 
     expect(component.profileExists()).toBeTrue();
     expect(component.hasMedicalClearance()).toBeTrue();
+    expect(component.hasPaymentReceipt()).toBeTrue();
+    expect(component.isDocumentationComplete()).toBeTrue();
+    expect(component.loading()).toBeFalse();
+  });
+
+  it('should set state correctly when only medical clearance is loaded', () => {
+    athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
+    athleteServiceSpy.getDocuments.and.returnValue(of([mockMedicalDoc]));
+
+    const fixture = TestBed.createComponent(DashboardPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.profileExists()).toBeTrue();
+    expect(component.hasMedicalClearance()).toBeTrue();
+    expect(component.hasPaymentReceipt()).toBeFalse();
+    expect(component.isDocumentationComplete()).toBeFalse();
+    expect(component.loading()).toBeFalse();
+  });
+
+  it('should set state correctly when only payment receipt is loaded', () => {
+    athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
+    athleteServiceSpy.getDocuments.and.returnValue(of([mockPaymentDoc]));
+
+    const fixture = TestBed.createComponent(DashboardPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.profileExists()).toBeTrue();
+    expect(component.hasMedicalClearance()).toBeFalse();
+    expect(component.hasPaymentReceipt()).toBeTrue();
+    expect(component.isDocumentationComplete()).toBeFalse();
+    expect(component.loading()).toBeFalse();
+  });
+
+  it('should set state correctly when neither document is loaded', () => {
+    athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
+    athleteServiceSpy.getDocuments.and.returnValue(of([]));
+
+    const fixture = TestBed.createComponent(DashboardPageComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.profileExists()).toBeTrue();
+    expect(component.hasMedicalClearance()).toBeFalse();
+    expect(component.hasPaymentReceipt()).toBeFalse();
+    expect(component.isDocumentationComplete()).toBeFalse();
     expect(component.loading()).toBeFalse();
   });
 });

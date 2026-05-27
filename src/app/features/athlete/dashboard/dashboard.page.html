@@ -58,35 +58,42 @@
     <!-- Athlete Panel Header (profile exists) -->
     @if (profileExists() === true) {
       <div class="flex flex-col gap-1">
-        <p class="text-xs font-semibold uppercase tracking-widest text-touche-navy/60">Portal del Atleta</p>
         <h1 class="text-2xl font-extrabold tracking-tight text-touche-navy md:text-3xl">Mi Panel de Atleta</h1>
         <p class="text-sm text-touche-navy/70">Gestioná tu perfil, documentación y actividad deportiva.</p>
       </div>
 
       <!-- Medical Clearance Card -->
-      @if (hasMedicalClearance()) {
-        <div class="flex items-center gap-4 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 shadow-sm text-emerald-800">
-          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 border border-emerald-200">
+      @if (isDocumentationComplete()) {
+        <div class="flex items-center gap-4 rounded-xl border border-emerald-500/30 bg-emerald-50 px-5 py-4 shadow-sm text-emerald-800">
+          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-400/30">
             <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>
-            <p class="text-sm font-bold">Apto Médico: Vigente</p>
-            <p class="text-xs text-emerald-700">Tu documentación médica está al día. Podés participar en torneos.</p>
+            <p class="text-sm font-bold text-emerald-900">Documentación: Completa</p>
+            <p class="text-xs text-emerald-700">Tu apto médico y comprobante de pago están registrados y al día.</p>
           </div>
         </div>
       } @else {
-        <div class="flex items-start gap-4 rounded-xl border border-red-200 bg-red-50 px-5 py-4 shadow-sm text-red-800">
-          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 border border-red-200">
-            <svg class="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-start gap-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 shadow-sm text-amber-800">
+          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 border border-amber-300 text-amber-600">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
           <div>
-            <p class="text-sm font-bold">Apto Médico: Pendiente / Vencido</p>
-            <p class="text-xs text-red-700 mt-0.5">Subí tu documentación médica para participar en torneos.</p>
+            <p class="text-sm font-bold text-amber-900">Documentación: Pendiente</p>
+            <p class="text-xs text-amber-700 mt-0.5">
+              @if (!hasMedicalClearance() && !hasPaymentReceipt()) {
+                Apto médico y comprobante de pago pendientes.
+              } @else if (!hasMedicalClearance()) {
+                Apto médico pendiente.
+              } @else if (!hasPaymentReceipt()) {
+                Comprobante de pago pendiente.
+              }
+            </p>
           </div>
         </div>
       }

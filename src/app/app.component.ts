@@ -1,5 +1,5 @@
 import { Component, effect, inject, signal, untracked } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router,RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './core/services/auth.service';
 import { environment } from '../environments/environment';
@@ -7,7 +7,7 @@ import { environment } from '../environments/environment';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -61,7 +61,7 @@ export class AppComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Limit file size to 2MB (optional, but good practice)
       if (file.size > 2 * 1024 * 1024) {
         alert('La imagen no debe superar los 2MB');
