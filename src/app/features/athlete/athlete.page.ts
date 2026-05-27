@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 import { AthleteService } from './services/athlete.service';
 import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../../core/models/athlete.models';
 
 @Component({
   selector: 'app-athlete-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './athlete.page.html',
   styleUrl: './athlete.page.css'
 })

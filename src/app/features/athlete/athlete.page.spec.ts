@@ -5,6 +5,8 @@ import { AthleteService } from './services/athlete.service';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AthleteResponse } from '../../core/models/athlete.models';
+import { provideRouter, RouterLink } from '@angular/router';
+import { By } from '@angular/platform-browser';
 
 describe('AthletePageComponent', () => {
   let component: AthletePageComponent;
@@ -24,7 +26,8 @@ describe('AthletePageComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AthletePageComponent, ReactiveFormsModule],
       providers: [
-        { provide: AthleteService, useValue: spy }
+        { provide: AthleteService, useValue: spy },
+        provideRouter([])
       ]
     }).compileComponents();
 
@@ -317,6 +320,22 @@ describe('AthletePageComponent', () => {
 
       expect(component.activeTab()).toBe('documents');
       expect(athleteServiceSpy.getDocuments).toHaveBeenCalled();
+    });
+  });
+
+  describe('Navigation', () => {
+    it('should render "Volver al panel" button with routerLink="/athlete"', () => {
+      athleteServiceSpy.getProfile.and.returnValue(of({} as AthleteResponse));
+      const fixture = TestBed.createComponent(AthletePageComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+
+      const debugEl = fixture.debugElement.query(By.directive(RouterLink));
+      expect(debugEl).toBeTruthy();
+      
+      const element = debugEl.nativeElement as HTMLAnchorElement;
+      expect(element.getAttribute('routerLink')).toBe('/athlete');
+      expect(element.textContent).toContain('Volver al panel');
     });
   });
 });
