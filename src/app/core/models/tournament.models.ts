@@ -75,3 +75,76 @@ export const EnrollmentStatusLabels: Record<EnrollmentStatus, string> = {
   PAID: 'Inscripto',
   CANCELLED: 'Cancelado'
 };
+
+// ── Organizer Types ───────────────────────────────────────────────────────────
+
+export type DocumentValidationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface TournamentRequest {
+  name: string;
+  weapon: Weapon;
+  category: TournamentCategory;
+  gender: TournamentGender;
+  location: string;
+  date: string; // YYYY-MM-DD
+  basePrice: number;
+}
+
+export interface OrganizerTournamentResponse {
+  id: number;
+  name: string;
+  weapon: Weapon;
+  category: TournamentCategory;
+  gender: TournamentGender;
+  location: string;
+  date: string;
+  basePrice: number;
+  totalEnrollments: number;
+  paidEnrollments: number;
+  pendingEnrollments: number;
+  cancelledEnrollments: number;
+}
+
+export interface AthleteDocumentInfo {
+  documentId: number;
+  documentType: 'MEDICAL_CLEARANCE' | 'PAYMENT_RECEIPT';
+  fileKey: string;
+  validationStatus: DocumentValidationStatus;
+  reviewNotes: string | null;
+  uploadDate: string;
+}
+
+export interface EnrollmentAthleteInfo {
+  id: number;
+  firstName: string;
+  lastName: string;
+  dni: string;
+  birthDate: string;
+  club: string | null;
+  province: string | null;
+}
+
+export interface EnrollmentDetailResponse {
+  enrollmentId: number;
+  status: EnrollmentStatus;
+  amount: number;
+  enrollmentDate: string;
+  athlete: EnrollmentAthleteInfo;
+  documents: AthleteDocumentInfo[];
+}
+
+export interface DocumentValidationRequest {
+  validationStatus: DocumentValidationStatus;
+  reviewNotes?: string;
+}
+
+export const DocumentValidationStatusLabels: Record<DocumentValidationStatus, string> = {
+  PENDING: 'Pendiente',
+  APPROVED: 'Aprobado',
+  REJECTED: 'Rechazado'
+};
+
+export const DocumentTypeLabels: Record<string, string> = {
+  MEDICAL_CLEARANCE: 'Apto Médico',
+  PAYMENT_RECEIPT: 'Comprobante de Afiliación'
+};
