@@ -8,5 +8,13 @@ export const athleteRoutes: Routes = [
   {
     path: 'profile',
     loadComponent: () => import('./athlete.page').then(m => m.AthletePageComponent)
+  },
+  {
+    path: 'enrollments',
+    loadComponent: () => import('./enrollments/enrollments.page').then(m => m.EnrollmentsPageComponent)
+  },
+  {
+    path: 'enrollments/pay',
+    loadComponent: () => import('./enrollments/payment-simulator/payment-simulator.page').then(m => m.PaymentSimulatorPageComponent)
   }
 ];

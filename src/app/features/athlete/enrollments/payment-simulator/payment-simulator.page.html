@@ -1,0 +1,166 @@
+<div class="min-h-screen bg-gray-100 flex flex-col font-sans">
+  
+  <!-- Header Mercado Pago Lookalike -->
+  <header class="bg-[#009EE3] text-white py-4 px-6 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <!-- MOCK LOGO (Simple SVG Handshake / Card representing MP) -->
+      <svg class="h-8 w-8 text-white fill-current" viewBox="0 0 24 24">
+        <path d="M20,4H4C2.89,4 2.01,4.89 2.01,6L2,18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6A2,2 0 0,0 20,4M20,18H4V12H20V18M20,8H4V6H20V8Z" />
+      </svg>
+      <div>
+        <span class="font-black text-xl tracking-tight text-white">mercado pago</span>
+        <span class="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full font-bold uppercase">Simulador</span>
+      </div>
+    </div>
+    <span class="text-xs text-white/80 font-semibold">Touché Manager SAS</span>
+  </header>
+
+  <!-- Main Simulator Area -->
+  <main class="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="max-w-md w-full">
+
+      @if (loading()) {
+        <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col items-center justify-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#009EE3]"></div>
+          <p class="mt-4 text-sm font-semibold text-gray-500">Cargando pasarela de pago...</p>
+        </div>
+      } @else {
+
+        <!-- SUCCESS VIEW -->
+        @if (paymentStatus() === 'SUCCESS') {
+          <div class="bg-[#00a650] text-white rounded-3xl shadow-2xl p-8 text-center animate-in fade-in zoom-in duration-300">
+            <div class="mx-auto h-20 w-20 bg-white/20 rounded-full flex items-center justify-center mb-6 border-4 border-white">
+              <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 class="text-2xl font-black mb-2">¡Listo! Se acreditó tu pago</h2>
+            <p class="text-sm text-white/90 mb-8">La inscripción al torneo se ha procesado con éxito.</p>
+            
+            <div class="bg-black/10 rounded-2xl p-4 text-left space-y-2 text-xs mb-8">
+              <div class="flex justify-between">
+                <span class="opacity-80">Torneo:</span>
+                <span class="font-bold">{{ tournamentName() }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-80">Monto:</span>
+                <span class="font-bold">${{ amount() | number:'1.2-2' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-80">Medio de Pago:</span>
+                <span class="font-bold">Tarjeta Simulada (Visa *4321)</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-80">Estado:</span>
+                <span class="font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded text-[10px]">Aprobado</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 text-xs text-white/70">
+              <div class="animate-spin rounded-full h-3.5 w-3.5 border-t-2 border-b-2 border-white"></div>
+              <span>Redirigiendo de vuelta a Touché Manager...</span>
+            </div>
+          </div>
+        } @else {
+
+          <!-- CHECKOUT SIMULATOR CARD -->
+          <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200">
+            
+            <!-- Resumen de Compra -->
+            <div class="p-6 bg-gray-50 border-b border-gray-150">
+              <span class="text-[10px] font-black uppercase text-gray-400 tracking-wider">Concepto de pago</span>
+              <h2 class="text-sm font-bold text-gray-700 mt-1 leading-snug line-clamp-2">
+                {{ tournamentName() }}
+              </h2>
+              <div class="flex justify-between items-baseline mt-4 pt-4 border-t border-gray-200">
+                <span class="text-sm font-semibold text-gray-500">Pagas en total:</span>
+                <span class="text-2xl font-black text-gray-800">${{ amount() | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Formulario / Simulación -->
+            <div class="p-6 space-y-6">
+
+              <!-- Simular Medio de Pago -->
+              <div class="border border-gray-100 rounded-2xl p-4 bg-gray-50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <!-- Tarjeta Icon -->
+                  <div class="h-10 w-14 bg-gray-800 rounded-lg flex flex-col justify-between p-2 text-white text-[8px] relative overflow-hidden">
+                    <span class="font-bold">VISA</span>
+                    <span class="font-mono mt-auto">•••• 4321</span>
+                    <div class="absolute -right-2 -bottom-2 h-6 w-6 bg-[#009EE3]/30 rounded-full"></div>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-gray-800">Visa Débito</p>
+                    <p class="text-[10px] text-gray-400">Terminada en 4321</p>
+                  </div>
+                </div>
+                <span class="text-xs text-gray-400 italic">Predefinida</span>
+              </div>
+
+              <!-- Mensaje de Error si Falló -->
+              @if (paymentStatus() === 'FAILURE') {
+                <div class="p-4 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex items-start gap-2.5">
+                  <svg class="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div>
+                    <p class="font-bold text-red-950">Error al procesar el pago</p>
+                    <p class="mt-0.5">{{ errorMessage() }}</p>
+                  </div>
+                </div>
+              }
+
+              <!-- Botones de Acción -->
+              <div class="space-y-3">
+                @if (paymentStatus() === 'FAILURE') {
+                  <button
+                    (click)="retry()"
+                    class="w-full py-3 text-sm font-bold text-white bg-[#009EE3] hover:bg-[#0089C7] rounded-xl shadow-md transition-colors duration-150"
+                  >
+                    Reintentar Pago
+                  </button>
+                } @else {
+                  <button
+                    (click)="simulateSuccess()"
+                    [disabled]="processing()"
+                    class="w-full inline-flex justify-center items-center py-3.5 text-sm font-bold text-white bg-[#00a650] hover:bg-[#008f45] rounded-xl shadow-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    @if (processing()) {
+                      <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                      Acreditando...
+                    } @else {
+                      Simular Pago Exitoso
+                    }
+                  </button>
+                  <button
+                    (click)="simulateFailure()"
+                    [disabled]="processing()"
+                    class="w-full inline-flex justify-center items-center py-3.5 text-sm font-bold text-white bg-[#D94F3D] hover:bg-[#c23f2f] rounded-xl shadow-md transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Simular Pago Fallido
+                  </button>
+                }
+
+                <button
+                  (click)="cancel()"
+                  [disabled]="processing()"
+                  class="w-full py-3 text-sm font-bold text-gray-500 border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Volver a Touché Manager
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        }
+      }
+
+    </div>
+  </main>
+
+  <footer class="bg-gray-200 text-gray-500 py-3 text-center text-[10px]">
+    Este es un simulador de pago seguro. Ningún cargo real será realizado a tu tarjeta.
+  </footer>
+</div>

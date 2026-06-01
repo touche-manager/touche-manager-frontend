@@ -6,10 +6,12 @@ import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AthleteResponse, AthleteDocumentResponse } from '../../../core/models/athlete.models';
 
+import { provideRouter } from '@angular/router';
+
 describe('DashboardPageComponent', () => {
   let component: DashboardPageComponent;
   let athleteServiceSpy: jasmine.SpyObj<AthleteService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let routerSpy: Router;
 
   const mockProfile: AthleteResponse = {
     id: 1,
@@ -46,18 +48,18 @@ describe('DashboardPageComponent', () => {
       'getProfile',
       'getDocuments'
     ]);
-    const rSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [DashboardPageComponent],
       providers: [
-        { provide: AthleteService, useValue: athleteSpy },
-        { provide: Router, useValue: rSpy }
+        provideRouter([]),
+        { provide: AthleteService, useValue: athleteSpy }
       ]
     }).compileComponents();
 
     athleteServiceSpy = TestBed.inject(AthleteService) as jasmine.SpyObj<AthleteService>;
-    routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    routerSpy = TestBed.inject(Router);
+    spyOn(routerSpy, 'navigate');
   });
 
   it('should create the component', () => {

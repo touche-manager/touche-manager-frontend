@@ -122,24 +122,23 @@
           </div>
         </button>
 
-        <!-- Card 2: Inscripciones (disabled) -->
-        <div
+        <!-- Card 2: Inscripciones (active) -->
+        <a
           id="quick-access-inscripciones"
-          class="relative bg-white border border-gray-100 shadow-sm p-4 md:p-5 rounded-2xl opacity-65 flex flex-col items-start gap-3 cursor-not-allowed"
+          routerLink="/athlete/enrollments"
+          class="group relative bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-touche-celeste/40 p-4 md:p-5 rounded-2xl transition-all duration-200 flex flex-col items-start gap-3 text-left focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-1"
         >
-          <div class="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-touche-slate text-gray-400">
+          <div class="relative flex h-9 w-9 items-center justify-center rounded-xl border border-touche-celeste/20 bg-touche-celeste/10 text-touche-celeste transition-all duration-200 group-hover:bg-touche-celeste group-hover:text-white group-hover:border-transparent">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
           </div>
-          <div>
-            <p class="text-sm font-bold leading-tight text-touche-navy/60">Inscripciones</p>
-            <span class="mt-1.5 inline-block bg-touche-slate border border-gray-200 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-              Próximamente
-            </span>
+          <div class="relative">
+            <p class="text-sm font-bold leading-tight text-touche-navy">Inscripciones</p>
+            <p class="mt-1 text-[11px] text-gray-500 transition-colors duration-200 group-hover:text-touche-celeste/80">Inscribirme a torneos</p>
           </div>
-        </div>
+        </a>
 
         <!-- Card 3: Rankings (disabled) -->
         <div

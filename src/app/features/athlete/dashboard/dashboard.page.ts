@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AthleteService } from '../services/athlete.service';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './dashboard.page.html'
 })
 export class DashboardPageComponent implements OnInit {
