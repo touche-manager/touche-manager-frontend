@@ -34,15 +34,6 @@ export class EnrollmentsPageComponent implements OnInit {
   readonly categoriesMap = CategoryLabels;
   readonly gendersMap = GenderLabels;
 
-  // Filtro de género
-  readonly genderFilter = signal<'ALL' | 'MALE' | 'FEMALE'>('ALL');
-
-  readonly filteredTournaments = computed(() => {
-    const filter = this.genderFilter();
-    if (filter === 'ALL') return this.tournaments();
-    return this.tournaments().filter(t => t.gender === filter);
-  });
-
   // Calculamos recargo y total si hay un torneo seleccionado
   readonly regularPrice = computed(() => this.selectedTournament()?.basePrice || 0);
   readonly isLatePhase = computed(() => this.selectedTournament()?.enrollmentStatus === 'OPEN_LATE');
@@ -158,9 +149,5 @@ export class EnrollmentsPageComponent implements OnInit {
 
   payDirectly(enrollmentId: number): void {
     this.router.navigate(['/athlete/enrollments/pay'], { queryParams: { id: enrollmentId } });
-  }
-
-  setGenderFilter(filter: 'ALL' | 'MALE' | 'FEMALE'): void {
-    this.genderFilter.set(filter);
   }
 }
