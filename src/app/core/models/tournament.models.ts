@@ -31,6 +31,7 @@ export interface TournamentResponse {
   alreadyEnrolled: boolean;
   enrollmentStatusLabel?: EnrollmentStatus | null;
   enrollmentId?: number | null;
+  wasPreviouslyPaid: boolean;
 }
 
 export interface EnrollmentRequest {
