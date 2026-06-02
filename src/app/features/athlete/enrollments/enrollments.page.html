@@ -52,6 +52,18 @@
         </div>
       }
 
+      <!-- Banner éxito de reactivación -->
+      @if (successMessage()) {
+        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-3 shadow-sm animate-in fade-in duration-300">
+          <div class="h-8 w-8 flex-shrink-0 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-600">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-emerald-800">{{ successMessage() }}</p>
+        </div>
+      }
+
       <!-- Grilla de Torneos -->
       @if (tournaments().length === 0) {
         <div class="bg-white border border-gray-100 rounded-2xl p-12 text-center shadow-sm">
@@ -231,10 +243,15 @@
 
       <!-- Detalles del Torneo -->
       @if (selectedTournament()) {
-        <div class="bg-touche-slate rounded-xl p-4 mb-6 space-y-2">
+        <div class="bg-touche-slate rounded-xl p-4 mb-4 space-y-2">
           <h3 class="text-sm font-extrabold text-touche-navy leading-snug">{{ selectedTournament()?.name }}</h3>
           <p class="text-xs text-gray-500">Sede: <strong>{{ selectedTournament()?.location }}</strong></p>
           <p class="text-xs text-gray-500">Fecha: <strong>{{ selectedTournament()?.date }}</strong></p>
+        </div>
+
+        <!-- Aviso reinscripción con pago previo -->
+        <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 leading-relaxed">
+          <strong>¿Ya te inscribiste antes en este torneo?</strong> Si tu inscripción anterior ya estaba abonada, al confirmar quedarás inscripto automáticamente sin pasar por el proceso de pago.
         </div>
 
         <!-- Tabla de Aranceles -->
@@ -285,7 +302,7 @@
             <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
             Procesando...
           } @else {
-            Proceder al Pago
+            Confirmar Inscripción
           }
         </button>
       </div>
