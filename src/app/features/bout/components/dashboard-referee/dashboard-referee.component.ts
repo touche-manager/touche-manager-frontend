@@ -101,7 +101,7 @@ export class DashboardRefereeComponent implements OnInit {
   readonly categoryLabel = (c: string) => CategoryLabels[c as keyof typeof CategoryLabels] ?? c;
 
   ngOnInit(): void {
-    this.http.get<ApiResponse<OrganizerTournamentResponse[]>>(`${environment.apiUrl}/organizer/tournaments`)
+    this.http.get<ApiResponse<OrganizerTournamentResponse[]>>(`${environment.apiUrl}/bouts/tournaments`)
       .pipe(map(r => r.data))
       .subscribe({
         next: (data) => { this.tournaments.set(data); this.loading.set(false); },
