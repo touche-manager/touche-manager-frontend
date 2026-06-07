@@ -1,68 +1,88 @@
 <main class="min-h-[100dvh] bg-touche-slate text-touche-navy flex flex-col">
-  <!-- Header / Navigation Bar -->
-  <header class="border-b border-touche-celeste/20 bg-touche-navy shadow-md flex-shrink-0">
-    <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5 md:px-6">
 
-      <!-- Brand & Navigation Group -->
-      <div class="flex items-center space-x-4 min-w-0">
-        <img src="/logo.png" alt="Touché Manager" class="h-8 w-8 rounded-full border border-touche-celeste/40 object-cover flex-shrink-0" />
-        <span class="text-lg font-bold text-white tracking-wide truncate flex-shrink-0">
+  <!-- ═══ Header / Navigation Bar ═══════════════════════════════════════ -->
+  <header class="flex-shrink-0 bg-gradient-to-r from-touche-navy to-[#1e1e4a] shadow-lg border-b border-touche-gold/20">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 md:px-6 md:py-3.5">
+
+      <!-- Brand -->
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="/logo.png" alt="Touché Manager"
+             class="h-8 w-8 rounded-full border border-touche-celeste/40 object-cover flex-shrink-0 shadow-sm" />
+        <span class="font-display text-xl font-bold text-white tracking-wide leading-none flex-shrink-0
+                     hidden xs:block sm:block">
           Touché Manager
         </span>
-
+        <span class="font-display text-xl font-bold text-white tracking-wide leading-none flex-shrink-0 sm:hidden">
+          Touché
+        </span>
       </div>
 
-      <!-- User Role and Logout Controls (only shown when authenticated) -->
-      <div *ngIf="isAuthenticated()" class="flex items-center space-x-2 md:space-x-3 flex-shrink-0 pl-2">
-        <!-- Active Role Badge -->
-        <span
-          class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-touche-celeste/10 text-touche-celeste border border-touche-celeste/20 uppercase tracking-wider"
-        >
+      <!-- Controls (authenticated) -->
+      <div *ngIf="isAuthenticated()" class="flex items-center gap-2 md:gap-3 flex-shrink-0 pl-2">
+
+        <!-- Role badge — hidden on mobile (shown in bottom nav) -->
+        <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold
+                     bg-touche-celeste/10 text-touche-celeste border border-touche-celeste/20 uppercase tracking-wider">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
           {{ getRoleLabel(currentRol()) }}
         </span>
 
-        <!-- Change Role Button -->
+        <!-- Change Role button -->
         <button
           *ngIf="hasMultipleRoles()"
           (click)="changeRole()"
           title="Cambiar rol"
-          class="inline-flex items-center justify-center px-3 py-1.5 border border-touche-celeste/40 text-xs font-bold rounded-lg text-touche-celeste bg-white/5 hover:bg-white/10 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-touche-celeste gap-1.5"
+          class="hidden md:inline-flex items-center justify-center px-3 py-1.5 border border-touche-celeste/40
+                 text-xs font-bold rounded-lg text-touche-celeste bg-white/5 hover:bg-white/10
+                 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2
+                 focus:ring-offset-2 focus:ring-touche-celeste gap-1.5"
         >
-          <!-- Double arrow swap SVG icon -->
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
           </svg>
-          <span class="hidden md:inline">Cambiar rol</span>
+          Cambiar rol
         </button>
 
-        <!-- Logout Button -->
+        <!-- Logout button -->
         <button
           (click)="logout()"
           title="Cerrar sesión"
-          class="inline-flex items-center justify-center px-3 py-1.5 border border-transparent text-xs font-bold rounded-lg text-white bg-touche-alert hover:bg-[#C13F2E] shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-touche-alert gap-1.5"
+          class="inline-flex items-center justify-center px-2.5 py-1.5 border border-transparent
+                 text-xs font-bold rounded-lg text-white bg-touche-alert/80 hover:bg-touche-alert
+                 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2
+                 focus:ring-offset-2 focus:ring-touche-alert gap-1.5"
         >
-          <!-- Door/Logout SVG icon -->
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           <span class="hidden md:inline">Cerrar sesión</span>
         </button>
 
-        <!-- Profile Avatar Button -->
+        <!-- Profile avatar -->
         <button
           (click)="toggleProfileModal()"
           title="Mi perfil de usuario"
-          class="flex-shrink-0 relative focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-touche-navy focus:ring-touche-celeste rounded-full"
+          class="flex-shrink-0 relative focus:outline-none focus:ring-2 focus:ring-offset-2
+                 focus:ring-offset-touche-navy focus:ring-touche-gold rounded-full"
         >
           <img
             *ngIf="profile()?.profilePictureUrl"
             [src]="getFullProfilePictureUrl(profile()?.profilePictureUrl)"
             alt="Avatar"
-            class="h-8 w-8 rounded-full border border-touche-celeste/40 object-cover hover:scale-105 transition-transform duration-150"
+            class="h-8 w-8 rounded-full border-2 border-touche-gold/40 object-cover
+                   hover:border-touche-gold/70 hover:scale-105 transition-all duration-150"
           />
           <div
             *ngIf="!profile()?.profilePictureUrl"
-            class="h-8 w-8 rounded-full bg-touche-celeste/20 border border-touche-celeste/40 text-touche-celeste hover:bg-touche-celeste/30 hover:scale-105 transition-all duration-150 flex items-center justify-center font-bold text-xs uppercase"
+            class="h-8 w-8 rounded-full bg-touche-celeste/20 border-2 border-touche-gold/40
+                   text-touche-celeste hover:bg-touche-celeste/30 hover:border-touche-gold/70
+                   hover:scale-105 transition-all duration-150 flex items-center justify-center
+                   font-bold text-xs uppercase"
           >
             {{ getUserInitial() }}
           </div>
@@ -72,33 +92,125 @@
     </div>
   </header>
 
-  <!-- Main Content Layout Container -->
-  <div class="flex-1 w-full mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 flex flex-col min-h-0">
+  <!-- ═══ Main Content ══════════════════════════════════════════════════ -->
+  <div class="flex-1 w-full mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 flex flex-col min-h-0"
+       [class.pb-24]="isAuthenticated()">
     <router-outlet />
   </div>
 
-  <!-- Profile Modal Overlay -->
+  <!-- ═══ Mobile Bottom Navigation ════════════════════════════════════ -->
+  @if (isAuthenticated()) {
+    <nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden
+                bg-white/95 backdrop-blur-md border-t border-touche-navy/10
+                shadow-[0_-2px_16px_rgba(26,26,62,0.10)]">
+      <div class="flex items-stretch justify-around px-2 pb-safe">
+
+        <!-- ATHLETE nav -->
+        @if (currentRol() === 'ATHLETE') {
+          <a routerLink="/athlete"
+             class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                    hover:text-touche-navy transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Panel</span>
+          </a>
+          <a routerLink="/athlete/profile"
+             class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                    hover:text-touche-navy transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Perfil</span>
+          </a>
+          <a routerLink="/athlete/enrollments"
+             class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                    hover:text-touche-navy transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Torneos</span>
+          </a>
+        }
+
+        <!-- REFEREE nav -->
+        @if (currentRol() === 'REFEREE') {
+          <a routerLink="/bout"
+             class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                    hover:text-touche-navy transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Panel</span>
+          </a>
+          <a routerLink="/bout/list"
+             class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                    hover:text-touche-navy transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Asaltos</span>
+          </a>
+        }
+
+        <!-- ORGANIZER nav -->
+        @if (currentRol() === 'ORGANIZER') {
+          <a routerLink="/tournament"
+             class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                    hover:text-touche-navy transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Torneos</span>
+          </a>
+        }
+
+        <!-- Change role (if multiple roles) -->
+        @if (hasMultipleRoles()) {
+          <button
+            (click)="changeRole()"
+            class="flex flex-col items-center gap-0.5 px-3 py-3 text-touche-navy/60
+                   hover:text-touche-celeste transition-colors duration-150 min-w-0 flex-1">
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            <span class="text-[10px] font-semibold tracking-wide">Rol</span>
+          </button>
+        }
+
+      </div>
+    </nav>
+  }
+
+  <!-- ═══ Profile Modal ═════════════════════════════════════════════════ -->
   @if (showProfileModal()) {
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       (click)="toggleProfileModal()"
     >
       <div
-        class="bg-touche-navy border border-touche-celeste/20 text-white rounded-2xl max-w-md w-full shadow-2xl p-6 relative overflow-hidden flex flex-col gap-5 transition-transform duration-300 scale-100"
+        class="bg-touche-navy border border-touche-celeste/20 text-white rounded-2xl max-w-md w-full
+               shadow-2xl p-6 relative overflow-hidden flex flex-col gap-5 animate-fade-up"
         (click)="$event.stopPropagation()"
       >
-        <!-- Modal Header -->
+        <!-- Decorative glow -->
+        <div class="pointer-events-none absolute -top-12 -right-12 h-36 w-36 rounded-full bg-touche-celeste/10 blur-3xl"></div>
+
+        <!-- Header -->
         <div class="flex items-center justify-between pb-3 border-b border-white/10">
-          <h2 class="text-xl font-bold tracking-wide flex items-center gap-2 text-white">
-            <svg class="h-5 w-5 text-touche-celeste" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+          <h2 class="font-display text-2xl font-bold flex items-center gap-2 text-white">
             Mi Cuenta
           </h2>
           <button
             (click)="toggleProfileModal()"
             class="text-white/60 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors duration-150"
-            title="Cerrar"
           >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -106,32 +218,36 @@
           </button>
         </div>
 
-        <!-- Modal Body / Content -->
+        <!-- Body -->
         <div class="flex flex-col items-center gap-4 py-2">
-          <!-- Big Avatar Container -->
+
+          <!-- Avatar -->
           <div class="relative group">
-            <!-- Large Profile Pic -->
             @if (profile()?.profilePictureUrl) {
               <img
                 [src]="getFullProfilePictureUrl(profile()?.profilePictureUrl)"
-                alt="Foto de perfil grande"
-                class="h-24 w-24 rounded-full border-2 border-touche-celeste object-cover shadow-lg bg-white/5 transition-transform duration-200 group-hover:brightness-75"
+                alt="Foto de perfil"
+                class="h-24 w-24 rounded-full border-2 border-touche-gold/60 object-cover shadow-lg
+                       transition-all duration-200 group-hover:brightness-75"
               />
             } @else {
-              <div
-                class="h-24 w-24 rounded-full bg-touche-celeste/20 border-2 border-touche-celeste/40 text-touche-celeste text-3xl font-extrabold uppercase flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:brightness-90"
-              >
+              <div class="h-24 w-24 rounded-full bg-touche-celeste/20 border-2 border-touche-gold/40
+                          text-touche-celeste text-3xl font-extrabold uppercase flex items-center
+                          justify-center shadow-lg transition-all duration-200 group-hover:brightness-90">
                 {{ getUserInitial() }}
               </div>
             }
 
-            <!-- Camera Hover Overlay for Upload -->
+            <!-- Camera overlay -->
             <label
-              class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity duration-200"
+              class="absolute inset-0 flex flex-col items-center justify-center rounded-full
+                     bg-black/50 text-white opacity-0 group-hover:opacity-100 cursor-pointer
+                     transition-opacity duration-200"
               title="Cambiar foto de perfil"
             >
               <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span class="text-[10px] font-semibold mt-1">Cambiar</span>
@@ -144,10 +260,9 @@
               />
             </label>
 
-            <!-- Loading overlay when uploading -->
             @if (isUploading()) {
               <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 text-white">
-                <svg class="animate-spin h-6 w-6 text-touche-celeste" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin h-6 w-6 text-touche-celeste" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                 </svg>
@@ -155,44 +270,35 @@
             }
           </div>
 
-          <!-- Profile Actions Buttons -->
           @if (profile()?.profilePictureUrl) {
-            <div class="flex justify-center text-xs">
-              <button
-                (click)="onDeletePicture()"
-                [disabled]="isUploading() || isDeleting()"
-                class="px-3 py-1.5 rounded-lg border border-transparent bg-touche-alert/20 hover:bg-touche-alert/30 text-touche-alert font-semibold transition-colors duration-150 disabled:opacity-50"
-              >
-                @if (isDeleting()) {
-                  Eliminando...
-                } @else {
-                  Eliminar foto
-                }
-              </button>
-            </div>
+            <button
+              (click)="onDeletePicture()"
+              [disabled]="isUploading() || isDeleting()"
+              class="px-3 py-1.5 rounded-lg bg-touche-alert/20 hover:bg-touche-alert/30 text-touche-alert
+                     text-xs font-semibold transition-colors duration-150 disabled:opacity-50"
+            >
+              @if (isDeleting()) { Eliminando... } @else { Eliminar foto }
+            </button>
           }
 
-          <!-- User Details (Email & Roles) -->
-          <div class="w-full text-center mt-3 flex flex-col gap-2">
+          <!-- Info -->
+          <div class="w-full text-center flex flex-col gap-3 mt-1">
             <div>
-              <p class="text-xs text-white/50 tracking-wider uppercase font-semibold">Correo Electrónico</p>
-              <p class="text-base font-semibold text-white truncate max-w-full px-4">
-                {{ profile()?.email }}
-              </p>
+              <p class="text-xs text-white/50 tracking-widest uppercase font-semibold mb-0.5">Correo</p>
+              <p class="text-base font-semibold text-white truncate px-4">{{ profile()?.email }}</p>
             </div>
-
             <div>
-              <p class="text-xs text-white/50 tracking-wider uppercase font-semibold mb-1.5">Roles Asignados</p>
+              <p class="text-xs text-white/50 tracking-widest uppercase font-semibold mb-2">Roles</p>
               <div class="flex flex-wrap gap-1.5 justify-center px-4">
                 @for (rol of profile()?.roles; track rol) {
                   <span
                     class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border"
                     [ngClass]="{
-                      'bg-touche-celeste/10 text-touche-celeste border-touche-celeste/20': rol === currentRol(),
-                      'bg-white/5 text-white/70 border-white/10': rol !== currentRol()
+                      'bg-touche-gold/20 text-touche-gold border-touche-gold/30': rol === currentRol(),
+                      'bg-white/5 text-white/60 border-white/10': rol !== currentRol()
                     }"
                   >
-                    {{ getRoleLabel(rol) }} @if (rol === currentRol()) { (activo) }
+                    {{ getRoleLabel(rol) }}@if (rol === currentRol()) { · activo }
                   </span>
                 }
               </div>
@@ -200,11 +306,12 @@
           </div>
         </div>
 
-        <!-- Footer / Close -->
+        <!-- Footer -->
         <div class="border-t border-white/10 pt-3 flex justify-end">
           <button
             (click)="toggleProfileModal()"
-            class="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-xs font-bold rounded-lg transition-colors duration-150 focus:outline-none"
+            class="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-xs font-bold
+                   rounded-lg transition-colors duration-150"
           >
             Cerrar
           </button>
@@ -212,4 +319,5 @@
       </div>
     </div>
   }
+
 </main>

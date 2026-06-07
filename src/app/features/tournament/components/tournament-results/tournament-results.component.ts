@@ -1,0 +1,207 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../environments/environment';
+import {
+  TournamentResultResponse, PodiumEntry, FinalStanding,
+  WeaponLabels, CategoryLabels, GenderLabels
+} from '../../../../core/models/tournament.models';
+
+interface ApiResponse<T> { success: boolean; message: string; data: T; }
+
+@Component({
+  selector: 'app-tournament-results',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="min-h-screen bg-touche-slate">
+      @if (loading()) {
+        <div class="flex items-center justify-center h-screen">
+          <div class="animate-spin rounded-full h-12 w-12 border-4 border-touche-celeste border-t-transparent"></div>
+        </div>
+      }
+
+      @if (!loading() && result()) {
+        <!-- Hero header -->
+        <div class="relative bg-touche-navy text-white overflow-hidden">
+          <div class="absolute inset-0 auth-panel-lines opacity-40"></div>
+          <div class="relative max-w-5xl mx-auto px-6 py-12 text-center animate-fade-up">
+            <p class="text-touche-celeste text-sm font-bold uppercase tracking-widest mb-2">Resultados del Torneo</p>
+            <h1 class="font-display text-4xl md:text-5xl font-bold tracking-tight">{{ result()!.name }}</h1>
+            <div class="flex items-center justify-center gap-3 mt-4 text-white/60 text-sm flex-wrap">
+              <span class="badge-info">{{ weaponLabel() }}</span>
+              <span class="badge-info">{{ categoryLabel() }}</span>
+              <span class="badge-info">{{ genderLabel() }}</span>
+              <span>📍 {{ result()!.location }}</span>
+              <span>📅 {{ result()!.date }}</span>
+            </div>
+            @if (result()!.phase === 'FINISHED') {
+              <span class="inline-block mt-4 badge-success text-xs">✅ Torneo Finalizado</span>
+            } @else {
+              <span class="inline-block mt-4 badge-warning text-xs">🏗️ En progreso</span>
+            }
+          </div>
+        </div>
+
+        <div class="max-w-5xl mx-auto px-6 py-10 space-y-10">
+
+          <!-- Podium -->
+          @if (result()!.podium.length > 0) {
+            <section class="animate-fade-up delay-100">
+              <h2 class="page-title text-2xl mb-6 text-center">🏅 Podio</h2>
+              <div class="flex flex-col md:flex-row items-end justify-center gap-4 md:gap-6">
+
+                <!-- 2nd place -->
+                @if (getByRank(2); as second) {
+                  <div class="order-2 md:order-1 w-full md:w-48 bg-white rounded-2xl shadow-card p-6 text-center border-t-4 border-slate-400 animate-fade-up delay-150">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-slate-200 flex items-center justify-center mb-3">
+                      <span class="text-2xl">🥈</span>
+                    </div>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">2° Puesto</p>
+                    <p class="font-bold text-touche-navy text-lg">{{ second.fullName }}</p>
+                    <p class="text-sm text-slate-500 mt-0.5">{{ second.club ?? '' }}</p>
+                  </div>
+                }
+
+                <!-- 1st place -->
+                @if (getByRank(1); as first) {
+                  <div class="order-1 md:order-2 w-full md:w-56 bg-white rounded-2xl shadow-card-hover p-8 text-center border-t-4 border-touche-gold transform md:scale-110 animate-fade-up">
+                    <div class="w-16 h-16 mx-auto rounded-full bg-touche-gold/20 flex items-center justify-center mb-3">
+                      <span class="text-3xl">🥇</span>
+                    </div>
+                    <p class="text-touche-gold text-xs font-bold uppercase tracking-wider mb-1">Campeón</p>
+                    <p class="font-bold text-touche-navy text-xl">{{ first.fullName }}</p>
+                    <p class="text-sm text-slate-500 mt-0.5">{{ first.club ?? '' }}</p>
+                  </div>
+                }
+
+                <!-- 3rd place(s) -->
+                @for (third of getByRankAll(3); track third.athleteId) {
+                  <div class="order-3 w-full md:w-44 bg-white rounded-2xl shadow-card p-5 text-center border-t-4 border-amber-600 animate-fade-up delay-200">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-amber-100 flex items-center justify-center mb-3">
+                      <span class="text-xl">🥉</span>
+                    </div>
+                    <p class="text-amber-700 text-xs font-bold uppercase tracking-wider mb-1">3° Puesto</p>
+                    <p class="font-bold text-touche-navy">{{ third.fullName }}</p>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ third.club ?? '' }}</p>
+                  </div>
+                }
+
+              </div>
+            </section>
+          }
+
+          <!-- Full standings table -->
+          @if (result()!.standings.length > 0) {
+            <section class="animate-fade-up delay-300">
+              <h2 class="page-title text-2xl mb-6">📊 Clasificación General</h2>
+              <div class="card overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead>
+                      <tr class="bg-touche-navy text-white text-xs uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left w-12">#</th>
+                        <th class="px-4 py-3 text-left">Atleta</th>
+                        <th class="px-4 py-3 text-left">Club</th>
+                        <th class="px-4 py-3 text-center">A</th>
+                        <th class="px-4 py-3 text-center">V</th>
+                        <th class="px-4 py-3 text-center">D</th>
+                        <th class="px-4 py-3 text-center">TA</th>
+                        <th class="px-4 py-3 text-center">TR</th>
+                        <th class="px-4 py-3 text-center">Ind.</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (s of result()!.standings; track s.athleteId) {
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                            [ngClass]="{'bg-amber-50': s.rank <= 3}">
+                          <td class="px-4 py-3 font-bold text-center">
+                            @if (s.rank === 1) { <span class="text-touche-gold">🥇</span> }
+                            @else if (s.rank === 2) { <span class="text-slate-400">🥈</span> }
+                            @else if (s.rank === 3) { <span class="text-amber-600">🥉</span> }
+                            @else { <span class="text-slate-400">{{ s.rank }}</span> }
+                          </td>
+                          <td class="px-4 py-3 font-semibold text-touche-navy">{{ s.fullName }}</td>
+                          <td class="px-4 py-3 text-slate-500">{{ s.club ?? '—' }}</td>
+                          <td class="px-4 py-3 text-center text-slate-600">{{ s.bouts }}</td>
+                          <td class="px-4 py-3 text-center font-bold text-emerald-600">{{ s.victories }}</td>
+                          <td class="px-4 py-3 text-center text-red-400">{{ s.defeats }}</td>
+                          <td class="px-4 py-3 text-center text-slate-600">{{ s.touchesScored }}</td>
+                          <td class="px-4 py-3 text-center text-slate-600">{{ s.touchesReceived }}</td>
+                          <td class="px-4 py-3 text-center font-bold"
+                              [ngClass]="s.indicator >= 0 ? 'text-emerald-600' : 'text-red-500'">
+                            {{ s.indicator >= 0 ? '+' : '' }}{{ s.indicator }}
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          }
+
+        </div>
+      }
+
+      @if (!loading() && error()) {
+        <div class="flex items-center justify-center h-screen">
+          <div class="card p-8 text-center max-w-md">
+            <p class="text-touche-alert text-lg font-bold mb-2">Error</p>
+            <p class="text-slate-600">{{ error() }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  `
+})
+export class TournamentResultsComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly http = inject(HttpClient);
+
+  readonly result = signal<TournamentResultResponse | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) { this.error.set('ID de torneo no encontrado'); this.loading.set(false); return; }
+
+    this.http.get<ApiResponse<TournamentResultResponse>>(
+      `${environment.apiUrl}/tournaments/${id}/results`
+    ).subscribe({
+      next: (res) => {
+        this.result.set(res.data);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(err?.error?.message ?? 'No se pudieron cargar los resultados');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  weaponLabel(): string {
+    const w = this.result()?.weapon;
+    return w ? (WeaponLabels as any)[w] ?? w : '';
+  }
+
+  categoryLabel(): string {
+    const c = this.result()?.category;
+    return c ? (CategoryLabels as any)[c] ?? c : '';
+  }
+
+  genderLabel(): string {
+    const g = this.result()?.gender;
+    return g ? (GenderLabels as any)[g] ?? g : '';
+  }
+
+  getByRank(rank: number): PodiumEntry | undefined {
+    return this.result()?.podium.find(p => p.rank === rank);
+  }
+
+  getByRankAll(rank: number): PodiumEntry[] {
+    return this.result()?.podium.filter(p => p.rank === rank) ?? [];
+  }
+}

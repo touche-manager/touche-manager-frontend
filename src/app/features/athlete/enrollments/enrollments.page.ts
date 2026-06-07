@@ -3,13 +3,13 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TournamentService } from '../services/tournament.service';
 import { AthleteService } from '../services/athlete.service';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { TournamentResponse, WeaponLabels, CategoryLabels, GenderLabels } from '../../../core/models/tournament.models';
 
 @Component({
   selector: 'app-enrollments-page',
   standalone: true,
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, NgClass],
   templateUrl: './enrollments.page.html'
 })
 export class EnrollmentsPageComponent implements OnInit {
@@ -27,6 +27,7 @@ export class EnrollmentsPageComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly registering = signal<boolean>(false);
   readonly cancelling = signal<boolean>(false);
+  readonly successMessage = signal<string | null>(null);
 
   // Label maps for HTML access
   readonly weaponsMap = WeaponLabels;
@@ -94,8 +95,16 @@ export class EnrollmentsPageComponent implements OnInit {
       next: (res) => {
         this.registering.set(false);
         this.closeEnrollModal();
-        // Redirigir al link de pago simulado
-        this.router.navigateByUrl(res.paymentLink);
+
+        if (res.status === 'PAID') {
+          // Re-inscripción de un pago previo: ya quedó confirmado, sin pasar por MP
+          this.successMessage.set(`Tu inscripción en "${tournament.name}" fue reactivada exitosamente. Tu pago anterior ya estaba registrado.`);
+          setTimeout(() => this.successMessage.set(null), 6000);
+          this.loadData();
+        } else {
+          // Primera inscripción o reinscripción sin pago previo: ir al flujo de pago
+          this.router.navigateByUrl(res.paymentLink);
+        }
       },
       error: (err: HttpErrorResponse) => {
         this.registering.set(false);
