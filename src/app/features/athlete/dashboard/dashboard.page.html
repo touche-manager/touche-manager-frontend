@@ -153,20 +153,30 @@
           </div>
         </a>
 
-        <!-- Rankings (deshabilitado) -->
-        <div class="card p-5 opacity-55 flex flex-col items-start gap-3 cursor-not-allowed">
+        <!-- Rankings -->
+        <a
+          id="quick-access-rankings"
+          routerLink="/athlete/rankings"
+          class="card card-hover group hover:border-touche-celeste/40 p-5
+                 flex flex-col items-start gap-3 text-left
+                 focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-1"
+        >
           <div class="flex h-11 w-11 items-center justify-center rounded-xl
-                      border border-slate-200 bg-slate-100 text-slate-400">
+                      border border-touche-celeste/20 bg-touche-celeste/10 text-touche-celeste
+                      transition-all duration-200
+                      group-hover:bg-touche-navy group-hover:text-white group-hover:border-touche-navy">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
                 d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
           </div>
           <div>
-            <p class="text-sm font-bold leading-tight text-touche-navy/50">Rankings</p>
-            <span class="badge badge-neutral mt-1.5">Próximamente</span>
+            <p class="text-sm font-bold leading-tight text-touche-navy">Rankings</p>
+            <p class="mt-1 text-[11px] text-slate-400 group-hover:text-touche-celeste/80 transition-colors">
+              Ver resultados de torneos
+            </p>
           </div>
-        </div>
+        </a>
 
         <!-- En Vivo (deshabilitado) -->
         <div class="card p-5 opacity-55 flex flex-col items-start gap-3 cursor-not-allowed">
