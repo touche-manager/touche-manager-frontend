@@ -20,5 +20,10 @@ export const tournamentRoutes: Routes = [
     path: ':id',
     loadComponent: () => import('./components/tournament-detail/tournament-detail.component')
       .then(m => m.TournamentDetailComponent)
+  },
+  {
+    path: ':id/poules',
+    loadComponent: () => import('./components/poule-manager/poule-manager.component')
+      .then(m => m.PouleManagerComponent)
   }
 ];

@@ -62,4 +62,24 @@ export class BoutService {
     return this.http.post<ApiResponse<BoutResponse>>(`${this.base}/${boutId}/finish`, {})
       .pipe(map(r => r.data));
   }
+
+  assignPriority(boutId: number, side: 'LEFT' | 'RIGHT'): Observable<BoutResponse> {
+    return this.http.post<ApiResponse<BoutResponse>>(`${this.base}/${boutId}/priority`, { side })
+      .pipe(map(r => r.data));
+  }
+
+  getMyBouts(tournamentId: number): Observable<BoutResponse[]> {
+    return this.http.get<ApiResponse<BoutResponse[]>>(`${this.base}/tournament/${tournamentId}/my-bouts`)
+      .pipe(map(r => r.data));
+  }
+
+  assignRefereeToEliminationBout(boutId: number, refereeUserId: number): Observable<BoutResponse> {
+    return this.http.post<ApiResponse<BoutResponse>>(`${this.base}/${boutId}/referees`, { refereeUserId })
+      .pipe(map(r => r.data));
+  }
+
+  removeRefereeFromEliminationBout(boutId: number, refereeUserId: number): Observable<BoutResponse> {
+    return this.http.delete<ApiResponse<BoutResponse>>(`${this.base}/${boutId}/referees/${refereeUserId}`)
+      .pipe(map(r => r.data));
+  }
 }

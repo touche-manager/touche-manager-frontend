@@ -1,18 +1,15 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { BoutService } from '../../services/bout.service';
-import { OrganizerTournamentService } from '../../../tournament/services/organizer-tournament.service';
 import {
-  BoutResponse, BoutRequest, BoutFormatLabels, BoutStatusLabels, BoutStatus
+  BoutResponse, BoutFormatLabels, BoutStatusLabels, BoutStatus
 } from '../../../../core/models/bout.models';
-import { EnrollmentDetailResponse } from '../../../../core/models/tournament.models';
 
 @Component({
   selector: 'app-bout-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule],
   template: `
     <div class="min-h-screen bg-touche-navy p-4 md:p-8">
       <div class="max-w-5xl mx-auto">
@@ -26,79 +23,9 @@ import { EnrollmentDetailResponse } from '../../../../core/models/tournament.mod
           </button>
           <div class="flex-1">
             <h1 class="text-2xl font-bold text-white">Asaltos del Torneo</h1>
-            <p class="text-touche-celeste/70 text-sm">Creá y gestioná combates</p>
+            <p class="text-touche-celeste/70 text-sm">Arbitrá y gestioná los combates</p>
           </div>
-          <button
-            id="btn-new-bout"
-            (click)="showNewBoutForm.set(!showNewBoutForm())"
-            class="flex items-center gap-2 bg-touche-gold hover:bg-yellow-500 text-touche-navy font-bold py-2.5 px-5 rounded-xl transition-all duration-200 text-sm"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nuevo Asalto
-          </button>
         </div>
-
-        <!-- New bout form -->
-        @if (showNewBoutForm()) {
-          <div class="bg-white/5 border border-touche-celeste/30 rounded-2xl p-6 mb-6 space-y-4">
-            <h3 class="font-bold text-white text-lg">Crear Asalto</h3>
-            <form [formGroup]="boutForm" (ngSubmit)="createBout()">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label class="block text-sm text-white/70 mb-1">Esgrimista Izquierda (Rojo)</label>
-                  <select id="select-left" formControlName="athleteLeftId"
-                    class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-touche-celeste text-sm appearance-none">
-                    <option value="" class="bg-touche-navy" disabled>Seleccionar atleta...</option>
-                    @for (e of enrollments(); track e.enrollmentId) {
-                      <option [value]="e.athlete.id" class="bg-touche-navy">
-                        {{ e.athlete.firstName }} {{ e.athlete.lastName }}
-                      </option>
-                    }
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm text-white/70 mb-1">Esgrimista Derecha (Verde)</label>
-                  <select id="select-right" formControlName="athleteRightId"
-                    class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-touche-celeste text-sm appearance-none">
-                    <option value="" class="bg-touche-navy" disabled>Seleccionar atleta...</option>
-                    @for (e of enrollments(); track e.enrollmentId) {
-                      <option [value]="e.athlete.id" class="bg-touche-navy">
-                        {{ e.athlete.firstName }} {{ e.athlete.lastName }}
-                      </option>
-                    }
-                  </select>
-                </div>
-              </div>
-              <div class="mb-4">
-                <label class="block text-sm text-white/70 mb-1">Formato</label>
-                <div class="flex gap-3">
-                  @for (f of formatOptions; track f.value) {
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" formControlName="format" [value]="f.value"
-                        class="accent-touche-celeste w-4 h-4" />
-                      <span class="text-sm text-white/80">{{ f.label }}</span>
-                    </label>
-                  }
-                </div>
-              </div>
-              @if (createError()) {
-                <p class="text-red-400 text-sm mb-3">{{ createError() }}</p>
-              }
-              <div class="flex gap-3 justify-end">
-                <button type="button" (click)="showNewBoutForm.set(false)"
-                  class="py-2 px-5 rounded-xl border border-white/20 text-white/60 hover:text-white text-sm transition-colors">
-                  Cancelar
-                </button>
-                <button id="btn-create-bout" type="submit" [disabled]="boutForm.invalid || creating()"
-                  class="py-2 px-5 rounded-xl bg-touche-celeste hover:bg-blue-400 text-touche-navy font-bold text-sm transition-all disabled:opacity-50">
-                  {{ creating() ? 'Creando...' : 'Crear' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        }
 
         <!-- Loading -->
         @if (loading()) {
@@ -112,7 +39,7 @@ import { EnrollmentDetailResponse } from '../../../../core/models/tournament.mod
           @if (bouts().length === 0) {
             <div class="text-center py-16 text-white/40">
               <p class="text-lg">Sin asaltos registrados</p>
-              <p class="text-sm mt-1">Creá el primer asalto usando el botón de arriba</p>
+              <p class="text-sm mt-1">Los asaltos aparecerán aquí una vez que el organizador los genere</p>
             </div>
           } @else {
             <div class="space-y-3">
@@ -131,7 +58,9 @@ import { EnrollmentDetailResponse } from '../../../../core/models/tournament.mod
                       <span class="text-xs text-white/40">{{ formatLabel(bout.format) }}</span>
                     </div>
                     <div class="flex flex-col items-center w-24">
-                      <span class="text-xs text-white/40 font-medium truncate w-full text-center">{{ bout.athleteRight.firstName }} {{ bout.athleteRight.lastName }}</span>
+                      <span class="text-xs text-white/40 font-medium truncate w-full text-center">
+                        {{ bout.athleteRight ? bout.athleteRight.firstName + ' ' + bout.athleteRight.lastName : 'BYE' }}
+                      </span>
                       <span class="text-3xl font-black text-white mt-1">{{ bout.scoreRight }}</span>
                     </div>
                   </div>
@@ -157,28 +86,11 @@ export class BoutListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly boutService = inject(BoutService);
-  private readonly tournamentService = inject(OrganizerTournamentService);
-  private readonly fb = inject(FormBuilder);
 
   private tournamentId = 0;
 
   readonly bouts = signal<BoutResponse[]>([]);
-  readonly enrollments = signal<EnrollmentDetailResponse[]>([]);
   readonly loading = signal(true);
-  readonly showNewBoutForm = signal(false);
-  readonly creating = signal(false);
-  readonly createError = signal<string | null>(null);
-
-  readonly formatOptions = [
-    { value: 'POULE', label: BoutFormatLabels.POULE },
-    { value: 'ELIMINATION', label: BoutFormatLabels.ELIMINATION }
-  ];
-
-  readonly boutForm = this.fb.group({
-    athleteLeftId: ['', Validators.required],
-    athleteRightId: ['', Validators.required],
-    format: ['POULE', Validators.required]
-  });
 
   readonly statusLabel = (s: BoutStatus) => BoutStatusLabels[s] ?? s;
   readonly formatLabel = (f: string) => BoutFormatLabels[f as keyof typeof BoutFormatLabels] ?? f;
@@ -187,41 +99,13 @@ export class BoutListComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     this.tournamentId = id ? +id : 0;
     this.loadBouts();
-    this.tournamentService.getEnrollments(this.tournamentId).subscribe({
-      next: (data) => this.enrollments.set(data.filter(e => e.status === 'PAID'))
-    });
   }
 
   loadBouts(): void {
     this.loading.set(true);
-    this.boutService.getBoutsByTournament(this.tournamentId).subscribe({
+    this.boutService.getMyBouts(this.tournamentId).subscribe({
       next: (data) => { this.bouts.set(data); this.loading.set(false); },
       error: () => this.loading.set(false)
-    });
-  }
-
-  createBout(): void {
-    if (this.boutForm.invalid) return;
-    const v = this.boutForm.getRawValue();
-    const req: BoutRequest = {
-      tournamentId: this.tournamentId,
-      athleteLeftId: +v.athleteLeftId!,
-      athleteRightId: +v.athleteRightId!,
-      format: v.format as BoutRequest['format']
-    };
-    this.creating.set(true);
-    this.createError.set(null);
-    this.boutService.createBout(req).subscribe({
-      next: (b) => {
-        this.creating.set(false);
-        this.showNewBoutForm.set(false);
-        this.boutForm.reset({ format: 'POULE' });
-        this.loadBouts();
-      },
-      error: (err) => {
-        this.creating.set(false);
-        this.createError.set(err?.error?.message ?? 'Error al crear el asalto.');
-      }
     });
   }
 

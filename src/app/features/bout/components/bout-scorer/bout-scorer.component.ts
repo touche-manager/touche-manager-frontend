@@ -78,13 +78,13 @@ import {
             <div class="flex flex-col items-center">
               <div class="w-10 h-10 rounded-full bg-green-500/30 flex items-center justify-center mb-2">
                 <span class="text-green-400 font-bold text-sm">
-                  {{ bout()!.athleteRight.firstName.charAt(0) }}
+                  {{ bout()!.athleteRight?.firstName?.charAt(0) ?? '' }}
                 </span>
               </div>
               <p class="text-white font-semibold text-center text-sm leading-tight">
-                {{ bout()!.athleteRight.firstName }}<br>{{ bout()!.athleteRight.lastName }}
+                {{ bout()!.athleteRight?.firstName ?? '' }}<br>{{ bout()!.athleteRight?.lastName ?? '' }}
               </p>
-              <p class="text-white/40 text-xs mt-0.5">{{ bout()!.athleteRight.club ?? '' }}</p>
+              <p class="text-white/40 text-xs mt-0.5">{{ bout()!.athleteRight?.club ?? '' }}</p>
             </div>
           </div>
 
@@ -95,9 +95,10 @@ import {
               @if (bout()!.winnerId) {
                 <p class="text-white mt-1">
                   Ganador: <strong>{{ winnerName() }}</strong>
+                  @if (bout()!.priority) {
+                    <span class="text-white/50 text-sm ml-2">(por prioridad)</span>
+                  }
                 </p>
-              } @else {
-                <p class="text-white/60 mt-1">Empate — el árbitro decide</p>
               }
             </div>
           }
@@ -142,7 +143,7 @@ import {
               <!-- Right fencer controls -->
               <div class="space-y-2">
                 <p class="text-green-400 text-xs font-bold uppercase tracking-wider text-center">
-                  {{ bout()!.athleteRight.firstName }}
+                  {{ bout()!.athleteRight?.firstName ?? '' }}
                 </p>
                 <button
                   id="btn-touche-right"
@@ -172,6 +173,33 @@ import {
                 </div>
               </div>
             </div>
+
+            <!-- Priority banner (when scores are tied) -->
+            @if (bout()!.status === 'IN_PROGRESS' && bout()!.scoreLeft === bout()!.scoreRight && !bout()!.priority) {
+              <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center">
+                <p class="text-amber-400 font-bold text-sm mb-3">⚠️ Puntaje empatado — Sortear prioridad para poder finalizar</p>
+                <button
+                  id="btn-draw-priority"
+                  (click)="drawPriority()"
+                  [disabled]="recording()"
+                  class="px-6 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold transition-all active:scale-95"
+                >
+                  🎲 Sortear Prioridad
+                </button>
+              </div>
+            }
+
+            @if (bout()!.priority) {
+              <div class="bg-touche-celeste/10 border border-touche-celeste/30 rounded-2xl p-3 text-center">
+                <p class="text-touche-celeste text-sm font-medium">
+                  ⭐ Prioridad:
+                  <strong [class]="bout()!.priority === 'LEFT' ? 'text-red-400' : 'text-green-400'">
+                    {{ bout()!.priority === 'LEFT' ? bout()!.athleteLeft.firstName : (bout()!.athleteRight?.firstName ?? '') }}
+                    {{ bout()!.priority === 'LEFT' ? bout()!.athleteLeft.lastName : (bout()!.athleteRight?.lastName ?? '') }}
+                  </strong>
+                </p>
+              </div>
+            }
 
             <!-- Start / Timer / Finish buttons -->
             <div class="flex gap-3 mt-auto">
@@ -212,7 +240,7 @@ import {
                 @for (event of lastEvents(); track event.id) {
                   <div class="flex items-center justify-between text-sm">
                     <span [class]="event.side === 'LEFT' ? 'text-red-400' : 'text-green-400'" class="font-medium">
-                      {{ event.side === 'LEFT' ? bout()!.athleteLeft.firstName : bout()!.athleteRight.firstName }}
+                      {{ event.side === 'LEFT' ? bout()!.athleteLeft.firstName : (bout()!.athleteRight?.firstName ?? '') }}
                     </span>
                     <span class="text-white/60">
                       {{ eventTypeLabel(event.eventType) }}
@@ -337,13 +365,36 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
   }
 
   finishBout(): void {
+    const b = this.bout();
+    if (!b) return;
+    // If scores are tied and no priority, warn the referee
+    if (b.scoreLeft === b.scoreRight && !b.priority) {
+      alert('No se puede finalizar con puntaje empatado. Debe sortear la prioridad primero.');
+      return;
+    }
     if (!confirm('¿Finalizar el combate? Se declarará al ganador según el puntaje actual.')) return;
     this.boutService.finishBout(this.boutId).subscribe({
-      next: (b) => {
-        this.bout.set(b);
+      next: (updated) => {
+        this.bout.set(updated);
         this.clearTimers();
         this.timerRunning.set(false);
       }
+    });
+  }
+
+  drawPriority(): void {
+    const side = Math.random() < 0.5 ? 'LEFT' : 'RIGHT' as const;
+    this.recording.set(true);
+    this.boutService.assignPriority(this.boutId, side).subscribe({
+      next: (updated) => {
+        this.bout.set(updated);
+        this.recording.set(false);
+        const name = side === 'LEFT'
+          ? `${updated.athleteLeft.firstName} ${updated.athleteLeft.lastName}`
+          : `${updated.athleteRight!.firstName} ${updated.athleteRight!.lastName}`;
+        alert(`Prioridad asignada a: ${name}. Se otorga un minuto extra de asalto.`);
+      },
+      error: () => this.recording.set(false)
     });
   }
 
@@ -360,7 +411,7 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
     if (b.winnerId === b.athleteLeft.id) {
       return `${b.athleteLeft.firstName} ${b.athleteLeft.lastName}`;
     }
-    return `${b.athleteRight.firstName} ${b.athleteRight.lastName}`;
+    return `${b.athleteRight!.firstName} ${b.athleteRight!.lastName}`;
   }
 
   eventTypeLabel(type: EventType): string {

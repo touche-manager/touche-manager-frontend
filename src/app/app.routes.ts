@@ -23,5 +23,12 @@ export const routes: Routes = [
     loadChildren: () => import('./features/bout/bout.routes').then(m => m.boutRoutes),
     canActivate: [authGuard, roleGuard(['REFEREE', 'ADMIN'])]
   },
+  {
+    path: 'results/:id',
+    loadComponent: () =>
+      import('./features/tournament/components/tournament-results/tournament-results.component')
+        .then(m => m.TournamentResultsComponent)
+    // No auth guard — public route
+  },
   { path: '**', redirectTo: 'auth' }
 ];

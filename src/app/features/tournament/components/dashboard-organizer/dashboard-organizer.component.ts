@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
-import { OrganizerTournamentResponse, WeaponLabels, CategoryLabels, GenderLabels } from '../../../../core/models/tournament.models';
+import { OrganizerTournamentResponse, WeaponLabels, CategoryLabels, GenderLabels, TournamentPhase, TournamentPhaseLabels } from '../../../../core/models/tournament.models';
 
 @Component({
   selector: 'app-dashboard-organizer',
@@ -63,6 +63,14 @@ import { OrganizerTournamentResponse, WeaponLabels, CategoryLabels, GenderLabels
               <!-- Tournament header -->
               <div class="flex items-start justify-between mb-4">
                 <div class="flex-1 min-w-0">
+                  @if (tournament.phase) {
+                    <div class="mb-1.5 flex flex-wrap gap-1">
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+                        [class]="phaseBadgeClass(tournament.phase)">
+                        {{ phaseLabel(tournament.phase) }}
+                      </span>
+                    </div>
+                  }
                   <h3 class="text-lg font-bold text-white truncate group-hover:text-touche-celeste transition-colors">
                     {{ tournament.name }}
                   </h3>
@@ -125,13 +133,23 @@ import { OrganizerTournamentResponse, WeaponLabels, CategoryLabels, GenderLabels
                 >
                   Inscriptos
                 </button>
-                <button
-                  [id]="'btn-edit-' + tournament.id"
-                  (click)="editTournament(tournament.id)"
-                  class="flex-1 text-sm py-2 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors font-medium"
-                >
-                  Editar
-                </button>
+                @if (tournament.phase === 'FINISHED') {
+                  <button
+                    [id]="'btn-results-' + tournament.id"
+                    (click)="viewResults(tournament.id)"
+                    class="flex-1 text-sm py-2 px-3 rounded-lg bg-touche-gold text-touche-navy hover:bg-yellow-500 transition-colors font-bold"
+                  >
+                    Resultados
+                  </button>
+                } @else {
+                  <button
+                    [id]="'btn-edit-' + tournament.id"
+                    (click)="editTournament(tournament.id)"
+                    class="flex-1 text-sm py-2 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors font-medium"
+                  >
+                    Editar
+                  </button>
+                }
                 <button
                   [id]="'btn-delete-' + tournament.id"
                   (click)="deleteTournament(tournament)"
@@ -190,6 +208,22 @@ export class DashboardOrganizerComponent implements OnInit {
 
   viewDetail(id: number): void {
     this.router.navigate(['/tournament', id]);
+  }
+
+  viewResults(id: number): void {
+    this.router.navigate(['/results', id]);
+  }
+
+  readonly phaseLabel = (p: TournamentPhase) => TournamentPhaseLabels[p] ?? p;
+
+  phaseBadgeClass(phase: TournamentPhase): string {
+    const map: Record<TournamentPhase, string> = {
+      ENROLLMENT: 'bg-blue-500/20 text-blue-400',
+      POULES_IN_PROGRESS: 'bg-yellow-500/20 text-yellow-400',
+      ELIMINATION_IN_PROGRESS: 'bg-orange-500/20 text-orange-400',
+      FINISHED: 'bg-green-500/20 text-green-400'
+    };
+    return map[phase] ?? 'bg-white/10 text-white/40';
   }
 
   deleteTournament(tournament: OrganizerTournamentResponse): void {

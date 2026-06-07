@@ -10,13 +10,17 @@ import {
   DocumentValidationRequest,
   EnrollmentStatusLabels,
   DocumentValidationStatusLabels,
-  DocumentTypeLabels
+  DocumentTypeLabels,
+  TournamentPhase,
+  TournamentPhaseLabels,
+  OrganizerTournamentResponse
 } from '../../../../core/models/tournament.models';
+import { RefereeApplicationsComponent } from '../referee-applications/referee-applications.component';
 
 @Component({
   selector: 'app-tournament-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RefereeApplicationsComponent],
   template: `
     <div class="min-h-screen bg-touche-navy p-4 md:p-8">
       <div class="max-w-5xl mx-auto">
@@ -28,10 +32,50 @@ import {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
           </button>
-          <div>
+          <div class="flex-1">
             <h1 class="text-2xl font-bold text-white">Atletas Inscriptos</h1>
             <p class="text-touche-celeste/70 text-sm mt-0.5">Gestión de inscripciones y validación de documentos</p>
           </div>
+          <!-- Phase badge + action button -->
+          @if (tournamentPhase()) {
+            <div class="flex items-center gap-3">
+              <span class="text-xs px-3 py-1.5 rounded-full font-medium" [class]="phaseBadgeClass(tournamentPhase()!)">
+                {{ phaseLabel(tournamentPhase()!) }}
+              </span>
+              @if (tournamentPhase() === 'ENROLLMENT') {
+                <button
+                  id="btn-manage-poules"
+                  (click)="goToPoules()"
+                  class="text-sm px-4 py-2 rounded-xl bg-touche-celeste text-touche-navy font-bold hover:bg-touche-celeste/80 transition-colors"
+                >
+                  Generar Poules
+                </button>
+              } @else if (tournamentPhase() === 'POULES_IN_PROGRESS' || tournamentPhase() === 'ELIMINATION_IN_PROGRESS') {
+                <button
+                  id="btn-manage-poules"
+                  (click)="goToPoules()"
+                  class="text-sm px-4 py-2 rounded-xl bg-touche-celeste text-touche-navy font-bold hover:bg-touche-celeste/80 transition-colors"
+                >
+                  Gestionar Poules
+                </button>
+              } @else if (tournamentPhase() === 'FINISHED') {
+                <button
+                  id="btn-manage-poules"
+                  (click)="goToPoules()"
+                  class="text-sm px-4 py-2 rounded-xl bg-white/10 text-white font-semibold hover:bg-white/20 transition-colors"
+                >
+                  Ver Poules/Bracket
+                </button>
+                <button
+                  id="btn-view-results"
+                  (click)="goToResults()"
+                  class="text-sm px-4 py-2 rounded-xl bg-touche-gold text-touche-navy font-bold hover:bg-yellow-500 transition-colors"
+                >
+                  Ver Resultados
+                </button>
+              }
+            </div>
+          }
         </div>
 
         <!-- Filter tabs -->
@@ -151,6 +195,9 @@ import {
             }
           </div>
         }
+        <!-- Referee applications panel -->
+        <app-referee-applications [tournamentId]="tournamentId"></app-referee-applications>
+
       </div>
     </div>
   `
@@ -160,12 +207,13 @@ export class TournamentDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly tournamentService = inject(OrganizerTournamentService);
 
-  private tournamentId = 0;
+  tournamentId = 0;
 
   readonly enrollments = signal<EnrollmentDetailResponse[]>([]);
   readonly activeFilter = signal<EnrollmentStatus | 'ALL'>('ALL');
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly tournamentPhase = signal<TournamentPhase | null>(null);
 
   readonly filterTabs: { value: EnrollmentStatus | 'ALL'; label: string }[] = [
     { value: 'ALL', label: 'Todos' },
@@ -184,6 +232,14 @@ export class TournamentDetailComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     this.tournamentId = id ? +id : 0;
     this.loadEnrollments();
+    this.loadTournamentPhase();
+  }
+
+  loadTournamentPhase(): void {
+    this.tournamentService.getTournamentById(this.tournamentId).subscribe({
+      next: (t: any) => this.tournamentPhase.set(t.phase ?? null),
+      error: () => {}
+    });
   }
 
   loadEnrollments(): void {
@@ -240,6 +296,26 @@ export class TournamentDetailComponent implements OnInit {
       REJECTED: 'bg-red-500/20 text-red-400'
     };
     return map[status] ?? '';
+  }
+
+  readonly phaseLabel = (p: TournamentPhase) => TournamentPhaseLabels[p] ?? p;
+
+  phaseBadgeClass(phase: TournamentPhase): string {
+    const map: Record<TournamentPhase, string> = {
+      ENROLLMENT: 'bg-blue-500/20 text-blue-400',
+      POULES_IN_PROGRESS: 'bg-yellow-500/20 text-yellow-400',
+      ELIMINATION_IN_PROGRESS: 'bg-orange-500/20 text-orange-400',
+      FINISHED: 'bg-green-500/20 text-green-400'
+    };
+    return map[phase] ?? 'bg-white/10 text-white/40';
+  }
+
+  goToPoules(): void {
+    this.router.navigate(['/tournament', this.tournamentId, 'poules']);
+  }
+
+  goToResults(): void {
+    this.router.navigate(['/results', this.tournamentId]);
   }
 
   goBack(): void {

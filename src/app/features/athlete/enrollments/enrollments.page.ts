@@ -3,13 +3,13 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TournamentService } from '../services/tournament.service';
 import { AthleteService } from '../services/athlete.service';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 import { TournamentResponse, WeaponLabels, CategoryLabels, GenderLabels } from '../../../core/models/tournament.models';
 
 @Component({
   selector: 'app-enrollments-page',
   standalone: true,
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, NgClass],
   templateUrl: './enrollments.page.html'
 })
 export class EnrollmentsPageComponent implements OnInit {

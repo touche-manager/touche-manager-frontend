@@ -4,6 +4,13 @@ export type BoutFormat = 'POULE' | 'ELIMINATION';
 export type BoutStatus = 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
 export type EventSide = 'LEFT' | 'RIGHT';
 export type EventType = 'TOUCHE' | 'PENALTY' | 'CARD';
+export type EliminationRound =
+  | 'ROUND_OF_64'
+  | 'ROUND_OF_32'
+  | 'ROUND_OF_16'
+  | 'QUARTERFINAL'
+  | 'SEMIFINAL'
+  | 'FINAL';
 
 // ── Requests ──────────────────────────────────────────────────────────────────
 
@@ -40,14 +47,23 @@ export interface BoutEventResponse {
   recordedAt: string;
 }
 
+export interface RefereeSummary {
+  userId: number;
+  fullName: string;
+  email: string;
+}
+
 export interface BoutResponse {
   id: number;
   tournamentId: number;
   tournamentName: string;
+  pouleId: number | null;
+  pouleNumber: number | null;
+  boutOrder: number | null;
   format: BoutFormat;
   status: BoutStatus;
   athleteLeft: AthleteSummary;
-  athleteRight: AthleteSummary;
+  athleteRight: AthleteSummary | null;
   scoreLeft: number;
   scoreRight: number;
   currentPeriod: number;
@@ -55,9 +71,13 @@ export interface BoutResponse {
   touchesTarget: number;
   elapsedSeconds: number;
   winnerId: number | null;
+  eliminationRound: EliminationRound | null;
+  bracketPosition: number | null;
+  priority: EventSide | null;
   startedAt: string | null;
   finishedAt: string | null;
   events: BoutEventResponse[];
+  referees: RefereeSummary[];
 }
 
 export interface AthleteStanding {

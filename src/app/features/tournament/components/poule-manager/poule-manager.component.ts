@@ -1,0 +1,744 @@
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PouleService } from '../../services/poule.service';
+import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
+import { RefereeApplicationService } from '../../services/referee-application.service';
+import { BoutService } from '../../../bout/services/bout.service';
+import {
+  PouleResponse,
+  PouleStandingEntry,
+  EliminationBracketResponse,
+  EliminationRoundLabels,
+  RefereeApplicationResponse
+} from '../../../../core/models/tournament.models';
+
+type ActiveTab = 'poules' | 'standings' | 'bracket';
+
+@Component({
+  selector: 'app-poule-manager',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="min-h-screen bg-touche-navy p-4 md:p-8">
+      <div class="max-w-6xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-8">
+          <button (click)="goBack()" class="text-touche-celeste hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <div class="flex-1">
+            <h1 class="text-2xl font-bold text-white">Gestión de Poules</h1>
+            <p class="text-sm text-touche-celeste/70 mt-0.5">Asigná árbitros, seguí el progreso y generá el bracket</p>
+          </div>
+          @if (phase()) {
+            <span class="text-xs px-3 py-1.5 rounded-full font-medium"
+              [class]="phase() === 'POULES_IN_PROGRESS' ? 'bg-yellow-500/20 text-yellow-400'
+                : phase() === 'ELIMINATION_IN_PROGRESS' ? 'bg-orange-500/20 text-orange-400'
+                : phase() === 'FINISHED' ? 'bg-green-500/20 text-green-400'
+                : 'bg-blue-500/20 text-blue-400'">
+              {{ phase() === 'POULES_IN_PROGRESS' ? 'Poules en curso'
+                : phase() === 'ELIMINATION_IN_PROGRESS' ? 'Eliminatorias'
+                : phase() === 'FINISHED' ? 'Finalizado'
+                : phase() }}
+            </span>
+          }
+        </div>
+
+        <!-- Generate Poules button (when ENROLLMENT phase and no poules yet) -->
+        @if (phase() === 'ENROLLMENT' && poules().length === 0 && !loading()) {
+          <div class="flex justify-center mb-8">
+            <button
+              id="btn-generate-poules"
+              (click)="generatePoules()"
+              [disabled]="generatingPoules()"
+              class="flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-touche-celeste to-blue-500 text-touche-navy font-bold shadow-lg hover:scale-[1.02] transition-all duration-200 disabled:opacity-50"
+            >
+              @if (generatingPoules()) {
+                <div class="w-5 h-5 border-2 border-touche-navy border-t-transparent rounded-full animate-spin"></div>
+                Generando...
+              } @else {
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                Generar Poules
+              }
+            </button>
+          </div>
+        }
+
+        <!-- Finished Tournament Success Banner -->
+        @if (phase() === 'FINISHED') {
+          <div class="mb-6 bg-gradient-to-r from-touche-gold/20 via-yellow-500/10 to-transparent border border-touche-gold/40 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-start gap-4">
+              <span class="text-3xl">🏆</span>
+              <div>
+                <h3 class="text-lg font-bold text-white">¡Torneo Finalizado!</h3>
+                <p class="text-sm text-white/70 mt-1">
+                  Todos los asaltos han concluido y se han cargado los resultados. Ya podés ver los resultados oficiales, el podio y la clasificación general.
+                </p>
+              </div>
+            </div>
+            <button
+              id="btn-view-finished-results"
+              (click)="goToResults()"
+              class="w-full sm:w-auto px-6 py-3 rounded-xl bg-touche-gold text-touche-navy font-bold text-sm hover:bg-yellow-500 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-touche-gold/20"
+            >
+              <span>Ver Resultados</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        }
+
+        <!-- Tabs -->
+        <div class="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 mb-6 w-fit">
+        <button
+          id="tab-poules"
+          (click)="setTab('poules')"
+          class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          [class]="activeTab() === 'poules'
+            ? 'bg-touche-celeste text-touche-navy shadow-lg shadow-touche-celeste/20'
+            : 'text-white/60 hover:text-white hover:bg-white/5'"
+        >
+          Poules
+        </button>
+        <button
+          id="tab-standings"
+          (click)="setTab('standings')"
+          class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          [class]="activeTab() === 'standings'
+            ? 'bg-touche-celeste text-touche-navy shadow-lg shadow-touche-celeste/20'
+            : 'text-white/60 hover:text-white hover:bg-white/5'"
+        >
+          Clasificación
+        </button>
+        <button
+          id="tab-bracket"
+          (click)="setTab('bracket')"
+          class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          [class]="activeTab() === 'bracket'
+            ? 'bg-touche-celeste text-touche-navy shadow-lg shadow-touche-celeste/20'
+            : 'text-white/60 hover:text-white hover:bg-white/5'"
+        >
+          Bracket
+        </button>
+      </div>
+
+      <!-- Alerts -->
+      @if (error()) {
+        <div class="mb-4 flex items-center gap-3 bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-red-300 text-sm">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          {{ error() }}
+        </div>
+      }
+
+      @if (successMsg()) {
+        <div class="mb-4 flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-green-300 text-sm">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          {{ successMsg() }}
+        </div>
+      }
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="flex justify-center items-center h-48">
+          <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
+        </div>
+      }
+
+      <!-- ── POULES TAB ── -->
+      @if (!loading() && activeTab() === 'poules') {
+        @if (poules().length === 0) {
+          <div class="text-center py-16 text-white/40">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+            </svg>
+            <p class="font-medium">No hay poules generadas</p>
+            <p class="text-sm mt-1">Las poules aparecerán aquí una vez generadas</p>
+          </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          @for (poule of poules(); track poule.id) {
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-4">
+              <!-- Poule header -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-touche-celeste/15 flex items-center justify-center">
+                    <span class="text-touche-celeste font-bold text-sm">{{ poule.number }}</span>
+                  </div>
+                  <h3 class="font-bold text-white">Poule {{ poule.number }}</h3>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full"
+                  [class]="poule.status === 'FINISHED' ? 'bg-green-500/20 text-green-400'
+                    : poule.status === 'IN_PROGRESS' ? 'bg-yellow-500/20 text-yellow-400'
+                    : 'bg-white/10 text-white/50'"
+                >
+                  {{ poule.status === 'FINISHED' ? 'Finalizada' : poule.status === 'IN_PROGRESS' ? 'En curso' : 'Pendiente' }}
+                </span>
+              </div>
+
+              <!-- Progress bar -->
+              <div>
+                <div class="flex justify-between text-xs text-white/50 mb-1.5">
+                  <span>Asaltos</span>
+                  <span>{{ poule.finishedBouts }} / {{ poule.totalBouts }}</span>
+                </div>
+                <div class="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-touche-celeste rounded-full transition-all duration-500"
+                    [style.width.%]="boutProgress(poule)"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Athletes -->
+              <div>
+                <p class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Atletas</p>
+                <div class="flex flex-col gap-1">
+                  @for (athlete of poule.athletes; track athlete.id) {
+                    <div class="text-sm text-white/80 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 rounded-full bg-touche-celeste/60 flex-shrink-0"></span>
+                      <span class="truncate">{{ athlete.fullName }}</span>
+                      @if (athlete.club) {
+                        <span class="text-white/30 text-xs ml-auto flex-shrink-0">{{ athlete.club }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Referees -->
+              <div>
+                <p class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Árbitros</p>
+                @if (poule.referees.length === 0) {
+                  <p class="text-xs text-white/30 italic">Sin árbitro asignado</p>
+                }
+                <div class="flex flex-col gap-1.5 mb-3">
+                  @for (ref of poule.referees; track ref.userId) {
+                    <div class="flex items-center justify-between bg-white/5 rounded-lg px-3 py-1.5">
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm text-white truncate">{{ ref.fullName }}</p>
+                        <p class="text-xs text-white/40 truncate">{{ ref.email }}</p>
+                      </div>
+                      <button
+                        [id]="'btn-remove-ref-' + poule.id + '-' + ref.userId"
+                        (click)="removeReferee(poule.id, ref.userId)"
+                        class="ml-2 text-white/30 hover:text-red-400 transition-colors flex-shrink-0"
+                        title="Remover árbitro"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <!-- Add referee select -->
+                <div class="flex gap-2">
+                  <div class="relative flex-1 min-w-0">
+                    <select
+                      [id]="'select-ref-' + poule.id"
+                      [value]="getRefereeId(poule.id)"
+                      (change)="setRefereeId(poule.id, $any($event.target).value)"
+                      class="w-full text-sm bg-white/5 border border-white/10 rounded-lg pl-3 pr-8 py-1.5 text-white focus:outline-none focus:border-touche-celeste/50 transition-colors appearance-none truncate"
+                    >
+                      <option value="" disabled selected class="bg-touche-navy text-white/50">Seleccionar árbitro...</option>
+                      @for (ref of acceptedReferees(); track ref.refereeId) {
+                        <option [value]="ref.refereeId" class="bg-touche-navy text-white">
+                          {{ ref.refereeName }} ({{ ref.refereeEmail }})
+                        </option>
+                      }
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-white/50">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <button
+                    [id]="'btn-assign-ref-' + poule.id"
+                    (click)="assignReferee(poule.id)"
+                    [disabled]="!getRefereeId(poule.id)"
+                    class="px-3 py-1.5 rounded-lg bg-touche-celeste/20 hover:bg-touche-celeste/30 text-touche-celeste text-sm font-medium transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    Asignar
+                  </button>
+                </div>
+                @if (acceptedReferees().length === 0) {
+                  <p class="text-xs text-white/30 mt-1 italic">No hay árbitros aceptados en este torneo</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Generate Bracket button -->
+        @if (phase() === 'POULES_IN_PROGRESS' && poules().length > 0) {
+          <div class="mt-8 flex flex-col items-center gap-2">
+            <button
+              id="btn-generate-bracket"
+              (click)="generateBracket()"
+              [disabled]="generatingBracket() || !allPoulesFinished()"
+              class="flex items-center gap-3 px-8 py-3 rounded-xl bg-gradient-to-r from-touche-gold to-amber-500 text-touche-navy font-bold text-sm shadow-lg shadow-touche-gold/20 hover:shadow-touche-gold/40 hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              @if (generatingBracket()) {
+                <div class="w-4 h-4 border-2 border-touche-navy border-t-transparent rounded-full animate-spin"></div>
+                Generando...
+              } @else {
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Generar Bracket de Eliminatorias
+              }
+            </button>
+            @if (!allPoulesFinished()) {
+              <p class="text-xs text-white/40 italic">⏳ Esperando que finalicen todas las poules ({{ finishedPoulesCount() }}/{{ poules().length }})</p>
+            }
+          </div>
+        }
+      }
+
+      <!-- ── STANDINGS TAB ── -->
+      @if (!loading() && activeTab() === 'standings') {
+        @if (standings().length === 0) {
+          <div class="text-center py-16 text-white/40">
+            <p class="font-medium">Sin datos de clasificación</p>
+            <p class="text-sm mt-1">La clasificación estará disponible cuando los asaltos progresen</p>
+          </div>
+        } @else {
+          <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-white/10">
+                  <th class="text-left py-3 px-4 text-xs font-semibold text-white/40 uppercase tracking-wider w-12">#</th>
+                  <th class="text-left py-3 px-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Atleta</th>
+                  <th class="text-left py-3 px-4 text-xs font-semibold text-white/40 uppercase tracking-wider hidden sm:table-cell">Club</th>
+                  <th class="text-center py-3 px-4 text-xs font-semibold text-white/40 uppercase tracking-wider">V</th>
+                  <th class="text-center py-3 px-4 text-xs font-semibold text-white/40 uppercase tracking-wider">Ind</th>
+                  <th class="text-center py-3 px-4 text-xs font-semibold text-white/40 uppercase tracking-wider">T+</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entry of standings(); track entry.athleteId; let i = $index) {
+                  <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td class="py-3 px-4">
+                      @if (i === 0) {
+                        <span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-touche-gold/20 text-touche-gold font-bold text-xs">1</span>
+                      } @else if (i === 1) {
+                        <span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-white/10 text-white/60 font-bold text-xs">2</span>
+                      } @else if (i === 2) {
+                        <span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-amber-700/20 text-amber-600 font-bold text-xs">3</span>
+                      } @else {
+                        <span class="text-white/40 text-sm pl-1">{{ i + 1 }}</span>
+                      }
+                    </td>
+                    <td class="py-3 px-4">
+                      <p class="font-medium text-white text-sm">{{ entry.fullName }}</p>
+                      <p class="text-xs text-white/40 mt-0.5">Poule {{ entry.pouleNumber }}</p>
+                    </td>
+                    <td class="py-3 px-4 hidden sm:table-cell text-sm text-white/50">{{ entry.club ?? '—' }}</td>
+                    <td class="py-3 px-4 text-center font-bold text-white text-sm">{{ entry.victories }}</td>
+                    <td class="py-3 px-4 text-center text-sm font-medium"
+                        [class]="entry.indicator >= 0 ? 'text-green-400' : 'text-red-400'">
+                      {{ entry.indicator >= 0 ? '+' : '' }}{{ entry.indicator }}
+                    </td>
+                    <td class="py-3 px-4 text-center text-sm text-touche-celeste font-medium">{{ entry.touchesScored }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="text-xs text-white/30 mt-3 text-center">V = Victorias · Ind = Indicador (T+ - T-) · T+ = Tocados dados</p>
+        }
+      }
+
+      <!-- ── BRACKET TAB ── -->
+      @if (!loading() && activeTab() === 'bracket') {
+        @if (!bracket()) {
+          <div class="text-center py-16 text-white/40">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <p class="font-medium">Bracket no disponible</p>
+            <p class="text-sm mt-1">El bracket se generará al finalizar las poules</p>
+          </div>
+        } @else {
+          <div class="space-y-8">
+            @for (round of bracketRounds(bracket()!); track round.round) {
+              <div>
+                <!-- Round title -->
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="h-px flex-1 bg-gradient-to-r from-touche-celeste/30 to-transparent"></div>
+                  <h3 class="text-sm font-bold text-touche-celeste uppercase tracking-widest px-2">{{ round.label }}</h3>
+                  <div class="h-px flex-1 bg-gradient-to-l from-touche-celeste/30 to-transparent"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  @for (bout of round.bouts; track bout.id) {
+                    <div class="bg-white/5 border rounded-xl p-4 transition-all"
+                         [class]="bout.status === 'FINISHED' ? 'border-green-500/20' : bout.status === 'IN_PROGRESS' ? 'border-yellow-500/30' : 'border-white/10'">
+                      <!-- Left athlete -->
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-white truncate flex-1">
+                          {{ bout.athleteLeft.firstName }} {{ bout.athleteLeft.lastName }}
+                        </span>
+                        @if (bout.status === 'FINISHED') {
+                          <span class="text-lg font-black ml-3 flex-shrink-0"
+                                [class]="bout.winnerId === bout.athleteLeft.id ? 'text-touche-gold' : 'text-white/30'">
+                            {{ bout.scoreLeft }}
+                          </span>
+                        }
+                      </div>
+
+                      <div class="flex items-center gap-2 my-1.5">
+                        <div class="flex-1 h-px bg-white/10"></div>
+                        <span class="text-xs text-white/30">vs</span>
+                        <div class="flex-1 h-px bg-white/10"></div>
+                      </div>
+
+                      <!-- Right athlete -->
+                      <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-white truncate flex-1">
+                          {{ bout.athleteRight ? bout.athleteRight.firstName + ' ' + bout.athleteRight.lastName : 'BYE' }}
+                        </span>
+                        @if (bout.status === 'FINISHED') {
+                          <span class="text-lg font-black ml-3 flex-shrink-0"
+                                [class]="bout.winnerId === bout.athleteRight?.id ? 'text-touche-gold' : 'text-white/30'">
+                            {{ bout.scoreRight }}
+                          </span>
+                        }
+                      </div>
+
+                      <!-- Status badge -->
+                      <div class="mt-3 pt-3 border-t border-white/5 flex justify-between items-center">
+                        @if (bout.status === 'FINISHED') {
+                          <span class="text-xs text-green-400">Finalizado</span>
+                          <span class="text-xs text-touche-gold font-medium">
+                            Ganador: {{ bout.winnerId === bout.athleteLeft.id ? (bout.athleteLeft.firstName + ' ' + bout.athleteLeft.lastName) : (bout.athleteRight ? bout.athleteRight.firstName + ' ' + bout.athleteRight.lastName : '—') }}
+                          </span>
+                        } @else if (bout.status === 'IN_PROGRESS') {
+                          <span class="text-xs text-yellow-400 animate-pulse">En curso</span>
+                        } @else {
+                          <span class="text-xs text-white/30">Pendiente</span>
+                        }
+                      </div>
+
+                      <!-- Referees -->
+                      <div class="mt-3 pt-3 border-t border-white/5">
+                        <p class="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1.5">Árbitros</p>
+                        @if (!bout.referees || bout.referees.length === 0) {
+                          <p class="text-xs text-white/30 italic mb-2">Sin árbitro asignado</p>
+                        } @else {
+                          <div class="flex flex-col gap-1 mb-2">
+                            @for (ref of bout.referees; track ref.userId) {
+                              <div class="flex items-center justify-between bg-white/5 rounded px-2 py-1">
+                                <div class="min-w-0 flex-1">
+                                  <p class="text-xs text-white truncate">{{ ref.fullName }}</p>
+                                  <p class="text-[10px] text-white/40 truncate">{{ ref.email }}</p>
+                                </div>
+                                <button
+                                  [id]="'btn-remove-elim-ref-' + bout.id + '-' + ref.userId"
+                                  (click)="removeRefereeFromEliminationBout(bout.id, ref.userId)"
+                                  class="ml-2 text-white/30 hover:text-red-400 transition-colors flex-shrink-0"
+                                  title="Remover árbitro"
+                                >
+                                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        <!-- Add referee select for elimination bout -->
+                        <div class="flex gap-1.5">
+                          <div class="relative flex-1 min-w-0">
+                            <select
+                              [id]="'select-elim-ref-' + bout.id"
+                              [value]="getElimRefereeId(bout.id)"
+                              (change)="setElimRefereeId(bout.id, $any($event.target).value)"
+                              class="w-full text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-white focus:outline-none focus:border-touche-celeste/50 transition-colors appearance-none truncate"
+                            >
+                              <option value="" disabled selected class="bg-touche-navy text-white/50">Asignar...</option>
+                              @for (ref of acceptedReferees(); track ref.refereeId) {
+                                <option [value]="ref.refereeId" class="bg-touche-navy text-white">
+                                  {{ ref.refereeName }} ({{ ref.refereeEmail }})
+                                </option>
+                              }
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-white/50">
+                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
+                          <button
+                            [id]="'btn-assign-elim-ref-' + bout.id"
+                            (click)="assignRefereeToEliminationBout(bout.id)"
+                            [disabled]="!getElimRefereeId(bout.id)"
+                            class="px-2.5 py-1 rounded bg-touche-celeste/20 hover:bg-touche-celeste/30 text-touche-celeste text-xs font-medium transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            Asignar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </div>
+  `
+})
+export class PouleManagerComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly pouleService = inject(PouleService);
+  private readonly tournamentService = inject(OrganizerTournamentService);
+  private readonly refereeAppService = inject(RefereeApplicationService);
+  private readonly boutService = inject(BoutService);
+
+  tournamentId = 0;
+  readonly phase = signal<string>('');
+  readonly activeTab = signal<ActiveTab>('poules');
+  readonly poules = signal<PouleResponse[]>([]);
+  readonly standings = signal<PouleStandingEntry[]>([]);
+  readonly bracket = signal<EliminationBracketResponse | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly successMsg = signal<string | null>(null);
+  readonly addRefereeId = signal<Record<number, string>>({});
+  readonly addElimRefereeId = signal<Record<number, string>>({});
+  readonly generatingBracket = signal(false);
+  readonly generatingPoules = signal(false);
+  readonly acceptedReferees = signal<RefereeApplicationResponse[]>([]);
+
+  /** True when every poule has status FINISHED */
+  readonly allPoulesFinished = computed(() => {
+    const ps = this.poules();
+    return ps.length > 0 && ps.every(p => p.status === 'FINISHED');
+  });
+
+  readonly finishedPoulesCount = computed(() =>
+    this.poules().filter(p => p.status === 'FINISHED').length
+  );
+
+  readonly roundLabels = EliminationRoundLabels;
+
+  ngOnInit(): void {
+    this.tournamentId = +this.route.snapshot.paramMap.get('id')!;
+    // Load tournament phase first
+    this.tournamentService.getTournamentById(this.tournamentId).subscribe({
+      next: (t) => { this.phase.set(t.phase ?? 'ENROLLMENT'); this.loadPoules(); },
+      error: () => { this.phase.set('ENROLLMENT'); this.loadPoules(); }
+    });
+    // Load accepted referees for the dropdown
+    this.loadAcceptedReferees();
+  }
+
+  loadAcceptedReferees(): void {
+    this.refereeAppService.getApplicationsForTournament(this.tournamentId).subscribe({
+      next: (apps) => this.acceptedReferees.set(apps.filter(a => a.status === 'ACCEPTED')),
+      error: () => {} // Silently fail — dropdown will be empty
+    });
+  }
+
+  loadPoules(): void {
+    this.loading.set(true);
+    this.pouleService.getPoulesForTournament(this.tournamentId).subscribe({
+      next: (data) => { this.poules.set(data); this.loading.set(false); },
+      error: () => { this.error.set('Error al cargar las poules.'); this.loading.set(false); }
+    });
+  }
+
+  loadStandings(): void {
+    this.loading.set(true);
+    this.pouleService.getStandings(this.tournamentId).subscribe({
+      next: (data) => { this.standings.set(data); this.loading.set(false); },
+      error: () => { this.error.set('Error al cargar la clasificación.'); this.loading.set(false); }
+    });
+  }
+
+  loadBracket(): void {
+    this.loading.set(true);
+    this.pouleService.getBracket(this.tournamentId).subscribe({
+      next: (data) => { this.bracket.set(data); this.loading.set(false); },
+      error: () => { this.error.set('Error al cargar el bracket.'); this.loading.set(false); }
+    });
+  }
+
+  setTab(tab: ActiveTab): void {
+    this.activeTab.set(tab);
+    this.error.set(null);
+    if (tab === 'standings') this.loadStandings();
+    if (tab === 'bracket') this.loadBracket();
+  }
+
+  generatePoules(): void {
+    this.generatingPoules.set(true);
+    this.error.set(null);
+    this.pouleService.generatePoules(this.tournamentId).subscribe({
+      next: (data) => {
+        this.poules.set(data);
+        this.phase.set('POULES_IN_PROGRESS');
+        this.generatingPoules.set(false);
+        this.showSuccess(`¡${data.length} poules generadas correctamente!`);
+      },
+      error: (err) => {
+        const msg = err?.error?.message ?? 'No se pudieron generar las poules.';
+        this.error.set(msg);
+        this.generatingPoules.set(false);
+      }
+    });
+  }
+
+  assignReferee(pouleId: number): void {
+    const idStr = this.addRefereeId()[pouleId];
+    const userId = parseInt(idStr, 10);
+    if (!userId) return;
+    this.pouleService.assignRefereeToPoule(pouleId, userId).subscribe({
+      next: (updated) => {
+        this.poules.update(ps => ps.map(p => p.id === pouleId ? updated : p));
+        this.addRefereeId.update(m => ({ ...m, [pouleId]: '' }));
+        this.showSuccess('Árbitro asignado.');
+      },
+      error: () => this.error.set('No se pudo asignar el árbitro.')
+    });
+  }
+
+  removeReferee(pouleId: number, refereeUserId: number): void {
+    this.pouleService.removeRefereeFromPoule(pouleId, refereeUserId).subscribe({
+      next: (updated) => this.poules.update(ps => ps.map(p => p.id === pouleId ? updated : p)),
+      error: () => this.error.set('No se pudo remover el árbitro.')
+    });
+  }
+
+  generateBracket(): void {
+    if (!confirm('¿Estás seguro que querés cerrar las poules y generar el bracket de eliminatorias?')) return;
+    this.generatingBracket.set(true);
+    this.pouleService.generateBracket(this.tournamentId).subscribe({
+      next: (data) => {
+        this.bracket.set(data);
+        this.phase.set('ELIMINATION_IN_PROGRESS');
+        this.generatingBracket.set(false);
+        this.activeTab.set('bracket');
+        this.showSuccess('¡Bracket generado! El torneo avanzó a fase de eliminatorias.');
+      },
+      error: () => {
+        this.error.set('No se pudo generar el bracket.');
+        this.generatingBracket.set(false);
+      }
+    });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/tournament', this.tournamentId]);
+  }
+
+  goToResults(): void {
+    this.router.navigate(['/results', this.tournamentId]);
+  }
+
+  getRefereeId(pouleId: number): string {
+    return this.addRefereeId()[pouleId] ?? '';
+  }
+
+  setRefereeId(pouleId: number, val: string): void {
+    this.addRefereeId.update(m => ({ ...m, [pouleId]: val }));
+  }
+
+  getElimRefereeId(boutId: number): string {
+    return this.addElimRefereeId()[boutId] ?? '';
+  }
+
+  setElimRefereeId(boutId: number, val: string): void {
+    this.addElimRefereeId.update(m => ({ ...m, [boutId]: val }));
+  }
+
+  assignRefereeToEliminationBout(boutId: number): void {
+    const idStr = this.getElimRefereeId(boutId);
+    const userId = parseInt(idStr, 10);
+    if (!userId) return;
+    this.boutService.assignRefereeToEliminationBout(boutId, userId).subscribe({
+      next: (updatedBout) => {
+        this.bracket.update(b => {
+          if (!b) return null;
+          const updatedRoundBouts = { ...b.roundBouts };
+          for (const round of Object.keys(updatedRoundBouts)) {
+            const list = updatedRoundBouts[round as keyof typeof b.roundBouts] || [];
+            const idx = list.findIndex(bt => bt.id === boutId);
+            if (idx !== -1) {
+              const newList = [...list];
+              newList[idx] = updatedBout;
+              updatedRoundBouts[round as keyof typeof b.roundBouts] = newList;
+              break;
+            }
+          }
+          return { ...b, roundBouts: updatedRoundBouts };
+        });
+        this.addElimRefereeId.update(m => ({ ...m, [boutId]: '' }));
+        this.showSuccess('Árbitro asignado al asalto.');
+      },
+      error: () => this.error.set('No se pudo asignar el árbitro al asalto.')
+    });
+  }
+
+  removeRefereeFromEliminationBout(boutId: number, refereeUserId: number): void {
+    this.boutService.removeRefereeFromEliminationBout(boutId, refereeUserId).subscribe({
+      next: (updatedBout) => {
+        this.bracket.update(b => {
+          if (!b) return null;
+          const updatedRoundBouts = { ...b.roundBouts };
+          for (const round of Object.keys(updatedRoundBouts)) {
+            const list = updatedRoundBouts[round as keyof typeof b.roundBouts] || [];
+            const idx = list.findIndex(bt => bt.id === boutId);
+            if (idx !== -1) {
+              const newList = [...list];
+              newList[idx] = updatedBout;
+              updatedRoundBouts[round as keyof typeof b.roundBouts] = newList;
+              break;
+            }
+          }
+          return { ...b, roundBouts: updatedRoundBouts };
+        });
+        this.showSuccess('Árbitro removido del asalto.');
+      },
+      error: () => this.error.set('No se pudo remover el árbitro del asalto.')
+    });
+  }
+
+  boutProgress(poule: PouleResponse): number {
+    return poule.totalBouts > 0 ? Math.round((poule.finishedBouts / poule.totalBouts) * 100) : 0;
+  }
+
+  bracketRounds(b: EliminationBracketResponse): { round: string; label: string; bouts: any[] }[] {
+    if (!b) return [];
+    return Object.entries(b.roundBouts).map(([round, bouts]) => ({
+      round,
+      label: this.roundLabels[round as keyof typeof this.roundLabels] ?? round,
+      bouts: bouts as any[]
+    }));
+  }
+
+  private showSuccess(msg: string): void {
+    this.successMsg.set(msg);
+    setTimeout(() => this.successMsg.set(null), 3000);
+  }
+}

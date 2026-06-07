@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ══════════════════════════════════════════════════════
+   DESIGN TOKENS — Custom properties
+   ══════════════════════════════════════════════════════ */
 :root {
   color-scheme: light;
   --touche-navy:    #1A1A3E;
@@ -11,8 +14,237 @@
   --touche-slate:   #F4F5F7;
 }
 
+/* ══════════════════════════════════════════════════════
+   BASE
+   ══════════════════════════════════════════════════════ */
 body {
   background-color: var(--touche-slate);
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* You can add global styles to this file, and also import other style files */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(26,26,62,0.18); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(26,26,62,0.32); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   REUSABLE COMPONENT CLASSES  (@layer components)
+   Use these in every template instead of repeating
+   long Tailwind utility strings.
+   ══════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Typography ─────────────────────────────────── */
+  .font-display {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  /* ── Buttons ─────────────────────────────────────
+     Usage:
+       <button class="btn-navy">Guardar</button>
+       <button class="btn-gold">Inscribirse</button>
+       <button class="btn-ghost">Cancelar</button>
+       <button class="btn-danger">Eliminar</button>
+  ──────────────────────────────────────────────── */
+  .btn-navy {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           rounded-xl bg-touche-navy hover:bg-[#14143A] active:bg-[#0F0F2E]
+           text-white text-sm font-bold shadow-sm
+           transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-touche-navy;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           rounded-xl bg-touche-gold hover:bg-[#b5901e] active:bg-[#9e7d1a]
+           text-touche-navy text-sm font-bold shadow-sm
+           transition-all duration-150 hover:scale-[1.01] active:scale-[0.99]
+           focus:outline-none focus:ring-2 focus:ring-touche-gold focus:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           rounded-xl border border-slate-200 bg-white hover:bg-slate-50
+           text-slate-600 text-sm font-bold
+           transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5
+           rounded-xl bg-touche-alert hover:bg-[#C13F2E]
+           text-white text-sm font-bold shadow-sm
+           transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-touche-alert focus:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /* ── Inputs & Selects ────────────────────────────
+     Usage:
+       <input class="input-field" />
+       <input class="input-field input-error" />
+  ──────────────────────────────────────────────── */
+  .input-field {
+    @apply w-full rounded-xl border border-slate-300 bg-white
+           px-4 py-2.5 text-sm text-touche-navy placeholder-slate-400
+           outline-none transition-all duration-150
+           hover:border-slate-400
+           focus:ring-2 focus:ring-touche-celeste focus:border-touche-celeste;
+  }
+
+  .input-field-icon {
+    @apply input-field pl-10;
+  }
+
+  .input-error {
+    @apply border-red-400 focus:ring-red-300 focus:border-red-400;
+  }
+
+  /* ── Form labels ─────────────────────────────────
+     Usage: <label class="label">Correo</label>
+  ──────────────────────────────────────────────── */
+  .label {
+    @apply block text-sm font-semibold text-slate-700 mb-1.5;
+  }
+
+  .label-sm {
+    @apply block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-widest;
+  }
+
+  /* ── Cards ────────────────────────────────────────
+     Usage: <div class="card">...</div>
+            <div class="card card-hover">...</div>
+  ──────────────────────────────────────────────── */
+  .card {
+    @apply bg-white rounded-2xl border border-slate-100 shadow-card;
+  }
+
+  .card-hover {
+    @apply hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200;
+  }
+
+  .card-dark {
+    @apply bg-touche-navy rounded-2xl border border-touche-celeste/20;
+  }
+
+  /* ── Badges / Status pills ───────────────────────
+     Usage: <span class="badge badge-success">Inscripto</span>
+  ──────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full
+           text-xs font-bold uppercase tracking-wide;
+  }
+
+  .badge-success {
+    @apply badge bg-emerald-100 text-emerald-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-amber-100 text-amber-800;
+  }
+
+  .badge-danger {
+    @apply badge bg-red-100 text-red-700;
+  }
+
+  .badge-info {
+    @apply badge bg-touche-celeste/15 text-touche-navy border border-touche-celeste/20;
+  }
+
+  .badge-neutral {
+    @apply badge bg-slate-100 text-slate-500 border border-slate-200;
+  }
+
+  /* ── Alert banners ──────────────────────────────
+     Usage: <div class="alert-success">...</div>
+  ──────────────────────────────────────────────── */
+  .alert-success {
+    @apply flex items-center gap-3 rounded-2xl border border-emerald-200
+           bg-emerald-50 px-5 py-4 text-emerald-800;
+  }
+
+  .alert-warning {
+    @apply flex items-start gap-3 rounded-2xl border border-amber-200
+           bg-amber-50 px-5 py-4 text-amber-800;
+  }
+
+  .alert-danger {
+    @apply flex items-center gap-3 rounded-2xl border border-red-200
+           bg-red-50 px-5 py-4 text-red-700;
+  }
+
+  /* ── Auth layout helpers ────────────────────────── */
+
+  /* Panel decorativo completo: stripes + glows + base navy.
+     Usar SOLO esta clase en el panel izquierdo de auth. */
+  .auth-panel-bg {
+    background:
+      repeating-linear-gradient(
+        -55deg,
+        transparent,
+        transparent 28px,
+        rgba(117,170,219,0.055) 28px,
+        rgba(117,170,219,0.055) 29px
+      ),
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(117,170,219,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(201,162,39,0.08) 0%, transparent 55%),
+      linear-gradient(160deg, #1A1A3E 0%, #141430 60%, #0f0f26 100%);
+  }
+
+  /* Overlay de líneas diagonales para poner sobre un fondo oscuro existente
+     (ej: el banner del dashboard usa esto como div absoluto encima de bg-touche-navy). */
+  .auth-panel-lines {
+    background-image: repeating-linear-gradient(
+      -55deg,
+      transparent,
+      transparent 28px,
+      rgba(117,170,219,0.07) 28px,
+      rgba(117,170,219,0.07) 29px
+    );
+  }
+
+  /* ── Page section titles ────────────────────────── */
+  .page-title {
+    @apply font-display text-3xl md:text-4xl font-bold text-touche-navy tracking-tight;
+  }
+
+  .page-subtitle {
+    @apply mt-1.5 text-sm text-touche-navy/60;
+  }
+
+  /* ── Nav back link ──────────────────────────────── */
+  .back-link {
+    @apply inline-flex items-center gap-1.5 text-sm font-semibold
+           text-touche-navy/60 hover:text-touche-navy transition-colors duration-150;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   ANIMATION DELAYS  (use as class alongside animate-*)
+   ══════════════════════════════════════════════════════ */
+.delay-75  { animation-delay: 75ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+/* ══════════════════════════════════════════════════════
+   SAFE AREA (PWA/notch support)
+   ══════════════════════════════════════════════════════ */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
