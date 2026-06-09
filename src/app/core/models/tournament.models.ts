@@ -67,6 +67,7 @@ export interface TournamentRequest {
   location: string;
   date: string; // YYYY-MM-DD
   basePrice: number;
+  isNational?: boolean;
 }
 
 export interface OrganizerTournamentResponse {
@@ -80,6 +81,7 @@ export interface OrganizerTournamentResponse {
   basePrice: number;
   phase?: TournamentPhase;
   advancementRate?: number;
+  isNational?: boolean;
   totalEnrollments: number;
   paidEnrollments: number;
   pendingEnrollments: number;
@@ -290,6 +292,85 @@ export interface TournamentResultResponse {
   location: string;
   date: string;
   phase: string;
+  isNational: boolean;
+  participants: Participant[];
   podium: PodiumEntry[];
   standings: FinalStanding[];
+  pouleSheets: PouleSheet[];
+  bracket: BracketData | null;
+}
+
+export interface Participant {
+  seriesNumber: number;
+  athleteId: number;
+  fullName: string;
+  club: string | null;
+}
+
+// ── Poule Sheet (cross-table) ─────────────────────────────────────────────────
+
+export interface PouleSheet {
+  pouleNumber: number;
+  rows: PouleRow[];
+}
+
+export interface PouleRow {
+  index: number;
+  athleteId: number;
+  fullName: string;
+  club: string | null;
+  /** map of opponent index → cell value e.g. "V5", "D3" */
+  cells: Record<number, string>;
+  victories: number;
+  touchesScored: number;
+  touchesReceived: number;
+  indicator: number;
+  rank: number;
+}
+
+// ── Bracket ───────────────────────────────────────────────────────────────────
+
+export interface BracketData {
+  rounds: BracketRound[];
+}
+
+export interface BracketRound {
+  round: string;
+  roundLabel: string;
+  bouts: BracketBout[];
+}
+
+export interface BracketBout {
+  boutId: number;
+  bracketPosition: number;
+  leftName: string;
+  rightName: string;
+  scoreLeft: number;
+  scoreRight: number;
+  winnerName: string | null;
+  finished: boolean;
+}
+
+// ── Rankings por puntos (RSP) ─────────────────────────────────────────────────
+
+export interface RankingEntryResponse {
+  position: number;
+  athleteId: number;
+  fullName: string;
+  club: string | null;
+  totalPoints: number;
+  tournamentsPlayed: number;
+  tournaments: TournamentRankingResult[];
+}
+
+export interface TournamentRankingResult {
+  tournamentId: number;
+  tournamentName: string;
+  date: string;
+  isNational: boolean;
+  placement: number;
+  basePoints: number;
+  coefficient: number;
+  finalPoints: number;
+  discarded: boolean;
 }

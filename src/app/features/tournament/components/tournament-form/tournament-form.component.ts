@@ -3,14 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
-import { TournamentRequest } from '../../../../core/models/tournament.models';
+import { TournamentRequest, OrganizerTournamentResponse } from '../../../../core/models/tournament.models';
 import { WEAPON_OPTIONS, CATEGORY_OPTIONS, GENDER_OPTIONS } from '../../../../shared/utils/filter-options';
 
 @Component({
   selector: 'app-tournament-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './tournament-form.component.html'
+  templateUrl: './tournament-form.component.html',
+  styleUrls: ['./tournament-form.component.css']
 })
 export class TournamentFormComponent implements OnInit {
   private readonly router = inject(Router);
@@ -34,7 +35,8 @@ export class TournamentFormComponent implements OnInit {
     gender: ['', Validators.required],
     location: ['', Validators.required],
     date: ['', Validators.required],
-    basePrice: [0, [Validators.required, Validators.min(0)]]
+    basePrice: [0, [Validators.required, Validators.min(0)]],
+    isNational: [false]
   });
 
   ngOnInit(): void {
@@ -57,7 +59,8 @@ export class TournamentFormComponent implements OnInit {
           gender: t.gender,
           location: t.location,
           date: t.date,
-          basePrice: t.basePrice
+          basePrice: t.basePrice,
+          isNational: (t as OrganizerTournamentResponse & { isNational?: boolean }).isNational ?? false
         });
       },
       error: () => this.errorMsg.set('Error al cargar los datos del torneo.')
@@ -81,7 +84,8 @@ export class TournamentFormComponent implements OnInit {
       gender: raw.gender as TournamentRequest['gender'],
       location: raw.location!,
       date: raw.date!,
-      basePrice: Number(raw.basePrice)
+      basePrice: Number(raw.basePrice),
+      isNational: Boolean(raw.isNational)
     };
 
     const op = this.isEditMode() && this.tournamentId

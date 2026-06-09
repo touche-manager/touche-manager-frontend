@@ -16,6 +16,7 @@ interface ApiResponse<T> { success: boolean; message: string; data: T; }
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, LabelPipe],
   templateUrl: './rankings.page.html',
+  styleUrls: ['./rankings.page.css'],
 })
 export class RankingsPageComponent {
   private readonly http = inject(HttpClient);

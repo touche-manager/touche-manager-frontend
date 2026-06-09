@@ -20,5 +20,9 @@ export const athleteRoutes: Routes = [
   {
     path: 'rankings',
     loadComponent: () => import('./rankings/rankings.page').then(m => m.RankingsPageComponent)
+  },
+  {
+    path: 'rankings/points',
+    loadComponent: () => import('./ranking-points/ranking-points.page').then(m => m.RankingPointsPageComponent)
   }
 ];

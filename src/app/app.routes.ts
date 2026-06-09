@@ -26,8 +26,8 @@ export const routes: Routes = [
   {
     path: 'results/:id',
     loadComponent: () =>
-      import('./features/tournament/components/tournament-results/tournament-results.component')
-        .then(m => m.TournamentResultsComponent)
+      import('./features/tournament/pages/tournament-public-detail/tournament-public-detail.page')
+        .then(m => m.TournamentPublicDetailPageComponent)
     // No auth guard — public route
   },
   { path: '**', redirectTo: 'auth' }

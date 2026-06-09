@@ -1,0 +1,221 @@
+<div class="detail-page">
+
+  <!-- ═══ Loading ══════════════════════════════════════════════════ -->
+  @if (loading()) {
+    <div class="loading-center">
+      <svg class="spinner" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      <p class="loading-text">Cargando resultado del torneo…</p>
+    </div>
+  }
+
+  <!-- ═══ Error ════════════════════════════════════════════════════ -->
+  @if (error()) {
+    <div class="error-box">
+      <p class="error-title">Error</p>
+      <p class="error-msg">{{ error() }}</p>
+    </div>
+  }
+
+  @if (result(); as t) {
+    <!-- ═══ Print action bar ═════════════════════════════════════ -->
+    <div class="action-bar no-print">
+      <a [routerLink]="['/athlete/rankings']" class="back-link">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Volver a Resultados
+      </a>
+      <button class="btn-print" (click)="print()">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+        </svg>
+        Imprimir / PDF
+      </button>
+    </div>
+
+    <!-- ═══ Header ════════════════════════════════════════════════ -->
+    <header class="tournament-header">
+      <div class="header-badges">
+        <span class="badge-weapon">{{ t.weapon   | label:'weapon'   }}</span>
+        <span class="badge-cat">{{ t.category | label:'category' }}</span>
+        <span class="badge-gen">{{ t.gender   | label:'gender'   }}</span>
+        @if (t.isNational) {
+          <span class="badge-national">🏛 Campeonato Nacional</span>
+        }
+      </div>
+      <h1 class="tournament-title">{{ t.name }}</h1>
+      <p class="tournament-meta">📍 {{ t.location }} &nbsp;·&nbsp; 📅 {{ t.date }}</p>
+    </header>
+
+    <!-- ═══ 1. Lista de participantes ═══════════════════════════ -->
+    @if (t.participants.length > 0) {
+      <section class="section">
+        <h2 class="section-title">👤 Tiradores participantes</h2>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="th-center w-12">Nro.</th>
+                <th>Atleta</th>
+                <th>Club</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of t.participants; track p.athleteId) {
+                <tr>
+                  <td class="td-center font-mono font-bold text-touche-celeste">{{ p.seriesNumber }}</td>
+                  <td class="font-semibold">{{ p.fullName }}</td>
+                  <td class="text-slate-500">{{ p.club ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    <!-- ═══ 2. Poules ════════════════════════════════════════════ -->
+    @if (t.pouleSheets.length > 0) {
+      <section class="section">
+        <h2 class="section-title">📊 Resultados de Poules</h2>
+
+        @for (sheet of t.pouleSheets; track sheet.pouleNumber) {
+          <div class="poule-card">
+            <h3 class="poule-label">Poule {{ sheet.pouleNumber }}</h3>
+            <div class="table-scroll">
+              <table class="poule-table">
+                <thead>
+                  <tr>
+                    <th class="pth-name">Tirador</th>
+                    @for (idx of allIndices(sheet); track idx) {
+                      <th class="pth-num">{{ idx }}</th>
+                    }
+                    <th class="pth-stat">V</th>
+                    <th class="pth-stat">TA</th>
+                    <th class="pth-stat">TR</th>
+                    <th class="pth-stat">Ind.</th>
+                    <th class="pth-stat">Cls.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of sheet.rows; track row.athleteId) {
+                    <tr>
+                      <td class="ptd-name">
+                        <span class="ptd-idx">{{ row.index }}</span>
+                        {{ row.fullName }}
+                      </td>
+                      @for (idx of allIndices(sheet); track idx) {
+                        <td class="ptd-cell" [ngClass]="cellClass(cell(row, idx))">
+                          {{ cell(row, idx) }}
+                        </td>
+                      }
+                      <td class="ptd-stat font-bold text-emerald-600">{{ row.victories }}</td>
+                      <td class="ptd-stat">{{ row.touchesScored }}</td>
+                      <td class="ptd-stat">{{ row.touchesReceived }}</td>
+                      <td class="ptd-stat font-bold" [class.text-emerald-600]="row.indicator >= 0" [class.text-red-500]="row.indicator < 0">
+                        {{ row.indicator >= 0 ? '+' : '' }}{{ row.indicator }}
+                      </td>
+                      <td class="ptd-stat font-bold text-touche-navy">{{ row.rank }}°</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- ═══ 3. Cuadro Eliminatorio ══════════════════════════════ -->
+    @if (t.bracket && t.bracket.rounds.length > 0) {
+      <section class="section">
+        <h2 class="section-title">🏆 Cuadro Eliminatorio</h2>
+
+        <div class="bracket-wrapper">
+          @for (round of t.bracket.rounds; track round.round) {
+            <div class="bracket-round">
+              <h3 class="round-label">{{ round.roundLabel }}</h3>
+              <div class="round-bouts">
+                @for (bout of round.bouts; track bout.boutId) {
+                  <div class="bracket-bout" [class.bout-finished]="bout.finished">
+
+                    <!-- Left fencer -->
+                    <div class="fencer-row" [class.fencer-winner]="bout.finished && bout.winnerName === bout.leftName">
+                      <span class="fencer-name">{{ bout.leftName }}</span>
+                      @if (bout.finished) {
+                        <span class="score" [class.score-win]="bout.winnerName === bout.leftName">{{ bout.scoreLeft }}</span>
+                      }
+                    </div>
+
+                    <div class="vs-divider"></div>
+
+                    <!-- Right fencer -->
+                    <div class="fencer-row" [class.fencer-winner]="bout.finished && bout.winnerName === bout.rightName">
+                      <span class="fencer-name">{{ bout.rightName }}</span>
+                      @if (bout.finished) {
+                        <span class="score" [class.score-win]="bout.winnerName === bout.rightName">{{ bout.scoreRight }}</span>
+                      }
+                    </div>
+
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ═══ 4. Clasificación General ════════════════════════════ -->
+    @if (t.standings.length > 0) {
+      <section class="section">
+        <h2 class="section-title">📋 Clasificación General</h2>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="th-center w-12">#</th>
+                <th>Atleta</th>
+                <th>Club</th>
+                <th class="th-center">V</th>
+                <th class="th-center">D</th>
+                <th class="th-center">TA</th>
+                <th class="th-center">TR</th>
+                <th class="th-center">Ind.</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of t.standings; track s.athleteId) {
+                <tr [class.podium-row]="s.rank <= 3">
+                  <td class="td-center font-bold">
+                    @if (s.rank === 1) { <span>🥇</span> }
+                    @else if (s.rank === 2) { <span>🥈</span> }
+                    @else if (s.rank === 3) { <span>🥉</span> }
+                    @else { <span class="text-slate-400">{{ s.rank }}</span> }
+                  </td>
+                  <td class="font-semibold">{{ s.fullName }}</td>
+                  <td class="text-slate-500">{{ s.club ?? '—' }}</td>
+                  <td class="td-center font-bold text-emerald-600">{{ s.victories }}</td>
+                  <td class="td-center text-red-400">{{ s.defeats }}</td>
+                  <td class="td-center">{{ s.touchesScored }}</td>
+                  <td class="td-center">{{ s.touchesReceived }}</td>
+                  <td class="td-center font-bold"
+                      [class.text-emerald-600]="s.indicator >= 0"
+                      [class.text-red-500]="s.indicator < 0">
+                    {{ s.indicator >= 0 ? '+' : '' }}{{ s.indicator }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+  }<!-- end @if result -->
+
+</div>
