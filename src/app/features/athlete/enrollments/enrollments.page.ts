@@ -4,12 +4,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TournamentService } from '../services/tournament.service';
 import { AthleteService } from '../services/athlete.service';
 import { DecimalPipe, NgClass } from '@angular/common';
-import { TournamentResponse, WeaponLabels, CategoryLabels, GenderLabels } from '../../../core/models/tournament.models';
+import { TournamentResponse } from '../../../core/models/tournament.models';
+import { LabelPipe } from '../../../shared/pipes/label.pipe';
 
 @Component({
   selector: 'app-enrollments-page',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, NgClass],
+  imports: [RouterLink, DecimalPipe, NgClass, LabelPipe],
   templateUrl: './enrollments.page.html'
 })
 export class EnrollmentsPageComponent implements OnInit {
@@ -29,10 +30,7 @@ export class EnrollmentsPageComponent implements OnInit {
   readonly cancelling = signal<boolean>(false);
   readonly successMessage = signal<string | null>(null);
 
-  // Label maps for HTML access
-  readonly weaponsMap = WeaponLabels;
-  readonly categoriesMap = CategoryLabels;
-  readonly gendersMap = GenderLabels;
+  // Labels are handled by LabelPipe in the template
 
   // Calculamos recargo y total si hay un torneo seleccionado
   readonly regularPrice = computed(() => this.selectedTournament()?.basePrice || 0);

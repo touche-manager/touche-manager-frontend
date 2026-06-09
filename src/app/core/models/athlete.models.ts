@@ -1,5 +1,7 @@
-export type Gender = 'MASCULINO' | 'FEMENINO';
-export type DominantHand = 'DIESTRO' | 'ZURDO';
+// Gender and DominantHand use the same values as the backend enum (no translation needed at model level).
+// Use LabelPipe with 'gender' or 'hand' keys to display in Spanish.
+export type Gender = 'MALE' | 'FEMALE';
+export type DominantHand = 'RIGHT' | 'LEFT';
 
 export interface AthleteRequest {
   firstName: string;
@@ -37,7 +39,4 @@ export interface AthleteDocumentResponse {
   uploadDate: string;
 }
 
-export const DocumentTypeLabels: Record<DocumentType, string> = {
-  MEDICAL_CLEARANCE: 'Apto Médico',
-  PAYMENT_RECEIPT: 'Comprobante de Pago'
-};
+export { DOCUMENT_TYPE_LABELS as DocumentTypeLabels } from '../../shared/utils/label.maps';

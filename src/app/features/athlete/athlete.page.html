@@ -131,8 +131,8 @@
             <select id="gender" formControlName="gender"
                     class="input-field" [class.input-error]="isFieldInvalid('gender')">
               <option value="" disabled>Seleccionar género</option>
-              <option value="MASCULINO">Masculino</option>
-              <option value="FEMENINO">Femenino</option>
+              <option value="MALE">Masculino</option>
+              <option value="FEMALE">Femenino</option>
             </select>
             <p *ngIf="isFieldInvalid('gender')" class="mt-1.5 text-xs text-red-500">El género es obligatorio.</p>
           </div>
@@ -142,8 +142,8 @@
             <select id="dominantHand" formControlName="dominantHand"
                     class="input-field" [class.input-error]="isFieldInvalid('dominantHand')">
               <option value="" disabled>Seleccionar mano hábil</option>
-              <option value="DIESTRO">Diestro</option>
-              <option value="ZURDO">Zurdo</option>
+              <option value="RIGHT">Diestro</option>
+              <option value="LEFT">Zurdo</option>
             </select>
             <p *ngIf="isFieldInvalid('dominantHand')" class="mt-1.5 text-xs text-red-500">La mano hábil es obligatoria.</p>
           </div>

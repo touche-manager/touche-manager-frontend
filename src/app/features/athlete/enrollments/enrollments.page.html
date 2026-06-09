@@ -116,7 +116,7 @@
                   }
                 }
                 <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
-                  {{ weaponsMap[tournament.weapon] }}
+                  {{ tournament.weapon | label:'weapon' }}
                 </span>
               </div>
 
@@ -140,7 +140,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <span>{{ categoriesMap[tournament.category] }} · {{ gendersMap[tournament.gender] }}</span>
+                  <span>{{ tournament.category | label:'category' }} · {{ tournament.gender | label:'gender' }}</span>
                 </div>
                 <div class="flex items-start gap-2 text-xs text-slate-500">
                   <svg class="h-3.5 w-3.5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

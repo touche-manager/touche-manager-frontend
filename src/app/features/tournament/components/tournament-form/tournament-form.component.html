@@ -1,0 +1,175 @@
+<div class="min-h-screen bg-touche-navy p-4 md:p-8">
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+      <button (click)="goBack()" class="text-touche-celeste hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-2xl font-bold text-white">
+          {{ isEditMode() ? 'Editar Torneo' : 'Nuevo Torneo' }}
+        </h1>
+        <p class="text-touche-celeste/70 text-sm mt-0.5">
+          {{ isEditMode() ? 'Modificá los datos del torneo' : 'Completá los datos para crear el torneo' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
+
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-medium text-white/80 mb-2">Nombre del Torneo *</label>
+          <input
+            id="input-name"
+            type="text"
+            formControlName="name"
+            placeholder="Ej: Open Nacional de Florete 2026"
+            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste transition-colors"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <p class="text-red-400 text-xs mt-1">El nombre es requerido</p>
+          }
+        </div>
+
+        <!-- Weapon + Category row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-white/80 mb-2">Arma *</label>
+            <select
+              id="select-weapon"
+              formControlName="weapon"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors appearance-none"
+            >
+              <option value="" class="bg-touche-navy" disabled>Seleccionar...</option>
+              @for (entry of weaponEntries; track entry.value) {
+                <option [value]="entry.value" class="bg-touche-navy">{{ entry.label }}</option>
+              }
+            </select>
+            @if (form.get('weapon')?.invalid && form.get('weapon')?.touched) {
+              <p class="text-red-400 text-xs mt-1">Seleccioná un arma</p>
+            }
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-white/80 mb-2">Categoría *</label>
+            <select
+              id="select-category"
+              formControlName="category"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors appearance-none"
+            >
+              <option value="" class="bg-touche-navy" disabled>Seleccionar...</option>
+              @for (entry of categoryEntries; track entry.value) {
+                <option [value]="entry.value" class="bg-touche-navy">{{ entry.label }}</option>
+              }
+            </select>
+            @if (form.get('category')?.invalid && form.get('category')?.touched) {
+              <p class="text-red-400 text-xs mt-1">Seleccioná una categoría</p>
+            }
+          </div>
+        </div>
+
+        <!-- Gender + Location -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-white/80 mb-2">Género *</label>
+            <select
+              id="select-gender"
+              formControlName="gender"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors appearance-none"
+            >
+              <option value="" class="bg-touche-navy" disabled>Seleccionar...</option>
+              @for (entry of genderEntries; track entry.value) {
+                <option [value]="entry.value" class="bg-touche-navy">{{ entry.label }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-white/80 mb-2">Ubicación *</label>
+            <input
+              id="input-location"
+              type="text"
+              formControlName="location"
+              placeholder="Ej: Club Universitario, CABA"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste transition-colors"
+            />
+            @if (form.get('location')?.invalid && form.get('location')?.touched) {
+              <p class="text-red-400 text-xs mt-1">La ubicación es requerida</p>
+            }
+          </div>
+        </div>
+
+        <!-- Date + Price -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-white/80 mb-2">Fecha *</label>
+            <input
+              id="input-date"
+              type="date"
+              formControlName="date"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors"
+            />
+            @if (form.get('date')?.invalid && form.get('date')?.touched) {
+              <p class="text-red-400 text-xs mt-1">La fecha es requerida</p>
+            }
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-white/80 mb-2">Precio Base *</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">$</span>
+              <input
+                id="input-price"
+                type="number"
+                formControlName="basePrice"
+                placeholder="0"
+                min="0"
+                class="w-full bg-white/10 border border-white/20 rounded-xl pl-8 pr-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste transition-colors"
+              />
+            </div>
+            @if (form.get('basePrice')?.invalid && form.get('basePrice')?.touched) {
+              <p class="text-red-400 text-xs mt-1">El precio debe ser mayor o igual a cero</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      @if (errorMsg()) {
+        <div class="bg-red-900/30 border border-red-500/50 rounded-xl p-4 text-red-300 text-sm">
+          {{ errorMsg() }}
+        </div>
+      }
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="goBack()"
+          class="flex-1 py-3 rounded-xl border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-colors font-medium"
+        >
+          Cancelar
+        </button>
+        <button
+          id="btn-submit"
+          type="submit"
+          [disabled]="form.invalid || submitting()"
+          class="flex-1 py-3 rounded-xl bg-touche-gold hover:bg-yellow-500 disabled:bg-white/10 disabled:text-white/30 text-touche-navy font-bold transition-all duration-200"
+        >
+          @if (submitting()) {
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              Guardando...
+            </span>
+          } @else {
+            {{ isEditMode() ? 'Guardar Cambios' : 'Crear Torneo' }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

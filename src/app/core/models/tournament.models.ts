@@ -48,34 +48,12 @@ export interface EnrollmentResponse {
   paymentLink: string;
 }
 
-// ── Spanish Display Label Mappings ───────────────────────────────────────────
-
-export const WeaponLabels: Record<Weapon, string> = {
-  FOIL: 'Florete',
-  EPEE: 'Espada',
-  SABRE: 'Sable'
-};
-
-export const CategoryLabels: Record<TournamentCategory, string> = {
-  PRE_INFANTILE: 'Pre-Infantiles',
-  INFANTILE: 'Infantiles',
-  PRE_CADET: 'Pre-Cadetes',
-  CADET: 'Cadetes',
-  JUNIOR: 'Juveniles',
-  SENIOR: 'Mayores',
-  VETERAN: 'Veteranos'
-};
-
-export const GenderLabels: Record<TournamentGender, string> = {
-  MALE: 'Masculino',
-  FEMALE: 'Femenino'
-};
-
-export const EnrollmentStatusLabels: Record<EnrollmentStatus, string> = {
-  PENDING_PAYMENT: 'Pendiente de Pago',
-  PAID: 'Inscripto',
-  CANCELLED: 'Cancelado'
-};
+// ── Spanish Display Label Mappings (re-exported from shared for backward compat) ─
+export {
+  WEAPON_LABELS    as WeaponLabels,
+  CATEGORY_LABELS  as CategoryLabels,
+  GENDER_LABELS    as GenderLabels,
+} from '../../shared/utils/label.maps';
 
 // ── Organizer Types ───────────────────────────────────────────────────────────
 
@@ -141,16 +119,11 @@ export interface DocumentValidationRequest {
   reviewNotes?: string;
 }
 
-export const DocumentValidationStatusLabels: Record<DocumentValidationStatus, string> = {
-  PENDING: 'Pendiente',
-  APPROVED: 'Aprobado',
-  REJECTED: 'Rechazado'
-};
-
-export const DocumentTypeLabels: Record<string, string> = {
-  MEDICAL_CLEARANCE: 'Apto Médico',
-  PAYMENT_RECEIPT: 'Comprobante de Afiliación'
-};
+export {
+  DOCUMENT_VALIDATION_STATUS_LABELS as DocumentValidationStatusLabels,
+  DOCUMENT_TYPE_LABELS              as DocumentTypeLabels,
+  ENROLLMENT_STATUS_LABELS          as EnrollmentStatusLabels,
+} from '../../shared/utils/label.maps';
 
 // ── Tournament Phases ─────────────────────────────────────────────────────────
 
@@ -160,12 +133,9 @@ export type TournamentPhase =
   | 'ELIMINATION_IN_PROGRESS'
   | 'FINISHED';
 
-export const TournamentPhaseLabels: Record<TournamentPhase, string> = {
-  ENROLLMENT: 'Inscripciones',
-  POULES_IN_PROGRESS: 'Poules en Curso',
-  ELIMINATION_IN_PROGRESS: 'Eliminatorias en Curso',
-  FINISHED: 'Finalizado'
-};
+export {
+  TOURNAMENT_PHASE_LABELS as TournamentPhaseLabels,
+} from '../../shared/utils/label.maps';
 
 // ── Poules ────────────────────────────────────────────────────────────────────
 
@@ -206,14 +176,9 @@ export type EliminationRound =
   | 'SEMIFINAL'
   | 'FINAL';
 
-export const EliminationRoundLabels: Record<EliminationRound, string> = {
-  ROUND_OF_64: '64avos',
-  ROUND_OF_32: '32avos',
-  ROUND_OF_16: '16avos',
-  QUARTERFINAL: 'Cuartos de Final',
-  SEMIFINAL: 'Semifinales',
-  FINAL: 'Final'
-};
+export {
+  ELIMINATION_ROUND_LABELS as EliminationRoundLabels,
+} from '../../shared/utils/label.maps';
 
 export interface BoutAthleteInfo {
   id: number;
@@ -270,11 +235,9 @@ export interface EliminationBracketResponse {
 
 export type RefereeApplicationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
-export const RefereeApplicationStatusLabels: Record<RefereeApplicationStatus, string> = {
-  PENDING: 'Pendiente',
-  ACCEPTED: 'Aceptado',
-  REJECTED: 'Rechazado'
-};
+export {
+  REFEREE_APPLICATION_STATUS_LABELS as RefereeApplicationStatusLabels,
+} from '../../shared/utils/label.maps';
 
 export interface RefereeApplicationResponse {
   id: number;

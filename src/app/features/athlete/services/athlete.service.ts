@@ -72,18 +72,10 @@ export class AthleteService {
   }
 
   private mapToBackend(req: AthleteRequest): any {
-    return {
-      ...req,
-      gender: req.gender === 'MASCULINO' ? 'MALE' : 'FEMALE',
-      dominantHand: req.dominantHand === 'DIESTRO' ? 'RIGHT' : 'LEFT'
-    };
+    return req; // types already match backend enum values (MALE/FEMALE, RIGHT/LEFT)
   }
 
   private mapFromBackend(data: any): AthleteResponse {
-    return {
-      ...data,
-      gender: data.gender === 'MALE' ? 'MASCULINO' : 'FEMENINO',
-      dominantHand: data.dominantHand === 'RIGHT' ? 'DIESTRO' : 'ZURDO'
-    };
+    return data; // no conversion needed
   }
 }
