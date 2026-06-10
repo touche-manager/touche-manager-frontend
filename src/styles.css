@@ -18,7 +18,7 @@
    BASE
    ══════════════════════════════════════════════════════ */
 body {
-  background-color: var(--touche-slate);
+  background-color: #ffffff;
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
