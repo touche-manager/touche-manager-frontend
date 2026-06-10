@@ -275,9 +275,14 @@ export interface FinalStanding {
   athleteId: number;
   fullName: string;
   club: string | null;
-  bouts: number;
+}
+
+export interface PouleClassificationEntry {
+  rank: number;
+  athleteId: number;
+  fullName: string;
+  club: string | null;
   victories: number;
-  defeats: number;
   touchesScored: number;
   touchesReceived: number;
   indicator: number;
@@ -296,6 +301,7 @@ export interface TournamentResultResponse {
   participants: Participant[];
   podium: PodiumEntry[];
   standings: FinalStanding[];
+  pouleClassification: PouleClassificationEntry[];
   pouleSheets: PouleSheet[];
   bracket: BracketData | null;
 }
