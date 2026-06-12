@@ -63,6 +63,11 @@ export class BoutService {
       .pipe(map(r => r.data));
   }
 
+  updatePiste(boutId: number, piste: string): Observable<BoutResponse> {
+    return this.http.patch<ApiResponse<BoutResponse>>(`${this.base}/${boutId}/piste`, { piste })
+      .pipe(map(r => r.data));
+  }
+
   assignPriority(boutId: number, side: 'LEFT' | 'RIGHT'): Observable<BoutResponse> {
     return this.http.post<ApiResponse<BoutResponse>>(`${this.base}/${boutId}/priority`, { side })
       .pipe(map(r => r.data));

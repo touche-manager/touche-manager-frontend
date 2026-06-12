@@ -6,6 +6,7 @@ import { PouleService } from '../../services/poule.service';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
 import { RefereeApplicationService } from '../../services/referee-application.service';
 import { BoutService } from '../../../bout/services/bout.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import {
   PouleResponse,
   PouleStandingEntry,
@@ -29,6 +30,7 @@ export class PouleManagerComponent implements OnInit {
   private readonly tournamentService = inject(OrganizerTournamentService);
   private readonly refereeAppService = inject(RefereeApplicationService);
   private readonly boutService = inject(BoutService);
+  private readonly notificationService = inject(NotificationService);
 
   tournamentId = 0;
   readonly phase = signal<string>('');
@@ -44,6 +46,9 @@ export class PouleManagerComponent implements OnInit {
   readonly generatingBracket = signal(false);
   readonly generatingPoules = signal(false);
   readonly acceptedReferees = signal<RefereeApplicationResponse[]>([]);
+  readonly pisteInput = signal<Record<number, string>>({});
+  readonly expandedPoules = signal<Record<number, boolean>>({});
+  readonly summoningBoutId = signal<number | null>(null);
 
   /** True when every poule has status FINISHED */
   readonly allPoulesFinished = computed(() => {
@@ -232,6 +237,55 @@ export class PouleManagerComponent implements OnInit {
         this.showSuccess('Árbitro removido del asalto.');
       },
       error: () => this.error.set('No se pudo remover el árbitro del asalto.')
+    });
+  }
+
+  // ── Piste assignment & athlete summon ───────────────────────────────────
+
+  togglePouleBouts(pouleId: number): void {
+    this.expandedPoules.update(m => ({ ...m, [pouleId]: !m[pouleId] }));
+  }
+
+  isPouleExpanded(pouleId: number): boolean {
+    return !!this.expandedPoules()[pouleId];
+  }
+
+  getPisteInput(boutId: number): string {
+    return this.pisteInput()[boutId] ?? '';
+  }
+
+  setPisteInput(boutId: number, val: string): void {
+    this.pisteInput.update(m => ({ ...m, [boutId]: val }));
+  }
+
+  assignPiste(boutId: number, inBracket = false): void {
+    const piste = this.getPisteInput(boutId).trim();
+    if (!piste) return;
+    this.boutService.updatePiste(boutId, piste).subscribe({
+      next: () => {
+        this.pisteInput.update(m => ({ ...m, [boutId]: '' }));
+        if (inBracket) this.loadBracket(); else this.loadPoules();
+        this.showSuccess(`Pista "${piste}" asignada al asalto.`);
+      },
+      error: () => this.error.set('No se pudo asignar la pista.')
+    });
+  }
+
+  summonBoutAthletes(boutId: number, piste: string | null): void {
+    if (!confirm('¿Convocar a los atletas? Recibirán una notificación de que su combate comienza en 5 minutos.')) return;
+    this.summoningBoutId.set(boutId);
+    this.notificationService.notifyUpcomingBout(boutId, {
+      minutesAhead: 5,
+      piste: piste ?? undefined
+    }).subscribe({
+      next: () => {
+        this.summoningBoutId.set(null);
+        this.showSuccess('Atletas convocados correctamente.');
+      },
+      error: () => {
+        this.summoningBoutId.set(null);
+        this.error.set('No se pudo enviar la convocatoria.');
+      }
     });
   }
 

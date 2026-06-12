@@ -195,6 +195,73 @@
               </div>
             </div>
 
+            <!-- Bouts (piste assignment + summon) -->
+            <div>
+              <button
+                [id]="'btn-toggle-bouts-' + poule.id"
+                (click)="togglePouleBouts(poule.id)"
+                class="w-full flex items-center justify-between text-xs font-medium text-white/40 uppercase tracking-wider mb-2 hover:text-white/70 transition-colors"
+              >
+                <span>Asaltos y pistas</span>
+                <svg class="w-4 h-4 transition-transform" [class.rotate-180]="isPouleExpanded(poule.id)"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              @if (isPouleExpanded(poule.id)) {
+                <div class="flex flex-col gap-2">
+                  @for (bout of poule.bouts; track bout.id) {
+                    <div class="bg-white/5 rounded-lg px-3 py-2">
+                      <div class="flex items-center justify-between gap-2">
+                        <p class="text-xs text-white/80 truncate min-w-0">
+                          {{ bout.athleteLeft.lastName }} vs {{ bout.athleteRight?.lastName ?? 'BYE' }}
+                        </p>
+                        <span class="text-[10px] flex-shrink-0"
+                          [class]="bout.status === 'FINISHED' ? 'text-green-400' : bout.status === 'IN_PROGRESS' ? 'text-yellow-400' : 'text-white/40'">
+                          {{ bout.status === 'FINISHED' ? bout.scoreLeft + ' - ' + bout.scoreRight
+                            : bout.status === 'IN_PROGRESS' ? 'En curso' : 'Pendiente' }}
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-1.5 mt-1.5">
+                        @if (bout.piste) {
+                          <span class="text-[10px] px-1.5 py-0.5 rounded bg-touche-celeste/15 text-touche-celeste font-semibold flex-shrink-0">
+                            📍 {{ bout.piste }}
+                          </span>
+                        }
+                        <input
+                          [id]="'input-piste-' + bout.id"
+                          type="text"
+                          [value]="getPisteInput(bout.id)"
+                          (input)="setPisteInput(bout.id, $any($event.target).value)"
+                          [placeholder]="bout.piste ? 'Cambiar pista...' : 'Pista (ej: Pista A)'"
+                          class="flex-1 min-w-0 text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste/50 transition-colors"
+                        />
+                        <button
+                          [id]="'btn-assign-piste-' + bout.id"
+                          (click)="assignPiste(bout.id)"
+                          [disabled]="!getPisteInput(bout.id).trim()"
+                          class="px-2 py-1 rounded bg-touche-celeste/20 hover:bg-touche-celeste/30 text-touche-celeste text-xs font-medium transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          OK
+                        </button>
+                        @if (bout.status === 'PENDING') {
+                          <button
+                            [id]="'btn-summon-' + bout.id"
+                            (click)="summonBoutAthletes(bout.id, bout.piste)"
+                            [disabled]="summoningBoutId() === bout.id"
+                            title="Convocar atletas (en 5 minutos)"
+                            class="px-2 py-1 rounded bg-touche-gold/20 hover:bg-touche-gold/30 text-touche-gold text-xs transition-colors flex-shrink-0 disabled:opacity-30"
+                          >
+                            📣
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
             <!-- Referees -->
             <div>
               <p class="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Árbitros</p>
@@ -396,6 +463,46 @@
                           {{ bout.scoreRight }}
                         </span>
                       }
+                    </div>
+
+                    <!-- Piste -->
+                    <div class="mt-3 pt-3 border-t border-white/5">
+                      <div class="flex items-center gap-1.5">
+                        @if (bout.piste) {
+                          <span class="text-[10px] px-1.5 py-0.5 rounded bg-touche-celeste/15 text-touche-celeste font-semibold flex-shrink-0">
+                            📍 {{ bout.piste }}
+                          </span>
+                        }
+                        @if (bout.status !== 'FINISHED') {
+                          <input
+                            [id]="'input-elim-piste-' + bout.id"
+                            type="text"
+                            [value]="getPisteInput(bout.id)"
+                            (input)="setPisteInput(bout.id, $any($event.target).value)"
+                            [placeholder]="bout.piste ? 'Cambiar pista...' : 'Pista (ej: Pista A)'"
+                            class="flex-1 min-w-0 text-xs bg-white/5 border border-white/10 rounded px-2 py-1 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste/50 transition-colors"
+                          />
+                          <button
+                            [id]="'btn-assign-elim-piste-' + bout.id"
+                            (click)="assignPiste(bout.id, true)"
+                            [disabled]="!getPisteInput(bout.id).trim()"
+                            class="px-2 py-1 rounded bg-touche-celeste/20 hover:bg-touche-celeste/30 text-touche-celeste text-xs font-medium transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            OK
+                          </button>
+                          @if (bout.status === 'PENDING') {
+                            <button
+                              [id]="'btn-summon-elim-' + bout.id"
+                              (click)="summonBoutAthletes(bout.id, bout.piste)"
+                              [disabled]="summoningBoutId() === bout.id"
+                              title="Convocar atletas (en 5 minutos)"
+                              class="px-2 py-1 rounded bg-touche-gold/20 hover:bg-touche-gold/30 text-touche-gold text-xs transition-colors flex-shrink-0 disabled:opacity-30"
+                            >
+                              📣
+                            </button>
+                          }
+                        }
+                      </div>
                     </div>
 
                     <!-- Status badge -->

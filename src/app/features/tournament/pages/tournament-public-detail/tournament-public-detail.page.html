@@ -200,6 +200,21 @@
                       }
                     </div>
 
+                    <!-- Live link (only while the bout is being fenced) -->
+                    @if (bout.status === 'IN_PROGRESS') {
+                      <a
+                        [id]="'btn-live-' + bout.boutId"
+                        [routerLink]="['/live', bout.boutId]"
+                        target="_blank"
+                        class="live-link mt-2 inline-flex items-center justify-center gap-1.5 w-full px-3 py-1.5
+                               rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-bold
+                               hover:bg-red-100 transition-colors no-print"
+                      >
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                        📺 Ver en vivo
+                      </a>
+                    }
+
                   </div>
                 }
               </div>

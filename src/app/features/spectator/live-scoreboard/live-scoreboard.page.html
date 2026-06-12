@@ -1,0 +1,119 @@
+<div class="scoreboard-shell min-h-[100dvh] bg-touche-navy flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
+
+  <!-- Decorative glows -->
+  <div class="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-touche-celeste/10 blur-3xl"></div>
+  <div class="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-touche-gold/10 blur-3xl"></div>
+
+  <!-- Loading -->
+  @if (!bout() && !connectionError()) {
+    <div class="flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-touche-celeste border-t-transparent"></div>
+      <p class="text-white/50 text-sm">Conectando con el combate...</p>
+    </div>
+  }
+
+  <!-- Connection error -->
+  @if (connectionError() && !bout()) {
+    <div class="text-center text-white/60">
+      <p class="text-4xl mb-3">⚠️</p>
+      <p class="font-bold text-white">No se pudo conectar al combate</p>
+      <p class="text-sm mt-1">Verificá el enlace o intentá nuevamente más tarde.</p>
+    </div>
+  }
+
+  @if (bout(); as b) {
+    <div class="w-full max-w-4xl flex flex-col items-center gap-6 md:gap-10 relative z-10">
+
+      <!-- Status header -->
+      <div class="flex flex-col items-center gap-2">
+        @if (isLive()) {
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-500/15 border border-red-500/40">
+            <span class="live-dot w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            <span class="text-red-400 font-bold text-sm tracking-[0.25em] uppercase">En vivo</span>
+          </span>
+        } @else if (isFinished()) {
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-touche-gold/15 border border-touche-gold/40">
+            <span class="text-touche-gold font-bold text-sm tracking-[0.25em] uppercase">Finalizado</span>
+          </span>
+        } @else {
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20">
+            <span class="text-white/60 font-bold text-sm tracking-[0.25em] uppercase">Por comenzar</span>
+          </span>
+        }
+
+        @if (b.piste) {
+          <p class="text-touche-celeste/80 text-sm font-semibold tracking-wide">📍 {{ b.piste }}</p>
+        }
+      </div>
+
+      <!-- Scoreboard -->
+      <div class="w-full grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-8">
+
+        <!-- Left fencer -->
+        <div class="flex flex-col items-center gap-2 min-w-0">
+          <p class="font-display text-lg md:text-3xl font-bold text-white text-center leading-tight break-words">
+            {{ b.leftName }}
+          </p>
+          <span class="text-[10px] md:text-xs uppercase tracking-widest text-red-400/80 font-bold">Izquierda</span>
+        </div>
+
+        <!-- Score -->
+        <div class="flex items-center gap-3 md:gap-6 bg-black/30 rounded-3xl px-5 py-4 md:px-10 md:py-8 border border-white/10 shadow-2xl">
+          <span class="score-number text-6xl md:text-9xl font-black tabular-nums"
+                [class]="b.scoreLeft > b.scoreRight ? 'text-touche-gold' : 'text-white'">
+            {{ b.scoreLeft }}
+          </span>
+          <span class="text-3xl md:text-6xl text-white/20 font-light">:</span>
+          <span class="score-number text-6xl md:text-9xl font-black tabular-nums"
+                [class]="b.scoreRight > b.scoreLeft ? 'text-touche-gold' : 'text-white'">
+            {{ b.scoreRight }}
+          </span>
+        </div>
+
+        <!-- Right fencer -->
+        <div class="flex flex-col items-center gap-2 min-w-0">
+          <p class="font-display text-lg md:text-3xl font-bold text-white text-center leading-tight break-words">
+            {{ b.rightName }}
+          </p>
+          <span class="text-[10px] md:text-xs uppercase tracking-widest text-green-400/80 font-bold">Derecha</span>
+        </div>
+      </div>
+
+      <!-- Timer + period -->
+      <div class="flex items-center gap-4 md:gap-6">
+        <div class="bg-black/30 border border-white/10 rounded-2xl px-6 py-3 text-center">
+          <p class="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">Tiempo</p>
+          <p class="text-3xl md:text-5xl font-mono font-bold text-touche-celeste tabular-nums">{{ formattedTime() }}</p>
+        </div>
+        <div class="bg-black/30 border border-white/10 rounded-2xl px-6 py-3 text-center">
+          <p class="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-1">Período</p>
+          <p class="text-3xl md:text-5xl font-bold text-white tabular-nums">{{ b.period }}</p>
+        </div>
+      </div>
+
+      <!-- Winner banner -->
+      @if (isFinished()) {
+        <div class="w-full max-w-xl bg-touche-gold/15 border border-touche-gold/40 rounded-3xl p-6 md:p-8 text-center animate-fade-up">
+          <p class="text-4xl md:text-5xl mb-3">🏆</p>
+          <p class="text-touche-gold font-bold text-lg md:text-2xl">Combate finalizado</p>
+          @if (b.winnerName) {
+            <p class="text-white text-base md:text-xl mt-2">
+              Ganador: <strong class="font-display">{{ b.winnerName }}</strong>
+            </p>
+          }
+        </div>
+      }
+
+      <!-- Connection warning while live -->
+      @if (connectionError() && !isFinished()) {
+        <p class="text-yellow-400/80 text-xs flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+          Reconectando con el marcador...
+        </p>
+      }
+
+      <!-- Footer brand -->
+      <p class="text-white/25 text-xs tracking-widest uppercase mt-2">Touché Manager · Marcador en vivo</p>
+    </div>
+  }
+</div>

@@ -20,6 +20,9 @@
       <!-- Controls (authenticated) -->
       <div *ngIf="isAuthenticated()" class="flex items-center gap-2 md:gap-3 flex-shrink-0 pl-2">
 
+        <!-- Notification bell -->
+        <app-notification-bell />
+
         <!-- Role badge — hidden on mobile (shown in bottom nav) -->
         <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold
                      bg-touche-celeste/10 text-touche-celeste border border-touche-celeste/20 uppercase tracking-wider">

@@ -24,6 +24,13 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(['REFEREE', 'ADMIN'])]
   },
   {
+    path: 'live/:boutId',
+    loadComponent: () =>
+      import('./features/spectator/live-scoreboard/live-scoreboard.page')
+        .then(m => m.LiveScoreboardPageComponent)
+    // No auth guard — public route for spectators
+  },
+  {
     path: 'results/:id',
     loadComponent: () =>
       import('./features/tournament/pages/tournament-public-detail/tournament-public-detail.page')

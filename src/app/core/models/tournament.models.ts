@@ -195,6 +195,7 @@ export interface BoutResponse {
   pouleId: number | null;
   pouleNumber: number | null;
   boutOrder: number | null;
+  piste: string | null;
   athleteLeft: BoutAthleteInfo;
   athleteRight: BoutAthleteInfo | null; // null = BYE
   format: 'POULE' | 'ELIMINATION';
@@ -355,6 +356,8 @@ export interface BracketBout {
   scoreRight: number;
   winnerName: string | null;
   finished: boolean;
+  status: 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
+  piste: string | null;
 }
 
 // ── Rankings por puntos (RSP) ─────────────────────────────────────────────────

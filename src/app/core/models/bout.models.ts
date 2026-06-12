@@ -60,6 +60,7 @@ export interface BoutResponse {
   pouleId: number | null;
   pouleNumber: number | null;
   boutOrder: number | null;
+  piste: string | null;
   format: BoutFormat;
   status: BoutStatus;
   athleteLeft: AthleteSummary;

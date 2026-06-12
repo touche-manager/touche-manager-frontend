@@ -4,6 +4,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { BoutService } from '../../services/bout.service';
+import { NotificationService } from '../../../../shared/services/notification.service';
 import {
   BoutResponse, BoutEventRequest, EventSide, EventType, BoutStatus, BoutFormatLabels
 } from '../../../../core/models/bout.models';
@@ -25,6 +26,9 @@ import {
         <div class="text-center">
           <p class="text-white font-bold text-sm">{{ bout()?.tournamentName }}</p>
           <p class="text-white/50 text-xs">{{ formatLabel() }} · Período {{ bout()?.currentPeriod }}/{{ bout()?.maxPeriods }}</p>
+          @if (bout()?.piste) {
+            <p class="text-touche-celeste text-xs font-semibold mt-0.5">📍 {{ bout()?.piste }}</p>
+          }
         </div>
         <div class="w-8"></div>
       </div>
@@ -205,6 +209,15 @@ import {
             <div class="flex gap-3 mt-auto">
               @if (bout()!.status === 'PENDING') {
                 <button
+                  id="btn-notify-upcoming"
+                  (click)="summonAthletes()"
+                  [disabled]="summoning()"
+                  class="py-4 px-5 rounded-2xl bg-touche-gold/20 hover:bg-touche-gold/30 text-touche-gold font-bold text-lg transition-all border border-touche-gold/30 disabled:opacity-40"
+                  title="Notificar a los atletas que su combate comienza en 5 minutos"
+                >
+                  📣
+                </button>
+                <button
                   id="btn-start"
                   (click)="startBout()"
                   class="flex-1 py-4 rounded-2xl bg-touche-celeste hover:bg-blue-400 text-touche-navy font-bold text-lg transition-all"
@@ -263,6 +276,7 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly boutService = inject(BoutService);
+  private readonly notificationService = inject(NotificationService);
 
   private boutId = 0;
   private tournamentId = 0;
@@ -273,6 +287,7 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly recording = signal(false);
   readonly timerRunning = signal(false);
+  readonly summoning = signal(false);
   readonly localElapsed = signal(0); // seconds, local state
 
   readonly formattedTime = computed(() => {
@@ -378,6 +393,26 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
         this.bout.set(updated);
         this.clearTimers();
         this.timerRunning.set(false);
+      }
+    });
+  }
+
+  summonAthletes(): void {
+    const b = this.bout();
+    if (!b) return;
+    if (!confirm('¿Convocar a los atletas? Recibirán una notificación de que su combate comienza en 5 minutos.')) return;
+    this.summoning.set(true);
+    this.notificationService.notifyUpcomingBout(this.boutId, {
+      minutesAhead: 5,
+      piste: b.piste ?? undefined
+    }).subscribe({
+      next: () => {
+        this.summoning.set(false);
+        alert('Atletas convocados: recibirán la notificación en su panel.');
+      },
+      error: () => {
+        this.summoning.set(false);
+        alert('No se pudo enviar la convocatoria. Intente nuevamente.');
       }
     });
   }

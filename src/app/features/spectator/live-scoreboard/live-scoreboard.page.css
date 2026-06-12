@@ -1,0 +1,14 @@
+/* Blinking "EN VIVO" indicator */
+.live-dot {
+  animation: live-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes live-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* Subtle pop when the score changes */
+.score-number {
+  transition: transform 150ms ease-out;
+}
