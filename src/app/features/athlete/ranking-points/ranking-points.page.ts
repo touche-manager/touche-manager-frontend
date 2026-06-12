@@ -1,11 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+﻿import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { RouterModule }  from '@angular/router';
 import { FormsModule }   from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { RankingEntryResponse } from '../../../core/models/tournament.models';
-import { LabelPipe } from '../../../shared/pipes/label.pipe';
 import { WEAPON_OPTIONS, CATEGORY_OPTIONS, GENDER_OPTIONS } from '../../../shared/utils/filter-options';
 import { Weapon, TournamentCategory, Gender } from '../../../shared/utils/label.maps';
 
@@ -14,14 +13,14 @@ interface ApiResponse<T> { success: boolean; message: string; data: T; }
 @Component({
   selector: 'app-ranking-points-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, LabelPipe],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './ranking-points.page.html',
   styleUrls: ['./ranking-points.page.css'],
 })
 export class RankingPointsPageComponent implements OnInit {
   private readonly http = inject(HttpClient);
 
-  // ── Filters ────────────────────────────────────────────────────────
+  // â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   filterCategory: TournamentCategory | '' = '';
   filterGender:   Gender | ''             = '';
   filterWeapon:   Weapon | ''             = '';
@@ -30,7 +29,7 @@ export class RankingPointsPageComponent implements OnInit {
   readonly genders    = GENDER_OPTIONS;
   readonly weapons    = WEAPON_OPTIONS;
 
-  // ── State ──────────────────────────────────────────────────────────
+  // â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly loading     = signal(false);
   readonly searched    = signal(false);
   readonly error       = signal<string | null>(null);
@@ -39,7 +38,7 @@ export class RankingPointsPageComponent implements OnInit {
 
   ngOnInit(): void {
     // Auto-load if all three required filters already have a default
-    // (they don't — user must select discipline)
+    // (they don't â€” user must select discipline)
   }
 
   search(): void {

@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { PaymentSimulatorPageComponent } from './payment-simulator.page';
@@ -27,6 +27,7 @@ describe('PaymentSimulatorPageComponent', () => {
       currentPrice: 1000,
       enrollmentStatus: 'OPEN_REGULAR',
       alreadyEnrolled: true,
+      wasPreviouslyPaid: false,
       enrollmentStatusLabel: 'PENDING_PAYMENT',
       enrollmentId: 123
     }

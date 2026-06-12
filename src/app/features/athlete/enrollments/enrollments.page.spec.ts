@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { EnrollmentsPageComponent } from './enrollments.page';
@@ -29,7 +29,8 @@ describe('EnrollmentsPageComponent', () => {
       lateDeadline: '2026-06-07',
       currentPrice: 1000,
       enrollmentStatus: 'OPEN_REGULAR',
-      alreadyEnrolled: false
+      alreadyEnrolled: false,
+      wasPreviouslyPaid: false
     },
     {
       id: 2,
@@ -44,7 +45,8 @@ describe('EnrollmentsPageComponent', () => {
       lateDeadline: '2026-06-01',
       currentPrice: 1500,
       enrollmentStatus: 'OPEN_LATE',
-      alreadyEnrolled: false
+      alreadyEnrolled: false,
+      wasPreviouslyPaid: false
     }
   ];
 
@@ -182,6 +184,7 @@ describe('EnrollmentsPageComponent', () => {
     const tWithEnrollment: TournamentResponse = {
       ...mockTournaments[0],
       alreadyEnrolled: true,
+      wasPreviouslyPaid: false,
       enrollmentId: 999,
       enrollmentStatusLabel: 'PAID'
     };
@@ -219,6 +222,7 @@ describe('EnrollmentsPageComponent', () => {
     const tWithEnrollment: TournamentResponse = {
       ...mockTournaments[0],
       alreadyEnrolled: true,
+      wasPreviouslyPaid: false,
       enrollmentId: 999,
       enrollmentStatusLabel: 'PAID'
     };

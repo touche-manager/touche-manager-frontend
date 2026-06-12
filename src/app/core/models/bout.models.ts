@@ -81,6 +81,25 @@ export interface BoutResponse {
   referees: RefereeSummary[];
 }
 
+/** A bout seen from the authenticated athlete's perspective ("Mis Combates") */
+export interface AthleteBoutResponse {
+  boutId: number;
+  tournamentId: number;
+  tournamentName: string;
+  tournamentDate: string;
+  format: BoutFormat;
+  eliminationRound: EliminationRound | null;
+  pouleNumber: number | null;
+  opponentName: string;
+  opponentClub: string | null;
+  myScore: number;
+  opponentScore: number;
+  won: boolean | null;
+  status: BoutStatus;
+  piste: string | null;
+  finishedAt: string | null;
+}
+
 export interface AthleteStanding {
   rank: number;
   athleteId: number;

@@ -24,6 +24,18 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard(['REFEREE', 'ADMIN'])]
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
+    canActivate: [authGuard, roleGuard(['ADMIN'])]
+  },
+  {
+    path: 'tournaments',
+    loadComponent: () =>
+      import('./features/tournament/pages/tournaments-public/tournaments-public.page')
+        .then(m => m.TournamentsPublicPageComponent)
+    // No auth guard — public route
+  },
+  {
     path: 'live/:boutId',
     loadComponent: () =>
       import('./features/spectator/live-scoreboard/live-scoreboard.page')

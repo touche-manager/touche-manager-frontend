@@ -1,0 +1,124 @@
+<div class="bg-white min-h-full">
+  <div class="max-w-5xl mx-auto py-2">
+
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="font-display text-3xl font-bold text-touche-navy">Torneos</h1>
+      <p class="text-sm text-touche-navy/60 mt-1">
+        Buscá torneos próximos, en curso y finalizados. Hacé clic en uno para ver su detalle.
+      </p>
+    </div>
+
+    <!-- Filters -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <select id="filter-status" [ngModel]="filters().status" (ngModelChange)="setFilter('status', $event)"
+              class="text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-touche-navy bg-white focus:outline-none focus:border-touche-celeste transition-colors">
+        <option value="">Estado: todos</option>
+        <option value="ENROLLMENT">Inscripciones</option>
+        <option value="POULES_IN_PROGRESS">Poules en curso</option>
+        <option value="ELIMINATION_IN_PROGRESS">Eliminatorias</option>
+        <option value="FINISHED">Finalizados</option>
+      </select>
+
+      <select id="filter-weapon" [ngModel]="filters().weapon" (ngModelChange)="setFilter('weapon', $event)"
+              class="text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-touche-navy bg-white focus:outline-none focus:border-touche-celeste transition-colors">
+        <option value="">Arma: todas</option>
+        <option value="FOIL">Florete</option>
+        <option value="EPEE">Espada</option>
+        <option value="SABRE">Sable</option>
+      </select>
+
+      <select id="filter-category" [ngModel]="filters().category" (ngModelChange)="setFilter('category', $event)"
+              class="text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-touche-navy bg-white focus:outline-none focus:border-touche-celeste transition-colors">
+        <option value="">Categoría: todas</option>
+        <option value="PRE_INFANTILE">Pre-Infantiles</option>
+        <option value="INFANTILE">Infantiles</option>
+        <option value="PRE_CADET">Pre-Cadetes</option>
+        <option value="CADET">Cadetes</option>
+        <option value="JUNIOR">Juveniles</option>
+        <option value="SENIOR">Mayores</option>
+        <option value="VETERAN">Veteranos</option>
+      </select>
+
+      <select id="filter-gender" [ngModel]="filters().gender" (ngModelChange)="setFilter('gender', $event)"
+              class="text-sm border border-slate-200 rounded-xl px-3 py-2.5 text-touche-navy bg-white focus:outline-none focus:border-touche-celeste transition-colors">
+        <option value="">Género: todos</option>
+        <option value="MALE">Masculino</option>
+        <option value="FEMALE">Femenino</option>
+      </select>
+
+      <input id="filter-date-from" type="date" [ngModel]="filters().dateFrom" (ngModelChange)="setFilter('dateFrom', $event)"
+             title="Desde"
+             class="text-sm border border-slate-200 rounded-xl px-3 py-2 text-touche-navy bg-white focus:outline-none focus:border-touche-celeste transition-colors" />
+
+      <input id="filter-date-to" type="date" [ngModel]="filters().dateTo" (ngModelChange)="setFilter('dateTo', $event)"
+             title="Hasta"
+             class="text-sm border border-slate-200 rounded-xl px-3 py-2 text-touche-navy bg-white focus:outline-none focus:border-touche-celeste transition-colors" />
+    </div>
+
+    <div class="flex justify-end mb-4">
+      <button id="btn-clear-filters" (click)="clearFilters()"
+              class="text-xs font-semibold text-touche-celeste hover:underline">
+        Limpiar filtros
+      </button>
+    </div>
+
+    @if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-touche-alert font-semibold mb-4">
+        {{ error() }}
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="flex justify-center py-16">
+        <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
+      </div>
+    }
+
+    @if (!loading() && tournaments().length === 0) {
+      <div class="text-center py-16 text-slate-400">
+        <p class="font-bold">No se encontraron torneos</p>
+        <p class="text-sm mt-1">Probá ajustando los filtros de búsqueda.</p>
+      </div>
+    }
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (t of tournaments(); track t.id) {
+        <a [routerLink]="['/results', t.id]"
+           class="card card-hover p-5 flex flex-col gap-3 group cursor-pointer">
+
+          <div class="flex items-start justify-between gap-2">
+            <h3 class="font-display text-lg font-bold text-touche-navy leading-snug group-hover:text-touche-celeste transition-colors">
+              {{ t.name }}
+            </h3>
+            <span class="badge flex-shrink-0" [ngClass]="phaseBadgeClass(t.phase)">
+              {{ phaseShortLabel(t.phase) }}
+            </span>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5">
+            <span class="badge bg-touche-celeste/12 text-touche-navy">{{ t.weapon | label:'weapon' }}</span>
+            <span class="badge bg-touche-gold/12 text-touche-navy">{{ t.category | label:'category' }}</span>
+            <span class="badge bg-slate-100 text-slate-600">{{ t.gender | label:'gender' }}</span>
+            @if (t.isNational) {
+              <span class="badge bg-touche-navy text-touche-gold">★ Nacional</span>
+            }
+          </div>
+
+          <div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5">
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {{ t.location }}
+            </span>
+            <span class="font-semibold text-touche-navy">{{ t.date | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</div>

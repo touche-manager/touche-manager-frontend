@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { DashboardPageComponent } from './dashboard.page';
 import { AthleteService } from '../services/athlete.service';
@@ -18,13 +18,13 @@ describe('DashboardPageComponent', () => {
     userId: 1,
     email: 'athlete@test.com',
     firstName: 'Juan',
-    lastName: 'Pérez',
+    lastName: 'PÃ©rez',
     dni: '12345678',
     birthDate: '1995-05-15',
-    gender: 'MASCULINO',
-    dominantHand: 'DIESTRO',
+    gender: 'MALE',
+    dominantHand: 'RIGHT',
     club: 'Club Esgrima',
-    province: 'Córdoba'
+    province: 'CÃ³rdoba'
   };
 
   const mockMedicalDoc: AthleteDocumentResponse = {

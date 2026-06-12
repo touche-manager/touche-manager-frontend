@@ -1,16 +1,18 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AthleteService } from './services/athlete.service';
 import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../../core/models/athlete.models';
+import { AthleteBoutResponse, BoutStatus, BoutStatusLabels } from '../../core/models/bout.models';
 
 @Component({
   selector: 'app-athlete-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
   templateUrl: './athlete.page.html',
   styleUrl: './athlete.page.css'
 })
@@ -25,7 +27,30 @@ export class AthletePageComponent implements OnInit {
   readonly isEditMode = signal<boolean>(false);
 
   // Tabs management
-  readonly activeTab = signal<'profile' | 'documents'>('profile');
+  readonly activeTab = signal<'profile' | 'documents' | 'bouts'>('profile');
+
+  // Bout history state ("Mis Combates")
+  readonly bouts = signal<AthleteBoutResponse[]>([]);
+  readonly loadingBouts = signal<boolean>(false);
+  readonly boutsError = signal<string | null>(null);
+  readonly boutStatusFilter = signal<BoutStatus | ''>('');
+  readonly boutTournamentFilter = signal<string>('');
+  readonly boutStatusLabels = BoutStatusLabels;
+
+  /** Bouts after applying the local status/tournament filters */
+  readonly filteredBouts = computed(() => {
+    const status = this.boutStatusFilter();
+    const tournament = this.boutTournamentFilter().toLowerCase().trim();
+    return this.bouts()
+      .filter(b => !status || b.status === status)
+      .filter(b => !tournament || b.tournamentName.toLowerCase().includes(tournament));
+  });
+
+  readonly boutStats = computed(() => {
+    const finished = this.bouts().filter(b => b.status === 'FINISHED' && b.won !== null);
+    const won = finished.filter(b => b.won).length;
+    return { total: finished.length, won, lost: finished.length - won };
+  });
 
   // Documents state
   readonly documents = signal<AthleteDocumentResponse[]>([]);
@@ -133,11 +158,41 @@ export class AthletePageComponent implements OnInit {
 
   // ── Tabs ───────────────────────────────────────────────────────────────────
 
-  setTab(tab: 'profile' | 'documents'): void {
+  setTab(tab: 'profile' | 'documents' | 'bouts'): void {
     this.activeTab.set(tab);
     if (tab === 'documents') {
       this.loadDocuments();
     }
+    if (tab === 'bouts') {
+      this.loadBouts();
+    }
+  }
+
+  // ── Bout history ("Mis Combates") ──────────────────────────────────────────
+
+  loadBouts(): void {
+    this.loadingBouts.set(true);
+    this.boutsError.set(null);
+
+    this.athleteService.getMyBouts().subscribe({
+      next: (bouts) => {
+        this.bouts.set(bouts);
+        this.loadingBouts.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loadingBouts.set(false);
+        this.boutsError.set(err.error?.message || 'Error al cargar tus combates.');
+      }
+    });
+  }
+
+  boutRoundLabel(bout: AthleteBoutResponse): string {
+    if (bout.pouleNumber !== null) return `Poule ${bout.pouleNumber}`;
+    const labels: Record<string, string> = {
+      ROUND_OF_64: '32avos', ROUND_OF_32: '16avos', ROUND_OF_16: 'Octavos',
+      QUARTERFINAL: 'Cuartos', SEMIFINAL: 'Semifinal', FINAL: 'Final'
+    };
+    return bout.eliminationRound ? (labels[bout.eliminationRound] ?? bout.eliminationRound) : '—';
   }
 
   // ── Documents Logic ────────────────────────────────────────────────────────

@@ -248,3 +248,19 @@ body {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* =========================================================
+   PRINT (global) - hide the app chrome when printing
+   ========================================================= */
+@media print {
+  main > header,
+  main > nav,
+  app-notification-bell {
+    display: none !important;
+  }
+
+  main > div {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}

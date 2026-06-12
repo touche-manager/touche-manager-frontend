@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { AthleteService } from './athlete.service';
@@ -52,8 +52,8 @@ describe('AthleteService', () => {
 
       service.getProfile().subscribe((res) => {
         expect(res.id).toBe(10);
-        expect(res.gender).toBe('MASCULINO');
-        expect(res.dominantHand).toBe('DIESTRO');
+        expect(res.gender).toBe('MALE');
+        expect(res.dominantHand).toBe('RIGHT');
       });
 
       const req = httpMock.expectOne(apiUrl);
@@ -69,8 +69,8 @@ describe('AthleteService', () => {
         lastName: 'Doe',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Fencing Club',
         province: 'Buenos Aires'
       };
@@ -95,8 +95,8 @@ describe('AthleteService', () => {
 
       service.createProfile(mockRequest).subscribe((res) => {
         expect(res.id).toBe(10);
-        expect(res.gender).toBe('MASCULINO');
-        expect(res.dominantHand).toBe('DIESTRO');
+        expect(res.gender).toBe('MALE');
+        expect(res.dominantHand).toBe('RIGHT');
       });
 
       const req = httpMock.expectOne(apiUrl);
@@ -122,8 +122,8 @@ describe('AthleteService', () => {
         lastName: 'Doe',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'FEMENINO',
-        dominantHand: 'ZURDO',
+        gender: 'FEMALE',
+        dominantHand: 'LEFT',
         club: 'Fencing Club',
         province: 'Buenos Aires'
       };
@@ -148,8 +148,8 @@ describe('AthleteService', () => {
 
       service.updateProfile(mockRequest).subscribe((res) => {
         expect(res.id).toBe(10);
-        expect(res.gender).toBe('FEMENINO');
-        expect(res.dominantHand).toBe('ZURDO');
+        expect(res.gender).toBe('FEMALE');
+        expect(res.dominantHand).toBe('LEFT');
       });
 
       const req = httpMock.expectOne(apiUrl);

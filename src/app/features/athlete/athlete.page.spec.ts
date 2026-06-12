@@ -1,4 +1,4 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+﻿import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AthletePageComponent } from './athlete.page';
 import { AthleteService } from './services/athlete.service';
@@ -94,13 +94,13 @@ describe('AthletePageComponent', () => {
         userId: 1,
         email: 'athlete@test.com',
         firstName: 'Juan',
-        lastName: 'Pérez',
+        lastName: 'PÃ©rez',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'Córdoba'
+        province: 'CÃ³rdoba'
       };
       athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
 
@@ -113,13 +113,13 @@ describe('AthletePageComponent', () => {
       expect(component.error()).toBeNull();
       expect(component.athleteForm.value).toEqual({
         firstName: 'Juan',
-        lastName: 'Pérez',
+        lastName: 'PÃ©rez',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'Córdoba'
+        province: 'CÃ³rdoba'
       });
     });
 
@@ -177,13 +177,13 @@ describe('AthletePageComponent', () => {
         userId: 1,
         email: 'athlete@test.com',
         firstName: 'Juan',
-        lastName: 'Pérez',
+        lastName: 'PÃ©rez',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'Córdoba'
+        province: 'CÃ³rdoba'
       };
       athleteServiceSpy.createProfile.and.returnValue(of(mockResponse));
 
@@ -193,13 +193,13 @@ describe('AthletePageComponent', () => {
 
       component.athleteForm.setValue({
         firstName: 'Juan',
-        lastName: 'Pérez',
+        lastName: 'PÃ©rez',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'Córdoba'
+        province: 'CÃ³rdoba'
       });
 
       component.onSubmit();
@@ -219,13 +219,13 @@ describe('AthletePageComponent', () => {
         userId: 1,
         email: 'athlete@test.com',
         firstName: 'Juan',
-        lastName: 'Pérez',
+        lastName: 'PÃ©rez',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'Córdoba'
+        province: 'CÃ³rdoba'
       };
       athleteServiceSpy.getProfile.and.returnValue(of(initialProfile));
 
@@ -266,13 +266,13 @@ describe('AthletePageComponent', () => {
 
       component.athleteForm.setValue({
         firstName: 'Juan',
-        lastName: 'Pérez',
+        lastName: 'PÃ©rez',
         dni: '12345678',
         birthDate: '1995-05-15',
-        gender: 'MASCULINO',
-        dominantHand: 'DIESTRO',
+        gender: 'MALE',
+        dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'Córdoba'
+        province: 'CÃ³rdoba'
       });
 
       component.onSubmit();

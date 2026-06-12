@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+﻿import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -35,15 +35,15 @@ export class LoginComponent {
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: (res) => {
         if (res.roles && res.roles.length > 0) {
-          // Multiple roles → go to select-role screen (replace login in history)
+          // Multiple roles â†’ go to select-role screen (replace login in history)
           this.router.navigate(['/auth/select-role'], { replaceUrl: true });
         } else {
-          // Single role — token already stored by auth.service (replace login in history)
+          // Single role â€” token already stored by auth.service (replace login in history)
           this.navigateToDashboard();
         }
       },
       error: (err) => {
-        const msg: string = err.error?.message ?? 'Email o contraseña inválidos.';
+        const msg: string = err.error?.message ?? 'Email o contraseÃ±a invÃ¡lidos.';
         this.errorMessage.set(msg);
         this.loading.set(false);
       }
@@ -56,7 +56,7 @@ export class LoginComponent {
       case 'ATHLETE':   this.router.navigate(['/athlete'], { replaceUrl: true }); break;
       case 'REFEREE':   this.router.navigate(['/bout'], { replaceUrl: true }); break;
       case 'ORGANIZER': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
-      case 'ADMIN':     this.router.navigate(['/tournament'], { replaceUrl: true }); break;
+      case 'ADMIN':     this.router.navigate(['/admin'], { replaceUrl: true }); break;
       default:            this.router.navigate(['/auth/login'], { replaceUrl: true });
     }
   }

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
@@ -10,6 +10,7 @@ import {
   AthleteDocumentResponse,
   DocumentType
 } from '../../../core/models/athlete.models';
+import { AthleteBoutResponse, BoutStatus } from '../../../core/models/bout.models';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,17 @@ export class AthleteService {
     return this.http.put<ApiResponse<any>>(this.apiUrl, payload).pipe(
       map(res => this.mapFromBackend(res.data))
     );
+  }
+
+  // ── Bout history ─────────────────────────────────────────────────────────────
+
+  getMyBouts(tournamentId?: number | null, status?: BoutStatus | null): Observable<AthleteBoutResponse[]> {
+    let params = new HttpParams();
+    if (tournamentId) params = params.set('tournamentId', tournamentId);
+    if (status) params = params.set('status', status);
+    return this.http.get<ApiResponse<AthleteBoutResponse[]>>(
+      `${environment.apiUrl}/athletes/me/bouts`, { params }
+    ).pipe(map(res => res.data));
   }
 
   // ── Document management ──────────────────────────────────────────────────────

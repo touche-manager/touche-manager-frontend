@@ -360,6 +360,29 @@ export interface BracketBout {
   piste: string | null;
 }
 
+// ── Public tournament search ──────────────────────────────────────────────────
+
+export interface PublicTournamentResponse {
+  id: number;
+  name: string;
+  weapon: Weapon;
+  category: TournamentCategory;
+  gender: TournamentGender;
+  location: string;
+  date: string;
+  phase: TournamentPhase;
+  isNational: boolean;
+}
+
+export interface PublicTournamentFilters {
+  status?: TournamentPhase | '';
+  weapon?: Weapon | '';
+  category?: TournamentCategory | '';
+  gender?: TournamentGender | '';
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 // ── Rankings por puntos (RSP) ─────────────────────────────────────────────────
 
 export interface RankingEntryResponse {
