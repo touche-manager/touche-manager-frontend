@@ -1,4 +1,4 @@
-﻿import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AthletePageComponent } from './athlete.page';
 import { AthleteService } from './services/athlete.service';
@@ -100,7 +100,8 @@ describe('AthletePageComponent', () => {
         gender: 'MALE',
         dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'CÃ³rdoba'
+        province: 'CÃ³rdoba',
+        canEditProfile: true
       };
       athleteServiceSpy.getProfile.and.returnValue(of(mockProfile));
 
@@ -183,7 +184,8 @@ describe('AthletePageComponent', () => {
         gender: 'MALE',
         dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'CÃ³rdoba'
+        province: 'CÃ³rdoba',
+        canEditProfile: true
       };
       athleteServiceSpy.createProfile.and.returnValue(of(mockResponse));
 
@@ -225,7 +227,8 @@ describe('AthletePageComponent', () => {
         gender: 'MALE',
         dominantHand: 'RIGHT',
         club: 'Club de Esgrima',
-        province: 'CÃ³rdoba'
+        province: 'CÃ³rdoba',
+        canEditProfile: true
       };
       athleteServiceSpy.getProfile.and.returnValue(of(initialProfile));
 

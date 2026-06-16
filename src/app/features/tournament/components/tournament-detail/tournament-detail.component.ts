@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
@@ -8,56 +8,47 @@ import {
   EnrollmentStatus,
   DocumentValidationStatus,
   DocumentValidationRequest,
-  TournamentPhase,
-  OrganizerTournamentResponse
+  AthleteDocumentInfo
 } from '../../../../core/models/tournament.models';
-import { RefereeApplicationsComponent } from '../referee-applications/referee-applications.component';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
+import { DocPreviewModalComponent } from '../../../../shared/components/doc-preview-modal/doc-preview-modal.component';
 
+/**
+ * Inscriptos panel — embedded in the tournament hub.
+ * Lists the tournament's enrollments and lets the organizer validate documents.
+ */
 @Component({
   selector: 'app-tournament-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RefereeApplicationsComponent, LabelPipe],
+  imports: [CommonModule, FormsModule, LabelPipe, DocPreviewModalComponent],
   templateUrl: './tournament-detail.component.html'
 })
 export class TournamentDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly tournamentService = inject(OrganizerTournamentService);
 
   tournamentId = 0;
 
   readonly enrollments = signal<EnrollmentDetailResponse[]>([]);
-  readonly activeFilter = signal<EnrollmentStatus | 'ALL'>('ALL');
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly tournamentPhase = signal<TournamentPhase | null>(null);
+  readonly expandedEnrollmentId = signal<number | null>(null);
 
-  readonly filterTabs: { value: EnrollmentStatus | 'ALL'; label: string }[] = [
-    { value: 'ALL', label: 'Todos' },
-    { value: 'PAID', label: 'Pagos' },
-    { value: 'PENDING_PAYMENT', label: 'Pendientes' },
-    { value: 'CANCELLED', label: 'Cancelados' }
-  ];
+  readonly isPreviewOpen = signal<boolean>(false);
+  readonly previewUrl = signal<string>('');
+  readonly previewContentType = signal<string>('');
+  readonly previewFileName = signal<string>('');
+  private rawPreviewUrl: string | null = null;
 
   readonly filteredEnrollments = computed(() => {
-    const filter = this.activeFilter();
-    if (filter === 'ALL') return this.enrollments();
-    return this.enrollments().filter(e => e.status === filter);
+    // Exclude CANCELLED enrollments as requested
+    return this.enrollments().filter(e => e.status !== 'CANCELLED');
   });
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     this.tournamentId = id ? +id : 0;
     this.loadEnrollments();
-    this.loadTournamentPhase();
-  }
-
-  loadTournamentPhase(): void {
-    this.tournamentService.getTournamentById(this.tournamentId).subscribe({
-      next: (t: any) => this.tournamentPhase.set(t.phase ?? null),
-      error: () => {}
-    });
   }
 
   loadEnrollments(): void {
@@ -68,13 +59,65 @@ export class TournamentDetailComponent implements OnInit {
     });
   }
 
-  setFilter(f: EnrollmentStatus | 'ALL'): void {
-    this.activeFilter.set(f);
+  toggleDrawer(id: number): void {
+    if (this.expandedEnrollmentId() === id) {
+      this.expandedEnrollmentId.set(null);
+    } else {
+      this.expandedEnrollmentId.set(id);
+    }
   }
 
-  countByStatus(status: EnrollmentStatus | 'ALL'): number {
-    if (status === 'ALL') return this.enrollments().length;
-    return this.enrollments().filter(e => e.status === status).length;
+  isDrawerOpen(id: number): boolean {
+    return this.expandedEnrollmentId() === id;
+  }
+
+  docsSummaryClass(enrollment: EnrollmentDetailResponse): string {
+    if (enrollment.documents.length === 0) return 'badge-neutral';
+    if (enrollment.documents.some(d => d.validationStatus === 'REJECTED')) return 'badge-danger';
+    if (enrollment.documents.some(d => d.validationStatus === 'PENDING')) return 'badge-warning';
+    return 'badge-success';
+  }
+
+  docsSummaryLabel(enrollment: EnrollmentDetailResponse): string {
+    if (enrollment.documents.length === 0) return 'Sin docs';
+    if (enrollment.documents.some(d => d.validationStatus === 'REJECTED')) return 'Rechazado';
+    if (enrollment.documents.some(d => d.validationStatus === 'PENDING')) return 'Pendiente';
+    return 'Aprobado';
+  }
+
+  viewDocument(athleteId: number, doc: AthleteDocumentInfo): void {
+    this.tournamentService.downloadAthleteDocument(athleteId, doc.documentId).subscribe({
+      next: (blob) => {
+        if (this.rawPreviewUrl) {
+          window.URL.revokeObjectURL(this.rawPreviewUrl);
+        }
+        const url = window.URL.createObjectURL(blob);
+        this.rawPreviewUrl = url;
+        
+        this.previewUrl.set(url);
+        this.previewContentType.set(blob.type || 'application/pdf');
+        
+        const typeLabel = doc.documentType === 'MEDICAL_CLEARANCE' ? 'Apto Medico' : 'Comprobante de Pago';
+        const extension = blob.type.includes('png') ? '.png' : blob.type.includes('jpeg') || blob.type.includes('jpg') ? '.jpg' : '.pdf';
+        this.previewFileName.set(`${typeLabel}${extension}`);
+        
+        this.isPreviewOpen.set(true);
+      },
+      error: () => {
+        alert('No se pudo descargar o abrir el documento.');
+      }
+    });
+  }
+
+  closePreview(): void {
+    if (this.rawPreviewUrl) {
+      window.URL.revokeObjectURL(this.rawPreviewUrl);
+      this.rawPreviewUrl = null;
+    }
+    this.previewUrl.set('');
+    this.previewContentType.set('');
+    this.previewFileName.set('');
+    this.isPreviewOpen.set(false);
   }
 
   validateDoc(documentId: number, status: DocumentValidationStatus, enrollment: EnrollmentDetailResponse): void {
@@ -94,48 +137,21 @@ export class TournamentDetailComponent implements OnInit {
     });
   }
 
-  // Labels handled by LabelPipe in template
-
   statusBadgeClass(status: EnrollmentStatus): string {
     const map: Record<EnrollmentStatus, string> = {
-      PAID: 'bg-green-500/20 text-green-400',
-      PENDING_PAYMENT: 'bg-yellow-500/20 text-yellow-400',
-      CANCELLED: 'bg-white/10 text-white/40'
+      PAID: 'badge-success',
+      PENDING_PAYMENT: 'badge-warning',
+      CANCELLED: 'badge-danger'
     };
-    return map[status] ?? 'bg-white/10 text-white/40';
+    return map[status] ?? 'badge-neutral';
   }
 
   validationBadgeClass(status: DocumentValidationStatus): string {
     const map: Record<DocumentValidationStatus, string> = {
-      PENDING: 'bg-yellow-500/20 text-yellow-400',
-      APPROVED: 'bg-green-500/20 text-green-400',
-      REJECTED: 'bg-red-500/20 text-red-400'
+      PENDING: 'badge-warning',
+      APPROVED: 'badge-success',
+      REJECTED: 'badge-danger'
     };
-    return map[status] ?? '';
-  }
-
-  // phaseLabel handled by LabelPipe in template
-
-  phaseBadgeClass(phase: TournamentPhase): string {
-    const map: Record<TournamentPhase, string> = {
-      ENROLLMENT: 'bg-blue-500/20 text-blue-400',
-      POULES_IN_PROGRESS: 'bg-yellow-500/20 text-yellow-400',
-      ELIMINATION_IN_PROGRESS: 'bg-orange-500/20 text-orange-400',
-      FINISHED: 'bg-green-500/20 text-green-400'
-    };
-    return map[phase] ?? 'bg-white/10 text-white/40';
-  }
-
-  goToPoules(): void {
-    this.router.navigate(['/tournament', this.tournamentId, 'poules']);
-  }
-
-  goToResults(): void {
-    this.router.navigate(['/results', this.tournamentId]);
-  }
-
-  goBack(): void {
-    this.router.navigate(['/tournament']);
+    return map[status] ?? 'badge-neutral';
   }
 }
-

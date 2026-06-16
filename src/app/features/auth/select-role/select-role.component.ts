@@ -5,16 +5,16 @@ import { RoleName } from '../../../core/models/auth.models';
 
 const ROLE_LABELS: Record<RoleName, string> = {
   ATHLETE:  'Atleta',
-  REFEREE:  'Ãrbitro',
+  REFEREE:  'Árbitro',
   ORGANIZER:'Organizador',
   ADMIN:    'Administrador'
 };
 
 const ROLE_DESCRIPTIONS: Record<RoleName, string> = {
   ATHLETE:  'Gestiona tu perfil y documentos',
-  REFEREE:  'PuntÃºa asaltos en tiempo real',
+  REFEREE:  'Puntuá asaltos en tiempo real',
   ORGANIZER:'Crea y gestiona torneos',
-  ADMIN:    'AdministraciÃ³n total del sistema'
+  ADMIN:    'Administración total del sistema'
 };
 
 @Component({

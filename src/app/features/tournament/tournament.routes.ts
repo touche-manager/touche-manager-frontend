@@ -18,12 +18,13 @@ export const tournamentRoutes: Routes = [
   },
   {
     path: ':id',
-    loadComponent: () => import('./components/tournament-detail/tournament-detail.component')
-      .then(m => m.TournamentDetailComponent)
+    loadComponent: () => import('./components/tournament-hub/tournament-hub.component')
+      .then(m => m.TournamentHubComponent)
   },
   {
+    // Legacy link — the poules view now lives inside the tournament hub
     path: ':id/poules',
-    loadComponent: () => import('./components/poule-manager/poule-manager.component')
-      .then(m => m.PouleManagerComponent)
+    redirectTo: ':id',
+    pathMatch: 'full'
   }
 ];

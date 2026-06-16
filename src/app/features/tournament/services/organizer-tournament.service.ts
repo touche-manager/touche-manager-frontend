@@ -56,4 +56,10 @@ export class OrganizerTournamentService {
       request
     ).pipe(map(() => void 0));
   }
+
+  downloadAthleteDocument(athleteId: number, documentId: number): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/athletes/${athleteId}/documents/${documentId}`, {
+      responseType: 'blob'
+    });
+  }
 }

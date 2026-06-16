@@ -86,45 +86,7 @@
         @for (sheet of t.pouleSheets; track sheet.pouleNumber) {
           <div class="poule-card">
             <h3 class="poule-label">Poule {{ sheet.pouleNumber }}</h3>
-            <div class="table-scroll">
-              <table class="poule-table">
-                <thead>
-                  <tr>
-                    <th class="pth-name">Tirador</th>
-                    @for (idx of allIndices(sheet); track idx) {
-                      <th class="pth-num">{{ idx }}</th>
-                    }
-                    <th class="pth-stat">V</th>
-                    <th class="pth-stat">TA</th>
-                    <th class="pth-stat">TR</th>
-                    <th class="pth-stat">Ind.</th>
-                    <th class="pth-stat">Cls.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of sheet.rows; track row.athleteId) {
-                    <tr>
-                      <td class="ptd-name">
-                        <span class="ptd-idx">{{ row.index }}</span>
-                        {{ row.fullName }}
-                      </td>
-                      @for (idx of allIndices(sheet); track idx) {
-                        <td class="ptd-cell" [ngClass]="cellClass(cell(row, idx))">
-                          {{ cell(row, idx) }}
-                        </td>
-                      }
-                      <td class="ptd-stat font-bold text-emerald-600">{{ row.victories }}</td>
-                      <td class="ptd-stat">{{ row.touchesScored }}</td>
-                      <td class="ptd-stat">{{ row.touchesReceived }}</td>
-                      <td class="ptd-stat font-bold" [class.text-emerald-600]="row.indicator >= 0" [class.text-red-500]="row.indicator < 0">
-                        {{ row.indicator >= 0 ? '+' : '' }}{{ row.indicator }}
-                      </td>
-                      <td class="ptd-stat font-bold text-touche-navy">{{ row.rank }}°</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+            <app-poule-table [rows]="mapSheetToRows(sheet)" [colCount]="allIndices(sheet).length"></app-poule-table>
           </div>
         }
       </section>

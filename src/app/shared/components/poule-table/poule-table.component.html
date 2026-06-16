@@ -1,0 +1,54 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-left border-collapse text-xs poule-grid-table">
+    <thead>
+      <tr class="bg-[#0F1E45] text-white border-b border-slate-200 font-bold uppercase tracking-wider text-[10px]">
+        <th class="py-3 px-4 font-bold text-white text-left min-w-[180px]">Tirador</th>
+        @for (i of getColIndexes(); track i) {
+          <th class="py-3 px-2 font-bold text-white text-center w-11 border-l border-slate-700/20">{{ i }}</th>
+        }
+        <th class="py-3 px-2 font-bold text-white text-center w-11 border-l border-slate-700/20 bg-[#1e293b]/10">V</th>
+        <th class="py-3 px-2 font-bold text-white text-center w-11 border-l border-slate-700/20 bg-[#1e293b]/10">TA</th>
+        <th class="py-3 px-2 font-bold text-white text-center w-11 border-l border-slate-700/20 bg-[#1e293b]/10">TR</th>
+        <th class="py-3 px-2 font-bold text-white text-center w-12 border-l border-slate-700/20 bg-[#1e293b]/10">IND.</th>
+        <th class="py-3 px-2 font-bold text-white text-center w-12 border-l border-slate-700/20 bg-[#1e293b]/10">CLS.</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; track row.athlete.id) {
+        <tr class="border-b border-slate-100 hover:bg-slate-50/30 transition-colors last:border-b-0">
+          <!-- Athlete Name with Circle Badge -->
+          <td class="py-3 px-4 font-semibold text-slate-800 flex items-center gap-3 min-w-[180px] truncate">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#0F1E45] text-white text-[10px] font-bold flex-shrink-0">
+              {{ row.index }}
+            </span>
+            <span class="truncate">{{ row.athlete.fullName }}</span>
+          </td>
+
+          <!-- Intersections -->
+          @for (cell of row.cells; track $index) {
+            <td class="text-center border-l border-slate-100 font-bold w-11 p-0.5"
+                [ngClass]="cell.cssClass">
+              @if (cell.cssClass !== 'diagonal') {
+                <span class="inline-block py-1 px-1.5 rounded text-center text-[11px] font-bold">{{ cell.text }}</span>
+              }
+            </td>
+          }
+
+          <!-- Stats -->
+          <td class="py-3 px-2 text-center font-bold border-l border-slate-200/60 text-emerald-600 bg-slate-50/10">{{ row.stats.victories }}</td>
+          <td class="py-3 px-2 text-center border-l border-slate-100 bg-slate-50/10 text-slate-600 font-semibold">{{ row.stats.touchesScored }}</td>
+          <td class="py-3 px-2 text-center border-l border-slate-100 bg-slate-50/10 text-slate-600 font-semibold">{{ row.stats.touchesReceived }}</td>
+          <td class="py-3 px-2 text-center font-bold border-l border-slate-150 bg-slate-50/10"
+              [ngClass]="{
+                'text-emerald-600': row.stats.indicator.startsWith('+') || row.stats.indicator === '+0',
+                'text-red-500': row.stats.indicator.startsWith('-'),
+                'text-slate-400': row.stats.indicator === '—'
+              }">
+            {{ row.stats.indicator }}
+          </td>
+          <td class="py-3 px-2 text-center font-bold border-l border-slate-200 bg-slate-50/10 text-slate-800">{{ row.stats.classification }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,4 +1,4 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { DashboardPageComponent } from './dashboard.page';
 import { AthleteService } from '../services/athlete.service';
@@ -24,7 +24,8 @@ describe('DashboardPageComponent', () => {
     gender: 'MALE',
     dominantHand: 'RIGHT',
     club: 'Club Esgrima',
-    province: 'CÃ³rdoba'
+    province: 'CÃ³rdoba',
+    canEditProfile: true
   };
 
   const mockMedicalDoc: AthleteDocumentResponse = {

@@ -1,5 +1,5 @@
-<div class="mt-8">
-  <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+<div>
+  <h2 class="text-lg font-bold text-touche-navy mb-4 flex items-center gap-2">
     <svg class="w-5 h-5 text-touche-celeste" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
     </svg>
@@ -7,11 +7,11 @@
   </h2>
 
   @if (loading()) {
-    <div class="text-white/40 text-sm py-4">Cargando...</div>
+    <div class="text-slate-400 text-sm py-4">Cargando...</div>
   }
 
   @if (!loading() && applications().length === 0) {
-    <div class="bg-white/5 border border-white/10 rounded-xl p-6 text-center text-white/40">
+    <div class="bg-white border border-slate-150 rounded-xl p-6 text-center text-slate-400">
       <p>Sin postulaciones recibidas todavía</p>
     </div>
   }
@@ -19,10 +19,10 @@
   @if (!loading() && applications().length > 0) {
     <div class="space-y-3">
       @for (app of applications(); track app.id) {
-        <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="bg-white border border-slate-150 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-sm">
           <div>
-            <p class="font-medium text-white">{{ app.refereeEmail }}</p>
-            <p class="text-sm text-white/50 mt-0.5">
+            <p class="font-bold text-touche-navy text-sm">{{ app.refereeEmail }}</p>
+            <p class="text-xs text-slate-500 mt-0.5">
               Postulado {{ formatDate(app.appliedAt) }}
             </p>
           </div>
@@ -31,19 +31,19 @@
               <button
                 [id]="'btn-accept-' + app.id"
                 (click)="review(app.id, 'ACCEPTED')"
-                class="text-xs py-1.5 px-3 rounded-lg bg-green-500/20 hover:bg-green-500/30 text-green-400 transition-colors font-medium"
+                class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition-all border border-emerald-200"
               >
                 Aceptar
               </button>
               <button
                 [id]="'btn-reject-' + app.id"
                 (click)="review(app.id, 'REJECTED')"
-                class="text-xs py-1.5 px-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-colors font-medium"
+                class="px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 text-xs font-bold transition-all border border-red-200"
               >
                 Rechazar
               </button>
             } @else {
-              <span class="text-xs px-3 py-1 rounded-full" [class]="statusBadge(app.status)">
+              <span [class]="statusBadge(app.status)">
                 {{ app.status | label:'refereeStatus' }}
               </span>
             }

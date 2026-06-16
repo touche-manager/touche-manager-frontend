@@ -8,11 +8,12 @@ import { FormsModule } from '@angular/forms';
 import { AthleteService } from './services/athlete.service';
 import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../../core/models/athlete.models';
 import { AthleteBoutResponse, BoutStatus, BoutStatusLabels } from '../../core/models/bout.models';
+import { DocPreviewModalComponent } from '../../shared/components/doc-preview-modal/doc-preview-modal.component';
 
 @Component({
   selector: 'app-athlete-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, DocPreviewModalComponent],
   templateUrl: './athlete.page.html',
   styleUrl: './athlete.page.css'
 })
@@ -25,6 +26,8 @@ export class AthletePageComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly success = signal<boolean>(false);
   readonly isEditMode = signal<boolean>(false);
+  /** True while the athlete is enrolled in an unfinished tournament → profile read-only */
+  readonly profileLocked = signal<boolean>(false);
 
   // Tabs management
   readonly activeTab = signal<'profile' | 'documents' | 'bouts'>('profile');
@@ -65,6 +68,8 @@ export class AthletePageComponent implements OnInit {
   readonly previewType = signal<'pdf' | 'image' | 'unsupported' | null>(null);
   readonly previewFileName = signal<string>('');
   readonly isPreviewOpen = signal<boolean>(false);
+  readonly previewContentType = signal<string>('');
+  readonly rawPreviewUrlSig = signal<string>('');
   private rawPreviewUrl: string | null = null;
 
   athleteForm!: FormGroup;
@@ -102,6 +107,13 @@ export class AthletePageComponent implements OnInit {
       next: (profile) => {
         this.isEditMode.set(true);
         this.athleteForm.patchValue(profile);
+        // Lock editing while enrolled in an unfinished tournament
+        this.profileLocked.set(!profile.canEditProfile);
+        if (!profile.canEditProfile) {
+          this.athleteForm.disable();
+        } else {
+          this.athleteForm.enable();
+        }
         this.loading.set(false);
         // Load documents if in edit mode
         this.loadDocuments();
@@ -119,6 +131,7 @@ export class AthletePageComponent implements OnInit {
   }
 
   onSubmit(): void {
+    if (this.profileLocked()) return;
     if (this.athleteForm.invalid) {
       this.athleteForm.markAllAsTouched();
       return;
@@ -268,22 +281,13 @@ export class AthletePageComponent implements OnInit {
           window.URL.revokeObjectURL(this.rawPreviewUrl);
         }
 
-        // Determine preview type based on contentType
         const contentType = doc.contentType.toLowerCase();
-        if (contentType.includes('pdf')) {
-          this.previewType.set('pdf');
-        } else if (contentType.includes('image') || contentType.includes('png') || contentType.includes('jpg') || contentType.includes('jpeg')) {
-          this.previewType.set('image');
-        } else {
-          this.previewType.set('unsupported');
-        }
-
         const url = window.URL.createObjectURL(blob);
         this.rawPreviewUrl = url;
         
-        // Sanitize the URL for Angular binding
-        this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
-        
+        this.rawPreviewUrlSig.set(url);
+        this.previewContentType.set(contentType);
+
         // Compute preview/download filename dynamically
         const typeLabel = this.documentTypeLabels[doc.documentType];
         const year = new Date(doc.uploadDate).getFullYear();
@@ -310,8 +314,8 @@ export class AthletePageComponent implements OnInit {
       window.URL.revokeObjectURL(this.rawPreviewUrl);
       this.rawPreviewUrl = null;
     }
-    this.previewUrl.set(null);
-    this.previewType.set(null);
+    this.rawPreviewUrlSig.set('');
+    this.previewContentType.set('');
     this.previewFileName.set('');
     this.isPreviewOpen.set(false);
   }

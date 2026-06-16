@@ -43,7 +43,7 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        const msg: string = err.error?.message ?? 'Email o contraseÃ±a invÃ¡lidos.';
+        const msg: string = err.error?.message ?? 'Email o contraseña inválidos.';
         this.errorMessage.set(msg);
         this.loading.set(false);
       }

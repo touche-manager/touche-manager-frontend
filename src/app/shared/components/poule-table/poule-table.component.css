@@ -1,0 +1,29 @@
+/* Poule table styles */
+.poule-grid-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.poule-grid-table td.diagonal {
+  background-color: #192231 !important;
+  color: #192231;
+  padding: 0 !important;
+}
+
+.poule-grid-table td.win {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.poule-grid-table td.loss {
+  background-color: #fee2e2 !important;
+  color: #7f1d1d !important;
+}
+
+.poule-grid-table td.win span {
+  color: #065f46 !important;
+}
+
+.poule-grid-table td.loss span {
+  color: #7f1d1d !important;
+}

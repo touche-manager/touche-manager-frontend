@@ -62,6 +62,17 @@ export class DashboardRefereeComponent implements OnInit {
     });
   }
 
+  /** Withdraw a still-pending application */
+  withdraw(tournamentId: number): void {
+    const app = this.myApplications().find(a => a.tournamentId === tournamentId);
+    if (!app) return;
+    if (!confirm('¿Retirar tu postulación a este torneo?')) return;
+    this.refereeApplicationService.cancel(app.id).subscribe({
+      next: () => this.myApplications.update(apps => apps.filter(a => a.id !== app.id)),
+      error: () => this.error.set('No se pudo retirar la postulación. Intentá de nuevo.')
+    });
+  }
+
   selectTournament(id: number): void {
     this.router.navigate(['/bout', id, 'bouts']);
   }

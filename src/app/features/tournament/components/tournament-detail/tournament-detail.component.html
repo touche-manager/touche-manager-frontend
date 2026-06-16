@@ -1,178 +1,263 @@
-<div class="min-h-screen bg-touche-navy p-4 md:p-8">
-  <div class="max-w-5xl mx-auto">
-
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-8">
-      <button (click)="goBack()" class="text-touche-celeste hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-      <div class="flex-1">
-        <h1 class="text-2xl font-bold text-white">Atletas Inscriptos</h1>
-        <p class="text-touche-celeste/70 text-sm mt-0.5">Gestión de inscripciones y validación de documentos</p>
-      </div>
-      <!-- Phase badge + action button -->
-      @if (tournamentPhase()) {
-        <div class="flex items-center gap-3">
-          <span class="text-xs px-3 py-1.5 rounded-full font-medium" [class]="phaseBadgeClass(tournamentPhase()!)">
-            {{ tournamentPhase()! | label:'phase' }}
-          </span>
-          @if (tournamentPhase() === 'ENROLLMENT') {
-            <button
-              id="btn-manage-poules"
-              (click)="goToPoules()"
-              class="text-sm px-4 py-2 rounded-xl bg-touche-celeste text-touche-navy font-bold hover:bg-touche-celeste/80 transition-colors"
-            >
-              Generar Poules
-            </button>
-          } @else if (tournamentPhase() === 'POULES_IN_PROGRESS' || tournamentPhase() === 'ELIMINATION_IN_PROGRESS') {
-            <button
-              id="btn-manage-poules"
-              (click)="goToPoules()"
-              class="text-sm px-4 py-2 rounded-xl bg-touche-celeste text-touche-navy font-bold hover:bg-touche-celeste/80 transition-colors"
-            >
-              Gestionar Poules
-            </button>
-          } @else if (tournamentPhase() === 'FINISHED') {
-            <button
-              id="btn-manage-poules"
-              (click)="goToPoules()"
-              class="text-sm px-4 py-2 rounded-xl bg-white/10 text-white font-semibold hover:bg-white/20 transition-colors"
-            >
-              Ver Poules/Bracket
-            </button>
-            <button
-              id="btn-view-results"
-              (click)="goToResults()"
-              class="text-sm px-4 py-2 rounded-xl bg-touche-gold text-touche-navy font-bold hover:bg-yellow-500 transition-colors"
-            >
-              Ver Resultados
-            </button>
-          }
-        </div>
-      }
+<div>
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex justify-center items-center h-48">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
     </div>
+  }
 
-    <!-- Filter tabs -->
-    <div class="flex gap-2 mb-6 bg-white/5 p-1 rounded-xl w-full max-w-sm">
-      @for (tab of filterTabs; track tab.value) {
-        <button
-          [id]="'tab-' + tab.value"
-          (click)="setFilter(tab.value)"
-          [class]="activeFilter() === tab.value
-            ? 'flex-1 text-sm py-2 px-3 rounded-lg bg-touche-celeste text-touche-navy font-bold transition-all'
-            : 'flex-1 text-sm py-2 px-3 rounded-lg text-white/60 hover:text-white transition-all'"
-        >
-          {{ tab.label }} ({{ countByStatus(tab.value) }})
-        </button>
-      }
+  <!-- Error -->
+  @if (error()) {
+    <div class="alert-danger mb-4">
+      {{ error() }}
     </div>
+  }
 
-    <!-- Loading -->
-    @if (loading()) {
-      <div class="flex justify-center items-center h-48">
-        <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
+  <!-- Empty -->
+  @if (!loading() && filteredEnrollments().length === 0) {
+    <div class="text-center py-16 text-slate-400">
+      <p class="text-lg">Sin inscriptos todavía</p>
+    </div>
+  }
+
+  <!-- Table list -->
+  @if (!loading() && filteredEnrollments().length > 0) {
+    <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+      <!-- Desktop View -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-150 bg-slate-50/50">
+              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Atleta</th>
+              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">DNI</th>
+              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Club</th>
+              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Estado</th>
+              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Docs</th>
+              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (enrollment of filteredEnrollments(); track enrollment.enrollmentId) {
+              <!-- Row -->
+              <tr class="hover:bg-slate-50/30 transition-colors">
+                <td class="py-3 px-5 text-sm font-semibold text-touche-navy">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-touche-celeste/15 text-touche-navy flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      {{ enrollment.athlete.firstName.charAt(0) }}{{ enrollment.athlete.lastName.charAt(0) }}
+                    </div>
+                    <span>{{ enrollment.athlete.firstName }} {{ enrollment.athlete.lastName }}</span>
+                  </div>
+                </td>
+                <td class="py-3 px-5 text-sm text-slate-600">{{ enrollment.athlete.dni }}</td>
+                <td class="py-3 px-5 text-sm text-slate-500">{{ enrollment.athlete.club ?? '—' }}</td>
+                <td class="py-3 px-5">
+                  <span [class]="statusBadgeClass(enrollment.status)">
+                    {{ enrollment.status | label:'enrollmentStatus' }}
+                  </span>
+                </td>
+                <td class="py-3 px-5">
+                  <span [class]="docsSummaryClass(enrollment)">
+                    {{ docsSummaryLabel(enrollment) }}
+                  </span>
+                </td>
+                <td class="py-3 px-5 text-right">
+                  <button
+                    [id]="'btn-toggle-docs-' + enrollment.enrollmentId"
+                    (click)="toggleDrawer(enrollment.enrollmentId)"
+                    class="btn-ghost py-1.5 px-3 text-xs"
+                  >
+                    {{ isDrawerOpen(enrollment.enrollmentId) ? 'Ocultar docs' : 'Ver docs' }}
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Drawer Row -->
+              @if (isDrawerOpen(enrollment.enrollmentId)) {
+                <tr class="bg-slate-50/50">
+                  <td colspan="6" class="p-4 border-b border-slate-150">
+                    <div class="pl-11">
+                      <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
+                        Documentación de {{ enrollment.athlete.firstName }} {{ enrollment.athlete.lastName }}
+                      </h4>
+
+                      @if (enrollment.documents.length > 0) {
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-3xl">
+                          @for (doc of enrollment.documents; track doc.documentId) {
+                            <div class="flex items-center justify-between gap-3 bg-white border border-slate-150 rounded-xl p-3 shadow-sm">
+                              <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center flex-shrink-0 text-slate-400 border border-slate-100">
+                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p class="text-sm font-semibold text-touche-navy">{{ doc.documentType | label:'documentType' }}</p>
+                                  <span class="mt-0.5" [class]="validationBadgeClass(doc.validationStatus)">
+                                    {{ doc.validationStatus | label:'documentStatus' }}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div class="flex items-center gap-1.5">
+                                <button
+                                  [id]="'btn-view-doc-' + doc.documentId"
+                                  (click)="viewDocument(enrollment.athlete.id, doc)"
+                                  class="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-touche-navy hover:bg-slate-200 border border-slate-200 transition-colors flex items-center justify-center"
+                                  title="Ver documento"
+                                >
+                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                  </svg>
+                                </button>
+                                @if (doc.validationStatus !== 'APPROVED') {
+                                  <button
+                                    [id]="'btn-approve-' + doc.documentId"
+                                    (click)="validateDoc(doc.documentId, 'APPROVED', enrollment)"
+                                    class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center justify-center"
+                                    title="Aprobar"
+                                  >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                  </button>
+                                }
+                                @if (doc.validationStatus !== 'REJECTED') {
+                                  <button
+                                    [id]="'btn-reject-' + doc.documentId"
+                                    (click)="rejectDoc(doc.documentId, enrollment)"
+                                    class="p-1.5 rounded-lg bg-red-50 text-red-600 hover:text-red-700 hover:bg-red-100 border border-red-200 transition-colors flex items-center justify-center"
+                                    title="Rechazar"
+                                  >
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                  </button>
+                                }
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <p class="text-xs text-slate-400 italic">Sin documentos cargados</p>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
       </div>
-    }
 
-    <!-- Error -->
-    @if (error()) {
-      <div class="bg-red-900/30 border border-red-500/50 rounded-xl p-4 text-red-300 mb-4">
-        {{ error() }}
-      </div>
-    }
-
-    <!-- Empty -->
-    @if (!loading() && filteredEnrollments().length === 0) {
-      <div class="text-center py-16 text-white/40">
-        <p class="text-lg">Sin inscriptos en este estado</p>
-      </div>
-    }
-
-    <!-- List -->
-    @if (!loading()) {
-      <div class="space-y-4">
+      <!-- Mobile View -->
+      <div class="md:hidden divide-y divide-slate-100">
         @for (enrollment of filteredEnrollments(); track enrollment.enrollmentId) {
-          <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-            <!-- Athlete header -->
-            <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-touche-celeste/20 flex items-center justify-center text-touche-celeste font-bold text-lg flex-shrink-0">
+          <div class="p-4 bg-white animate-fade-up">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-full bg-touche-celeste/15 text-touche-navy flex items-center justify-center font-bold text-xs flex-shrink-0">
                   {{ enrollment.athlete.firstName.charAt(0) }}{{ enrollment.athlete.lastName.charAt(0) }}
                 </div>
-                <div>
-                  <h3 class="font-bold text-white">
-                    {{ enrollment.athlete.firstName }} {{ enrollment.athlete.lastName }}
-                  </h3>
-                  <p class="text-sm text-white/50">DNI: {{ enrollment.athlete.dni }} · {{ enrollment.athlete.club ?? 'Sin club' }}</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="text-sm font-medium px-3 py-1 rounded-full"
-                  [class]="statusBadgeClass(enrollment.status)">
-                  {{ enrollment.status | label:'enrollmentStatus' }}
+                <span class="text-sm font-semibold text-touche-navy truncate">
+                  {{ enrollment.athlete.firstName }} {{ enrollment.athlete.lastName }}
                 </span>
-                <span class="text-touche-gold font-bold"><span>$</span>{{ enrollment.amount | number:'1.0-0' }}</span>
+              </div>
+              <span [class]="statusBadgeClass(enrollment.status)">
+                {{ enrollment.status | label:'enrollmentStatus' }}
+              </span>
+            </div>
+            <div class="text-xs text-slate-500 space-y-0.5 pl-10 mb-3">
+              <p>DNI: {{ enrollment.athlete.dni }}</p>
+              <p>Club: {{ enrollment.athlete.club ?? '—' }}</p>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span>Docs:</span>
+                <span [class]="docsSummaryClass(enrollment)">
+                  {{ docsSummaryLabel(enrollment) }}
+                </span>
               </div>
             </div>
+            <div class="flex justify-end pl-10" (click)="$event.stopPropagation()">
+              <button
+                (click)="toggleDrawer(enrollment.enrollmentId)"
+                class="btn-ghost py-1.5 px-3 text-xs w-full sm:w-auto"
+              >
+                {{ isDrawerOpen(enrollment.enrollmentId) ? 'Ocultar documentos' : 'Ver documentos' }}
+              </button>
+            </div>
 
-            <!-- Documents section -->
-            @if (enrollment.documents.length > 0) {
-              <div class="border-t border-white/10 px-5 py-4">
-                <h4 class="text-sm font-semibold text-white/60 uppercase tracking-wider mb-3">Documentación</h4>
-                <div class="space-y-3">
-                  @for (doc of enrollment.documents; track doc.documentId) {
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/5 rounded-xl p-3">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-                          <svg class="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                          </svg>
+            <!-- Mobile Drawer -->
+            @if (isDrawerOpen(enrollment.enrollmentId)) {
+              <div class="mt-4 pt-4 border-t border-slate-100 space-y-3 bg-slate-50 -mx-4 px-4 py-3">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                  Documentos
+                </h4>
+                @if (enrollment.documents.length > 0) {
+                  <div class="space-y-2.5">
+                    @for (doc of enrollment.documents; track doc.documentId) {
+                      <div class="bg-white border border-slate-150 rounded-xl p-3 shadow-sm flex flex-col gap-3">
+                        <div class="flex items-start justify-between gap-2">
+                          <div>
+                            <p class="text-xs font-semibold text-touche-navy">{{ doc.documentType | label:'documentType' }}</p>
+                            <span class="mt-1 inline-block" [class]="validationBadgeClass(doc.validationStatus)">
+                              {{ doc.validationStatus | label:'documentStatus' }}
+                            </span>
+                          </div>
                         </div>
-                        <div>
-                          <p class="text-sm font-medium text-white">{{ doc.documentType | label:'documentType' }}</p>
-                          <span class="text-xs px-2 py-0.5 rounded-full"
-                            [class]="validationBadgeClass(doc.validationStatus)">
-                            {{ doc.validationStatus | label:'documentStatus' }}
-                          </span>
+                        <div class="flex items-center gap-2">
+                          <button
+                            (click)="viewDocument(enrollment.athlete.id, doc)"
+                            class="flex-1 py-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-touche-navy hover:bg-slate-200 border border-slate-200 transition-colors flex items-center justify-center"
+                            title="Ver documento"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                          </button>
+                          @if (doc.validationStatus !== 'APPROVED') {
+                            <button
+                              (click)="validateDoc(doc.documentId, 'APPROVED', enrollment)"
+                              class="flex-1 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center justify-center"
+                              title="Aprobar"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                              </svg>
+                            </button>
+                          }
+                          @if (doc.validationStatus !== 'REJECTED') {
+                            <button
+                              (click)="rejectDoc(doc.documentId, enrollment)"
+                              class="flex-1 py-1.5 rounded-lg bg-red-50 text-red-600 hover:text-red-700 hover:bg-red-100 border border-red-200 transition-colors flex items-center justify-center"
+                              title="Rechazar"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                              </svg>
+                            </button>
+                          }
                         </div>
                       </div>
-                      <div class="flex items-center gap-2">
-                        @if (doc.validationStatus !== 'APPROVED') {
-                          <button
-                            [id]="'btn-approve-' + doc.documentId"
-                            (click)="validateDoc(doc.documentId, 'APPROVED', enrollment)"
-                            class="text-xs py-1.5 px-3 rounded-lg bg-green-500/20 hover:bg-green-500/30 text-green-400 transition-colors font-medium"
-                          >
-                            Aprobar
-                          </button>
-                        }
-                        @if (doc.validationStatus !== 'REJECTED') {
-                          <button
-                            [id]="'btn-reject-' + doc.documentId"
-                            (click)="rejectDoc(doc.documentId, enrollment)"
-                            class="text-xs py-1.5 px-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-colors font-medium"
-                          >
-                            Rechazar
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            } @else {
-              <div class="border-t border-white/10 px-5 py-3 text-sm text-white/30 italic">
-                Sin documentos cargados
+                    }
+                  </div>
+                } @else {
+                  <p class="text-xs text-slate-400 italic">Sin documentos cargados</p>
+                }
               </div>
             }
           </div>
         }
       </div>
-    }
-    <!-- Referee applications panel -->
-    <app-referee-applications [tournamentId]="tournamentId"></app-referee-applications>
+    </div>
+  }
 
-  </div>
+  @if (isPreviewOpen()) {
+    <app-doc-preview-modal
+      [rawUrl]="previewUrl()"
+      [contentType]="previewContentType()"
+      [fileName]="previewFileName()"
+      (close)="closePreview()"
+    ></app-doc-preview-modal>
+  }
 </div>

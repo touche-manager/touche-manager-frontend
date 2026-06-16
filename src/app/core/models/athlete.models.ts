@@ -26,6 +26,8 @@ export interface AthleteResponse {
   dominantHand: DominantHand;
   club: string;
   province: string;
+  /** False while the athlete has an active enrollment in an unfinished tournament (profile locked) */
+  canEditProfile: boolean;
 }
 
 export type DocumentType = 'MEDICAL_CLEARANCE' | 'PAYMENT_RECEIPT';

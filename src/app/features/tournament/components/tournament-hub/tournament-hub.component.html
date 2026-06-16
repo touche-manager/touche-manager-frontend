@@ -1,0 +1,83 @@
+<div class="w-full animate-fade-up">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex items-start gap-4 mb-6">
+      <button (click)="goBack()" class="text-touche-navy hover:bg-slate-100 transition-colors p-2 rounded-lg flex-shrink-0">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <div class="flex-1 min-w-0">
+        @if (tournament(); as t) {
+          <div class="flex flex-wrap items-center gap-2 mb-1.5">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" [class]="phaseBadgeClass(t.phase!)">
+              {{ t.phase! | label:'phase' }}
+            </span>
+            @if (t.isNational) {
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-touche-gold/15 text-touche-gold border border-touche-gold/30">
+                Nacional
+              </span>
+            }
+          </div>
+          <h1 class="page-title">{{ t.name }}</h1>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-slate-500">
+            <span class="font-semibold text-touche-navy">{{ t.weapon | label:'weapon' }}</span>
+            <span class="text-slate-300">·</span>
+            <span>{{ t.category | label:'category' }}</span>
+            <span class="text-slate-300">·</span>
+            <span>{{ t.gender | label:'gender' }}</span>
+            <span class="text-slate-300 hidden sm:inline">·</span>
+            <span class="w-full sm:w-auto">📍 {{ t.location }} — {{ formatDate(t.date) }}</span>
+          </div>
+        } @else {
+          <h1 class="page-title">Gestión del torneo</h1>
+        }
+      </div>
+
+      @if (tournament()?.phase === 'FINISHED') {
+        <button
+          id="btn-hub-results"
+          (click)="goToResults()"
+          class="btn-gold"
+        >
+          Ver Resultados
+        </button>
+      }
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-6">
+      <div class="flex border-b border-slate-200 overflow-x-auto whitespace-nowrap">
+        @for (tab of tabs; track tab.value) {
+          <button
+            [id]="'hub-tab-' + tab.value"
+            (click)="setTab(tab.value)"
+            class="relative px-5 py-3 text-sm font-semibold transition-colors duration-150 focus:outline-none"
+            [class.text-touche-navy]="activeTab() === tab.value"
+            [class.text-slate-400]="activeTab() !== tab.value"
+          >
+            {{ tab.label }}
+            <span *ngIf="activeTab() === tab.value"
+                  class="absolute bottom-0 left-0 right-0 h-0.5 bg-touche-celeste rounded-t-full"></span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Tab content -->
+    @switch (activeTab()) {
+      @case ('poules') {
+        <app-poule-manager />
+      }
+      @case ('enrollments') {
+        <app-tournament-detail />
+      }
+      @case ('referees') {
+        <app-referee-applications [tournamentId]="tournamentId" />
+      }
+    }
+
+  </div>
+</div>

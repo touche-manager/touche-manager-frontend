@@ -1,17 +1,17 @@
-<div class="min-h-screen bg-touche-navy p-4 md:p-8">
+<div class="w-full animate-fade-up">
   <div class="max-w-2xl mx-auto">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-8">
-      <button (click)="goBack()" class="text-touche-celeste hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10">
+      <button (click)="goBack()" class="text-touche-navy hover:bg-slate-100 transition-colors p-2 rounded-lg flex-shrink-0">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
       </button>
       <div>
-        <h1 class="text-2xl font-bold text-white">
+        <h1 class="page-title">
           {{ isEditMode() ? 'Editar Torneo' : 'Nuevo Torneo' }}
         </h1>
-        <p class="text-touche-celeste/70 text-sm mt-0.5">
+        <p class="page-subtitle">
           {{ isEditMode() ? 'Modificá los datos del torneo' : 'Completá los datos para crear el torneo' }}
         </p>
       </div>
@@ -19,55 +19,81 @@
 
     <!-- Form -->
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
-      <div class="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
+      <div class="bg-white border border-slate-150 rounded-2xl p-6 space-y-5 shadow-sm">
+
+        @if (isEditMode()) {
+          <div class="alert-warning flex items-start gap-2.5 text-xs">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Solo se pueden modificar el nombre, la fecha y la ubicación. El arma, la categoría, el género y el precio no se pueden cambiar porque ya hay atletas inscriptos en base a ellos.</span>
+          </div>
+        }
 
         <!-- Name -->
         <div>
-          <label class="block text-sm font-medium text-white/80 mb-2">Nombre del Torneo *</label>
+          <label class="label">Nombre del Torneo *</label>
           <input
             id="input-name"
             type="text"
             formControlName="name"
             placeholder="Ej: Open Nacional de Florete 2026"
-            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste transition-colors"
+            class="input-field"
+            [class.input-error]="form.get('name')?.invalid && form.get('name')?.touched"
           />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
-            <p class="text-red-400 text-xs mt-1">El nombre es requerido</p>
+            <p class="text-red-500 text-xs mt-1">El nombre es requerido (mínimo 3 caracteres)</p>
           }
         </div>
 
         <!-- Weapon + Category row -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">Arma *</label>
-            <select
-              id="select-weapon"
-              formControlName="weapon"
-              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors appearance-none"
-            >
-              <option value="" class="bg-touche-navy" disabled>Seleccionar...</option>
-              @for (entry of weaponEntries; track entry.value) {
-                <option [value]="entry.value" class="bg-touche-navy">{{ entry.label }}</option>
-              }
-            </select>
+            <label class="label">Arma *</label>
+            <div class="relative">
+              <select
+                id="select-weapon"
+                formControlName="weapon"
+                class="input-field appearance-none disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                [class.input-error]="form.get('weapon')?.invalid && form.get('weapon')?.touched"
+              >
+                <option value="" disabled>Seleccionar...</option>
+                @for (entry of weaponEntries; track entry.value) {
+                  <option [value]="entry.value">{{ entry.label }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             @if (form.get('weapon')?.invalid && form.get('weapon')?.touched) {
-              <p class="text-red-400 text-xs mt-1">Seleccioná un arma</p>
+              <p class="text-red-500 text-xs mt-1">Seleccioná un arma</p>
             }
           </div>
           <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">Categoría *</label>
-            <select
-              id="select-category"
-              formControlName="category"
-              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors appearance-none"
-            >
-              <option value="" class="bg-touche-navy" disabled>Seleccionar...</option>
-              @for (entry of categoryEntries; track entry.value) {
-                <option [value]="entry.value" class="bg-touche-navy">{{ entry.label }}</option>
-              }
-            </select>
+            <label class="label">Categoría *</label>
+            <div class="relative">
+              <select
+                id="select-category"
+                formControlName="category"
+                class="input-field appearance-none disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                [class.input-error]="form.get('category')?.invalid && form.get('category')?.touched"
+              >
+                <option value="" disabled>Seleccionar...</option>
+                @for (entry of categoryEntries; track entry.value) {
+                  <option [value]="entry.value">{{ entry.label }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
             @if (form.get('category')?.invalid && form.get('category')?.touched) {
-              <p class="text-red-400 text-xs mt-1">Seleccioná una categoría</p>
+              <p class="text-red-500 text-xs mt-1">Seleccioná una categoría</p>
             }
           </div>
         </div>
@@ -75,29 +101,41 @@
         <!-- Gender + Location -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">Género *</label>
-            <select
-              id="select-gender"
-              formControlName="gender"
-              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors appearance-none"
-            >
-              <option value="" class="bg-touche-navy" disabled>Seleccionar...</option>
-              @for (entry of genderEntries; track entry.value) {
-                <option [value]="entry.value" class="bg-touche-navy">{{ entry.label }}</option>
-              }
-            </select>
+            <label class="label">Género *</label>
+            <div class="relative">
+              <select
+                id="select-gender"
+                formControlName="gender"
+                class="input-field appearance-none disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                [class.input-error]="form.get('gender')?.invalid && form.get('gender')?.touched"
+              >
+                <option value="" disabled>Seleccionar...</option>
+                @for (entry of genderEntries; track entry.value) {
+                  <option [value]="entry.value">{{ entry.label }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+            @if (form.get('gender')?.invalid && form.get('gender')?.touched) {
+              <p class="text-red-500 text-xs mt-1">Seleccioná un género</p>
+            }
           </div>
           <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">Ubicación *</label>
+            <label class="label">Ubicación *</label>
             <input
               id="input-location"
               type="text"
               formControlName="location"
               placeholder="Ej: Club Universitario, CABA"
-              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste transition-colors"
+              class="input-field"
+              [class.input-error]="form.get('location')?.invalid && form.get('location')?.touched"
             />
             @if (form.get('location')?.invalid && form.get('location')?.touched) {
-              <p class="text-red-400 text-xs mt-1">La ubicación es requerida</p>
+              <p class="text-red-500 text-xs mt-1">La ubicación es requerida</p>
             }
           </div>
         </div>
@@ -105,38 +143,44 @@
         <!-- Date + Price -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">Fecha *</label>
+            <label class="label">Fecha *</label>
             <input
               id="input-date"
               type="date"
               formControlName="date"
-              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-touche-celeste transition-colors"
+              [min]="today"
+              class="input-field"
+              [class.input-error]="form.get('date')?.touched && (form.get('date')?.hasError('required') || form.get('date')?.hasError('pastDate'))"
             />
-            @if (form.get('date')?.invalid && form.get('date')?.touched) {
-              <p class="text-red-400 text-xs mt-1">La fecha es requerida</p>
+            @if (form.get('date')?.touched && form.get('date')?.hasError('required')) {
+              <p class="text-red-500 text-xs mt-1">La fecha es requerida</p>
+            }
+            @if (form.get('date')?.touched && form.get('date')?.hasError('pastDate')) {
+              <p class="text-red-500 text-xs mt-1">La fecha no puede ser anterior a hoy</p>
             }
           </div>
           <div>
-            <label class="block text-sm font-medium text-white/80 mb-2">Precio Base *</label>
+            <label class="label">Precio Base *</label>
             <div class="relative">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">$</span>
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">$</span>
               <input
                 id="input-price"
                 type="number"
                 formControlName="basePrice"
                 placeholder="0"
                 min="0"
-                class="w-full bg-white/10 border border-white/20 rounded-xl pl-8 pr-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-touche-celeste transition-colors"
+                class="input-field pl-8 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed"
+                [class.input-error]="form.get('basePrice')?.invalid && form.get('basePrice')?.touched"
               />
             </div>
             @if (form.get('basePrice')?.invalid && form.get('basePrice')?.touched) {
-              <p class="text-red-400 text-xs mt-1">El precio debe ser mayor o igual a cero</p>
+              <p class="text-red-500 text-xs mt-1">El precio debe ser mayor o igual a cero</p>
             }
           </div>
         </div>
 
         <!-- isNational toggle -->
-        <div class="flex items-start gap-3 pt-1">
+        <div class="flex items-start gap-3 pt-2">
           <label class="relative inline-flex items-center cursor-pointer">
             <input
               id="toggle-national"
@@ -144,22 +188,22 @@
               formControlName="isNational"
               class="sr-only peer"
             />
-            <div class="w-11 h-6 bg-white/20 peer-focus:outline-none rounded-full peer
+            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer
                         peer-checked:after:translate-x-full peer-checked:after:border-white
                         after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                         after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
-                        peer-checked:bg-touche-gold"></div>
+                        peer-checked:bg-touche-gold disabled:opacity-40"></div>
           </label>
           <div>
-            <p class="text-sm font-semibold text-white">🏛 Campeonato Nacional</p>
-            <p class="text-xs text-white/50 mt-0.5">Aplica coeficiente ×1.2 en el cálculo del ranking (RSP)</p>
+            <p class="text-sm font-semibold text-touche-navy">🏛 Campeonato Nacional</p>
+            <p class="text-xs text-slate-400 mt-0.5">Aplica coeficiente ×1.2 en el cálculo del ranking (RSP)</p>
           </div>
         </div>
       </div>
 
       <!-- Error message -->
       @if (errorMsg()) {
-        <div class="bg-red-900/30 border border-red-500/50 rounded-xl p-4 text-red-300 text-sm">
+        <div class="alert-danger text-sm">
           {{ errorMsg() }}
         </div>
       }
@@ -169,7 +213,7 @@
         <button
           type="button"
           (click)="goBack()"
-          class="flex-1 py-3 rounded-xl border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-colors font-medium"
+          class="btn-ghost flex-1 py-3"
         >
           Cancelar
         </button>
@@ -177,11 +221,11 @@
           id="btn-submit"
           type="submit"
           [disabled]="form.invalid || submitting()"
-          class="flex-1 py-3 rounded-xl bg-touche-gold hover:bg-yellow-500 disabled:bg-white/10 disabled:text-white/30 text-touche-navy font-bold transition-all duration-200"
+          class="btn-gold flex-1 py-3"
         >
           @if (submitting()) {
             <span class="inline-flex items-center gap-2">
-              <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 animate-spin text-touche-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
               </svg>
               Guardando...

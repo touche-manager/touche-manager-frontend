@@ -38,7 +38,7 @@ export class RefereeApplicationsComponent implements OnInit {
   }
 
   statusBadge(s: RefereeApplicationStatus): string {
-    return s === 'ACCEPTED' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400';
+    return s === 'ACCEPTED' ? 'badge-success' : 'badge-danger';
   }
 
   formatDate(dateStr: string): string {

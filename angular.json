@@ -82,7 +82,8 @@
               "buildTarget": "touche-manager-frontend:build:development"
             },
             "local": {
-              "buildTarget": "touche-manager-frontend:build:local"
+              "buildTarget": "touche-manager-frontend:build:local",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

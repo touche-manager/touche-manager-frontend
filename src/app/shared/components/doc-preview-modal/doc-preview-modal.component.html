@@ -1,0 +1,50 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+     (click)="close.emit()">
+  <div class="max-w-4xl w-full h-[85vh] flex flex-col bg-white rounded-2xl overflow-hidden shadow-2xl animate-fade-up"
+       (click)="$event.stopPropagation()">
+
+    <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+      <h3 class="text-sm font-bold text-touche-navy truncate mr-4" [title]="fileName">
+        {{ fileName }}
+      </h3>
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <button (click)="download()" title="Descargar"
+                class="p-2 text-slate-400 hover:text-touche-celeste hover:bg-touche-celeste/10 rounded-xl transition-colors">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+        </button>
+        <button (click)="close.emit()" title="Cerrar"
+                class="p-2 text-slate-400 hover:text-touche-alert hover:bg-touche-alert/10 rounded-xl transition-colors">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-slate-100 p-4 flex items-center justify-center overflow-hidden">
+      <iframe *ngIf="previewType() === 'pdf' && previewUrl()"
+              [src]="previewUrl()" class="w-full h-full border-none rounded-xl shadow-sm"></iframe>
+      <div *ngIf="previewType() === 'image' && previewUrl()"
+           class="w-full h-full flex items-center justify-center p-2">
+        <img [src]="previewUrl()" class="max-w-full max-h-full object-contain rounded-xl shadow-sm"
+             [alt]="fileName" />
+      </div>
+      <div *ngIf="previewType() === 'unsupported'" class="text-center p-8 max-w-sm">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full
+                    bg-touche-gold/10 text-touche-gold mb-4">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h4 class="text-base font-bold text-touche-navy mb-2">Vista previa no disponible</h4>
+        <p class="text-sm text-slate-500 mb-5">Podés descargar el archivo para abrirlo en tu dispositivo.</p>
+        <button (click)="download()" class="btn-navy">Descargar archivo</button>
+      </div>
+    </div>
+
+  </div>
+</div>

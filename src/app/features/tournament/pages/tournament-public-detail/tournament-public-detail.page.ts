@@ -11,13 +11,14 @@ import {
   BracketBout,
 } from '../../../../core/models/tournament.models';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
+import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 @Component({
   selector: 'app-tournament-public-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LabelPipe],
+  imports: [CommonModule, RouterModule, LabelPipe, PouleTableComponent],
   templateUrl: './tournament-public-detail.page.html',
   styleUrls: ['./tournament-public-detail.page.css'],
 })
@@ -62,6 +63,37 @@ export class TournamentPublicDetailPageComponent implements OnInit {
     if (value.startsWith('V')) return 'win';
     if (value.startsWith('D')) return 'loss';
     return '';
+  }
+
+  mapSheetToRows(sheet: PouleSheet): any[] {
+    const indices = this.allIndices(sheet);
+    return sheet.rows.map(row => {
+      const cells = indices.map(idx => {
+        const value = this.cell(row, idx);
+        let cssClass = '';
+        if (value === '■') {
+          cssClass = 'diagonal';
+        } else if (value.startsWith('V')) {
+          cssClass = 'win';
+        } else if (value.startsWith('D')) {
+          cssClass = 'loss';
+        }
+        return { text: value === '■' ? '' : value, cssClass };
+      });
+
+      return {
+        index: row.index,
+        athlete: { id: row.athleteId, fullName: row.fullName },
+        cells,
+        stats: {
+          victories: row.victories,
+          touchesScored: row.touchesScored,
+          touchesReceived: row.touchesReceived,
+          indicator: row.indicator >= 0 ? `+${row.indicator}` : `${row.indicator}`,
+          classification: row.rank ? `${row.rank}°` : '—'
+        }
+      };
+    });
   }
 
   print(): void {

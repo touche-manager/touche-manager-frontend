@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
-import { TournamentRequest, OrganizerTournamentResponse } from '../../../../core/models/tournament.models';
+import { TournamentRequest } from '../../../../core/models/tournament.models';
 import { WEAPON_OPTIONS, CATEGORY_OPTIONS, GENDER_OPTIONS } from '../../../../shared/utils/filter-options';
 
 @Component({
@@ -28,13 +28,19 @@ export class TournamentFormComponent implements OnInit {
   readonly categoryEntries = CATEGORY_OPTIONS;
   readonly genderEntries   = GENDER_OPTIONS;
 
+  /** Today as YYYY-MM-DD, used as the min date and to validate against past dates */
+  readonly today = new Date().toISOString().split('T')[0];
+
+  /** Fields that can only be set at creation time and are locked when editing */
+  private static readonly IMMUTABLE_FIELDS = ['weapon', 'category', 'gender', 'basePrice', 'isNational'];
+
   readonly form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     weapon: ['', Validators.required],
     category: ['', Validators.required],
     gender: ['', Validators.required],
     location: ['', Validators.required],
-    date: ['', Validators.required],
+    date: ['', [Validators.required, TournamentFormComponent.notPastDate]],
     basePrice: [0, [Validators.required, Validators.min(0)]],
     isNational: [false]
   });
@@ -44,8 +50,19 @@ export class TournamentFormComponent implements OnInit {
     if (id) {
       this.tournamentId = +id;
       this.isEditMode.set(true);
+      // After creation only name/location/date can change; lock the rest.
+      TournamentFormComponent.IMMUTABLE_FIELDS.forEach(f => this.form.get(f)?.disable());
       this.loadTournament();
     }
+  }
+
+  /** Rejects dates earlier than today (tournaments can't be scheduled in the past) */
+  private static notPastDate(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(control.value + 'T00:00:00');
+    return selected < today ? { pastDate: true } : null;
   }
 
   loadTournament(): void {
@@ -60,7 +77,7 @@ export class TournamentFormComponent implements OnInit {
           location: t.location,
           date: t.date,
           basePrice: t.basePrice,
-          isNational: (t as OrganizerTournamentResponse & { isNational?: boolean }).isNational ?? false
+          isNational: t.isNational ?? false
         });
       },
       error: () => this.errorMsg.set('Error al cargar los datos del torneo.')

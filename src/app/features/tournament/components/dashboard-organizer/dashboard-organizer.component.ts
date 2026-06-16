@@ -46,12 +46,12 @@ export class DashboardOrganizerComponent implements OnInit {
 
   phaseBadgeClass(phase: TournamentPhase): string {
     const map: Record<TournamentPhase, string> = {
-      ENROLLMENT:               'bg-blue-500/20 text-blue-400',
-      POULES_IN_PROGRESS:       'bg-yellow-500/20 text-yellow-400',
-      ELIMINATION_IN_PROGRESS:  'bg-orange-500/20 text-orange-400',
-      FINISHED:                 'bg-green-500/20 text-green-400'
+      ENROLLMENT:               'bg-blue-50 text-blue-700 border border-blue-200',
+      POULES_IN_PROGRESS:       'bg-amber-50 text-amber-700 border border-amber-200',
+      ELIMINATION_IN_PROGRESS:  'bg-orange-50 text-orange-700 border border-orange-200',
+      FINISHED:                 'bg-emerald-50 text-emerald-700 border border-emerald-200'
     };
-    return map[phase] ?? 'bg-white/10 text-white/40';
+    return map[phase] ?? 'bg-slate-100 text-slate-600 border border-slate-200';
   }
 
   deleteTournament(tournament: OrganizerTournamentResponse): void {

@@ -98,10 +98,10 @@ export type EliminationRound =
   | 'FINAL';
 
 export const ELIMINATION_ROUND_LABELS: Record<EliminationRound, string> = {
-  ROUND_OF_64:  '64avos',
-  ROUND_OF_32:  '32avos',
-  ROUND_OF_16:  '16avos',
-  QUARTERFINAL: 'Cuartos de Final',
+  ROUND_OF_64:  '32avos de final',
+  ROUND_OF_32:  '16avos de final',
+  ROUND_OF_16:  'Octavos de final',
+  QUARTERFINAL: 'Cuartos de final',
   SEMIFINAL:    'Semifinales',
   FINAL:        'Final',
 };
