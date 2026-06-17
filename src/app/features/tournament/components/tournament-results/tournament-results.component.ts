@@ -55,8 +55,17 @@ export class TournamentResultsComponent implements OnInit {
 
   /** Converts the results API BracketData into the shared BracketRoundData[] format. */
   readonly resultBracketRoundData = computed<BracketRoundData[]>(() => {
-    const bracket = this.result()?.bracket;
+    const resultVal = this.result();
+    const bracket = resultVal?.bracket;
     if (!bracket?.rounds?.length) return [];
+
+    const getSeedByName = (name: string | null | undefined): number | null => {
+      if (!name) return null;
+      const classification = resultVal?.pouleClassification;
+      if (!classification) return null;
+      const found = classification.find(c => c.fullName.trim().toLowerCase() === name.trim().toLowerCase());
+      return found ? found.rank : null;
+    };
 
     return bracket.rounds.map((round: BracketRound): BracketRoundData => ({
       roundKey: round.round,
@@ -69,9 +78,9 @@ export class TournamentResultsComponent implements OnInit {
           id: bout.boutId,
           bracketPosition: bout.bracketPosition,
           leftName: bout.leftName,
-          leftSeed: null,     // results API does not expose seed numbers per bout
+          leftSeed: getSeedByName(bout.leftName),
           rightName: bout.rightName || null,
-          rightSeed: null,
+          rightSeed: getSeedByName(bout.rightName),
           scoreLeft: bout.finished ? bout.scoreLeft : null,
           scoreRight: bout.finished ? bout.scoreRight : null,
           winnerId: null,     // not exposed in results API, use winnerSide instead
