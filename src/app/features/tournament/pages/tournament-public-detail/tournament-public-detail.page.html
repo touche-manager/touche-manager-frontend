@@ -132,57 +132,13 @@
     }
 
     <!-- ═══ 4. Cuadro Eliminatorio ═══════════════════════════ -->
-    @if (t.bracket && t.bracket.rounds.length > 0) {
+    @if (resultBracketRoundData().length > 0) {
       <section class="section">
         <h2 class="section-title">🏆 Cuadro Eliminatorio</h2>
-
-        <div class="bracket-wrapper">
-          @for (round of t.bracket.rounds; track round.round) {
-            <div class="bracket-round">
-              <h3 class="round-label">{{ round.roundLabel }}</h3>
-              <div class="round-bouts">
-                @for (bout of round.bouts; track bout.boutId) {
-                  <div class="bracket-bout" [class.bout-finished]="bout.finished">
-
-                    <!-- Left fencer -->
-                    <div class="fencer-row" [class.fencer-winner]="bout.finished && bout.winnerName === bout.leftName">
-                      <span class="fencer-name">{{ bout.leftName }}</span>
-                      @if (bout.finished) {
-                        <span class="score" [class.score-win]="bout.winnerName === bout.leftName">{{ bout.scoreLeft }}</span>
-                      }
-                    </div>
-
-                    <div class="vs-divider"></div>
-
-                    <!-- Right fencer -->
-                    <div class="fencer-row" [class.fencer-winner]="bout.finished && bout.winnerName === bout.rightName">
-                      <span class="fencer-name">{{ bout.rightName }}</span>
-                      @if (bout.finished) {
-                        <span class="score" [class.score-win]="bout.winnerName === bout.rightName">{{ bout.scoreRight }}</span>
-                      }
-                    </div>
-
-                    <!-- Live link (only while the bout is being fenced) -->
-                    @if (bout.status === 'IN_PROGRESS') {
-                      <a
-                        [id]="'btn-live-' + bout.boutId"
-                        [routerLink]="['/live', bout.boutId]"
-                        target="_blank"
-                        class="live-link mt-2 inline-flex items-center justify-center gap-1.5 w-full px-3 py-1.5
-                               rounded-lg bg-red-50 border border-red-200 text-red-600 text-xs font-bold
-                               hover:bg-red-100 transition-colors no-print"
-                      >
-                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                        📺 Ver en vivo
-                      </a>
-                    }
-
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
+        <app-bracket-round-column
+          [rounds]="resultBracketRoundData()"
+          [readOnly]="true">
+        </app-bracket-round-column>
       </section>
     }
 

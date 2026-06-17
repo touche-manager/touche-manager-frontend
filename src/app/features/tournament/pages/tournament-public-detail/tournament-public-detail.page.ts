@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -12,13 +12,18 @@ import {
 } from '../../../../core/models/tournament.models';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
 import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
+import {
+  BracketRoundColumnComponent,
+  BracketRoundData,
+  BracketCardData
+} from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 @Component({
   selector: 'app-tournament-public-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LabelPipe, PouleTableComponent],
+  imports: [CommonModule, RouterModule, LabelPipe, PouleTableComponent, BracketRoundColumnComponent],
   templateUrl: './tournament-public-detail.page.html',
   styleUrls: ['./tournament-public-detail.page.css'],
 })
@@ -29,6 +34,39 @@ export class TournamentPublicDetailPageComponent implements OnInit {
   readonly loading = signal(true);
   readonly error   = signal<string | null>(null);
   readonly result  = signal<TournamentResultResponse | null>(null);
+
+  /** Converts the results API BracketData into the shared BracketRoundData[] format. */
+  readonly resultBracketRoundData = computed<BracketRoundData[]>(() => {
+    const bracket = this.result()?.bracket;
+    if (!bracket?.rounds?.length) return [];
+
+    return bracket.rounds.map((round: BracketRound): BracketRoundData => ({
+      roundKey: round.round,
+      label: round.roundLabel,
+      bouts: round.bouts.map((bout): BracketCardData => {
+        const winnerSide: 'left' | 'right' | null = bout.winnerName
+          ? (bout.winnerName === bout.leftName ? 'left' : 'right')
+          : null;
+        return {
+          id: bout.boutId,
+          bracketPosition: bout.bracketPosition,
+          leftName: bout.leftName,
+          leftSeed: null,     // results API does not expose seed numbers per bout
+          rightName: bout.rightName || null,
+          rightSeed: null,
+          scoreLeft: bout.finished ? bout.scoreLeft : null,
+          scoreRight: bout.finished ? bout.scoreRight : null,
+          winnerId: null,     // not exposed in results API, use winnerSide instead
+          leftId: null,
+          rightId: null,
+          winnerSide,
+          piste: bout.piste,
+          refereeLabel: null, // not exposed in results API
+          status: bout.status
+        };
+      })
+    }));
+  });
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
