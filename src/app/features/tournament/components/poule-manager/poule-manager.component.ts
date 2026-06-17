@@ -18,7 +18,7 @@ import {
 import { ELIMINATION_ROUND_LABELS } from '../../../../shared/utils/label.maps';
 import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
 import { BracketRoundColumnComponent, BracketRoundData, BracketCardData } from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
-import { PouleClassificationTableComponent } from '../../../../shared/components/poule-classification-table/poule-classification-table.component';
+import { ToucheTableComponent } from '../../../../shared/components/touche-table/touche-table.component';
 
 type ActiveTab = 'poules' | 'standings' | 'bracket';
 
@@ -30,7 +30,7 @@ type ActiveTab = 'poules' | 'standings' | 'bracket';
     FormsModule,
     PouleTableComponent,
     BracketRoundColumnComponent,
-    PouleClassificationTableComponent
+    ToucheTableComponent
   ],
   templateUrl: './poule-manager.component.html'
 })

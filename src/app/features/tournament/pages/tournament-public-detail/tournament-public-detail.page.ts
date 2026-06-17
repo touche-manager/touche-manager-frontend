@@ -17,7 +17,7 @@ import {
   BracketRoundData,
   BracketCardData
 } from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
-import { PouleClassificationTableComponent } from '../../../../shared/components/poule-classification-table/poule-classification-table.component';
+import { ToucheTableComponent } from '../../../../shared/components/touche-table/touche-table.component';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -30,7 +30,7 @@ interface ApiResponse<T> { success: boolean; message: string; data: T; }
     LabelPipe,
     PouleTableComponent,
     BracketRoundColumnComponent,
-    PouleClassificationTableComponent
+    ToucheTableComponent
   ],
   templateUrl: './tournament-public-detail.page.html',
   styleUrls: ['./tournament-public-detail.page.css'],

@@ -55,26 +55,7 @@
     @if (t.participants.length > 0) {
       <section class="section">
         <h2 class="section-title">👤 Tiradores participantes</h2>
-        <div class="table-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th class="th-center w-12">Nro.</th>
-                <th>Atleta</th>
-                <th>Club</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (p of t.participants; track p.athleteId) {
-                <tr>
-                  <td class="td-center font-mono font-bold text-touche-celeste">{{ p.seriesNumber }}</td>
-                  <td class="font-semibold">{{ p.fullName }}</td>
-                  <td class="text-slate-500">{{ p.club ?? '—' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-touche-table [mode]="'participants'" [rows]="t.participants"></app-touche-table>
       </section>
     }
 
@@ -96,7 +77,7 @@
     @if (t.pouleClassification.length > 0) {
       <section class="section">
         <h2 class="section-title">📋 Clasificación de Poules</h2>
-        <app-poule-classification-table [rows]="t.pouleClassification"></app-poule-classification-table>
+        <app-touche-table [mode]="'poule-classification'" [rows]="t.pouleClassification"></app-touche-table>
       </section>
     }
 
@@ -115,31 +96,7 @@
     @if (t.standings.length > 0) {
       <section class="section">
         <h2 class="section-title">🏅 Posiciones Finales</h2>
-        <div class="table-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th class="th-center w-12">Pos.</th>
-                <th>Atleta</th>
-                <th>Club</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (s of t.standings; track s.athleteId) {
-                <tr [class.podium-row]="s.rank <= 3">
-                  <td class="td-center font-bold">
-                    @if (s.rank === 1) { <span>🥇</span> }
-                    @else if (s.rank === 2) { <span>🥈</span> }
-                    @else if (s.rank === 3) { <span>🥉</span> }
-                    @else { <span class="text-slate-400">{{ s.rank }}</span> }
-                  </td>
-                  <td class="font-semibold">{{ s.fullName }}</td>
-                  <td class="text-slate-500">{{ s.club ?? '—' }}</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-touche-table [mode]="'final-standings'" [rows]="t.standings"></app-touche-table>
       </section>
     }
 

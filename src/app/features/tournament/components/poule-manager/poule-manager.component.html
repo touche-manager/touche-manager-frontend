@@ -321,7 +321,7 @@
       } @else {
         <div class="space-y-3">
           <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Clasificación General</h2>
-          <app-poule-classification-table [rows]="standings()"></app-poule-classification-table>
+          <app-touche-table [mode]="'poule-classification'" [rows]="standings()"></app-touche-table>
         </div>
       }
     }
