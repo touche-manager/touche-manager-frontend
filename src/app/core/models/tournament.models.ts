@@ -276,6 +276,12 @@ export interface FinalStanding {
   athleteId: number;
   fullName: string;
   club: string | null;
+  bouts: number;
+  victories: number;
+  defeats: number;
+  touchesScored: number;
+  touchesReceived: number;
+  indicator: number;
 }
 
 export interface PouleClassificationEntry {

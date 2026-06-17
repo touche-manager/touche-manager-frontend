@@ -31,7 +31,6 @@ export interface BracketRoundData {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bracket-round-column.component.html',
-  styleUrls: ['./bracket-round-column.component.css']
 })
 export class BracketRoundColumnComponent {
   /** All rounds of the bracket, rendered as side-by-side columns. */
