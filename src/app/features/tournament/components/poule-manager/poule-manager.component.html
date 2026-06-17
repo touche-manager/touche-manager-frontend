@@ -410,106 +410,14 @@
           <p class="text-sm mt-1">El bracket se generará al finalizar las poules</p>
         </div>
       } @else {
-        <!-- Visual Bracket Tree Layout -->
-        <div class="flex gap-6 overflow-x-auto pb-6 max-w-full animate-fade-up">
-          @for (round of bracketRounds(bracket()!); track round.round) {
-            <div class="flex-shrink-0 w-52 flex flex-col gap-4">
-              <!-- Column Header -->
-              <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                {{ round.label }}
-              </h3>
-
-              <!-- Bracket bouts column spacing out vertically -->
-              <div class="flex flex-col justify-around flex-grow gap-4 min-h-[500px]">
-                @for (bout of round.bouts; track bout.id) {
-                  <!-- Compact Bout Card -->
-                  <div (click)="openBoutManager(bout, round.label)"
-                       class="bg-white border border-slate-150 rounded-xl overflow-hidden hover:shadow-md hover:border-touche-celeste transition-all cursor-pointer select-none relative"
-                       [class.border-emerald-200]="bout.status === 'FINISHED'"
-                       [class.border-amber-200]="bout.status === 'IN_PROGRESS'">
-                    
-                    <!-- Left Athlete -->
-                    <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
-                         [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== bout.athleteLeft.id">
-                      <span class="truncate flex-grow text-touche-navy min-w-0"
-                            [class.font-bold]="bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id">
-                        @if (getSeedNumber(bout.athleteLeft.id); as seed) {
-                          <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ seed }})</span>
-                        }
-                        {{ bout.athleteLeft.firstName }} {{ bout.athleteLeft.lastName }}
-                      </span>
-                      @if (bout.status === 'FINISHED') {
-                        <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
-                              [class.bg-emerald-600]="bout.winnerId === bout.athleteLeft.id"
-                              [class.text-white]="bout.winnerId === bout.athleteLeft.id"
-                              [class.bg-slate-100]="bout.winnerId !== bout.athleteLeft.id"
-                              [class.text-slate-500]="bout.winnerId !== bout.athleteLeft.id">
-                          {{ bout.scoreLeft }}
-                        </span>
-                      }
-                    </div>
-
-                    <div class="h-px bg-slate-100"></div>
-
-                    <!-- Right Athlete -->
-                    <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
-                         [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== (bout.athleteRight?.id ?? -1)">
-                      <span class="truncate flex-grow text-touche-navy min-w-0"
-                            [class.font-bold]="bout.status === 'FINISHED' && bout.winnerId === (bout.athleteRight?.id ?? -1)">
-                        @if (bout.athleteRight) {
-                          @if (getSeedNumber(bout.athleteRight.id); as seed) {
-                            <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ seed }})</span>
-                          }
-                          {{ bout.athleteRight.firstName }} {{ bout.athleteRight.lastName }}
-                        } @else {
-                          <span class="text-slate-350 italic font-normal">BYE</span>
-                        }
-                      </span>
-                      @if (bout.status === 'FINISHED' && bout.athleteRight) {
-                        <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
-                              [class.bg-emerald-600]="bout.winnerId === bout.athleteRight.id"
-                              [class.text-white]="bout.winnerId === bout.athleteRight.id"
-                              [class.bg-slate-100]="bout.winnerId !== bout.athleteRight.id"
-                              [class.text-slate-500]="bout.winnerId !== bout.athleteRight.id">
-                          {{ bout.scoreRight }}
-                        </span>
-                      }
-                    </div>
-
-                    <!-- Indicators Footer (Only if not a BYE) -->
-                    @if (bout.athleteRight) {
-                      <div class="bg-slate-50/50 px-3 py-1 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-100 font-semibold">
-                        <div class="flex items-center gap-1.5 truncate">
-                          @if (bout.piste) {
-                            <span class="text-touche-navy bg-touche-celeste/15 px-1.5 py-0.5 rounded font-bold">
-                              📍 {{ bout.piste }}
-                            </span>
-                          }
-                          @if (bout.referees && bout.referees.length > 0) {
-                            <span class="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded truncate">
-                              👤 {{ bout.referees[0].fullName }}
-                            </span>
-                          }
-                        </div>
-                        <div>
-                          @if (bout.status === 'FINISHED') {
-                            <span class="text-emerald-600">Finalizado</span>
-                          } @else if (bout.status === 'IN_PROGRESS') {
-                            <span class="text-amber-600 animate-pulse">En curso</span>
-                          } @else {
-                            <span class="text-slate-400">Gestionar</span>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
+        <app-bracket-round-column
+          [rounds]="bracketRoundData()"
+          [readOnly]="false"
+          (cardClick)="onBracketCardClick($event)">
+        </app-bracket-round-column>
       }
     }
+
 
     <!-- ── BOUT MANAGER MODAL ── -->
     @if (isBoutManagerOpen() && selectedBout(); as bout) {

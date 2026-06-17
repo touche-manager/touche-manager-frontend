@@ -126,7 +126,20 @@
       }
 
     </div>
+
+    <!-- Elimination Bracket — full width so it can scroll horizontally -->
+    @if (resultBracketRoundData().length > 0) {
+      <div class="px-6 pb-12 animate-fade-up delay-400">
+        <h2 class="page-title text-2xl mb-6">🏆 Cuadro de Eliminatorias</h2>
+        <app-bracket-round-column
+          [rounds]="resultBracketRoundData()"
+          [readOnly]="true">
+        </app-bracket-round-column>
+      </div>
+    }
+
   }
+
 
   @if (!loading() && error()) {
     <div class="flex items-center justify-center h-screen">

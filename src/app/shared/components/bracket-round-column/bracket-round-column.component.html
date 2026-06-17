@@ -1,0 +1,107 @@
+<!-- Horizontal scrollable bracket: each round = one column -->
+<div class="flex gap-6 overflow-x-auto pb-6 max-w-full animate-fade-up">
+
+  @for (round of rounds; track round.roundKey) {
+    <div class="flex-shrink-0 w-52 flex flex-col gap-4">
+
+      <!-- Column header -->
+      <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center py-2
+                 bg-slate-50 border border-slate-200 rounded-xl">
+        {{ round.label }}
+      </h3>
+
+      <!-- Cards column -->
+      <div class="flex flex-col justify-around flex-grow gap-4 min-h-[500px]">
+        @for (card of round.bouts; track card.id) {
+
+          <!-- Bout card -->
+          <div [class]="cardClass(card)"
+               (click)="onCardClick(card)">
+
+            <!-- Left athlete row -->
+            <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
+                 [class.opacity-60]="card.status === 'FINISHED' && card.winnerSide !== 'left'">
+              <span class="truncate flex-grow text-touche-navy min-w-0"
+                    [class.font-bold]="card.status === 'FINISHED' && card.winnerSide === 'left'">
+                @if (card.leftSeed) {
+                  <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ card.leftSeed }})</span>
+                }
+                {{ card.leftName }}
+              </span>
+              @if (card.status === 'FINISHED' && card.scoreLeft !== null) {
+                <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
+                      [class.bg-emerald-600]="card.winnerSide === 'left'"
+                      [class.text-white]="card.winnerSide === 'left'"
+                      [class.bg-slate-100]="card.winnerSide !== 'left'"
+                      [class.text-slate-500]="card.winnerSide !== 'left'">
+                  {{ card.scoreLeft }}
+                </span>
+              }
+            </div>
+
+            <div class="h-px bg-slate-100"></div>
+
+            <!-- Right athlete row (or BYE) -->
+            <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
+                 [class.opacity-60]="card.status === 'FINISHED' && card.winnerSide !== 'right'">
+              <span class="truncate flex-grow text-touche-navy min-w-0"
+                    [class.font-bold]="card.status === 'FINISHED' && card.winnerSide === 'right'">
+                @if (card.rightName) {
+                  @if (card.rightSeed) {
+                    <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ card.rightSeed }})</span>
+                  }
+                  {{ card.rightName }}
+                } @else {
+                  <span class="text-slate-400 italic font-normal">BYE</span>
+                }
+              </span>
+              @if (card.status === 'FINISHED' && card.rightName && card.scoreRight !== null) {
+                <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
+                      [class.bg-emerald-600]="card.winnerSide === 'right'"
+                      [class.text-white]="card.winnerSide === 'right'"
+                      [class.bg-slate-100]="card.winnerSide !== 'right'"
+                      [class.text-slate-500]="card.winnerSide !== 'right'">
+                  {{ card.scoreRight }}
+                </span>
+              }
+            </div>
+
+            <!-- Footer: piste / referee pill (only when there is a right athlete) -->
+            @if (card.rightName) {
+              <div class="bg-slate-50/50 px-3 py-1 flex items-center justify-between
+                          text-[10px] text-slate-400 border-t border-slate-100 font-semibold">
+                <div class="flex items-center gap-1.5 truncate">
+                  @if (card.piste) {
+                    <span class="text-touche-navy bg-touche-celeste/15 px-1.5 py-0.5 rounded font-bold">
+                      📍 {{ card.piste }}
+                    </span>
+                  }
+                  @if (card.refereeLabel) {
+                    <span class="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded truncate">
+                      👤 {{ card.refereeLabel }}
+                    </span>
+                  }
+                </div>
+                <!-- Status hint — hidden in read-only mode since all bouts are finished -->
+                @if (!readOnly) {
+                  <div>
+                    @if (card.status === 'FINISHED') {
+                      <span class="text-emerald-600">Finalizado</span>
+                    } @else if (card.status === 'IN_PROGRESS') {
+                      <span class="text-amber-600 animate-pulse">En curso</span>
+                    } @else {
+                      <span class="text-slate-400">Gestionar</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+
+</div>

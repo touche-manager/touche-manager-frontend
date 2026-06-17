@@ -17,13 +17,14 @@ import {
 } from '../../../../core/models/tournament.models';
 import { ELIMINATION_ROUND_LABELS } from '../../../../shared/utils/label.maps';
 import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
+import { BracketRoundColumnComponent, BracketRoundData, BracketCardData } from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
 
 type ActiveTab = 'poules' | 'standings' | 'bracket';
 
 @Component({
   selector: 'app-poule-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, PouleTableComponent],
+  imports: [CommonModule, FormsModule, PouleTableComponent, BracketRoundColumnComponent],
   templateUrl: './poule-manager.component.html'
 })
 export class PouleManagerComponent implements OnInit {
@@ -131,6 +132,19 @@ export class PouleManagerComponent implements OnInit {
     this.setElimRefereeId(bout.id, '');
     this.isBoutManagerOpen.set(true);
   }
+
+  /** Adapter: receives a BracketCardData from the shared component and opens the bout manager. */
+  onBracketCardClick(card: BracketCardData): void {
+    const b = this.bracket();
+    if (!b) return;
+    const roundData = this.bracketRoundData().find(r => r.bouts.some(c => c.id === card.id));
+    if (!roundData) return;
+    // Find the original BoutResponse in the bracket
+    const allBouts = Object.values(b.roundBouts).flat() as BoutResponse[];
+    const bout = allBouts.find(bo => bo.id === card.id);
+    if (bout) this.openBoutManager(bout, roundData.label);
+  }
+
 
   closeBoutManager(): void {
     this.selectedBout.set(null);
@@ -482,6 +496,58 @@ export class PouleManagerComponent implements OnInit {
     const idx = list.findIndex(entry => entry.athleteId === athleteId);
     return idx !== -1 ? idx + 1 : null;
   }
+
+  /** Converts the current bracket signal into the shared BracketRoundData[] format. */
+  readonly bracketRoundData = computed<BracketRoundData[]>(() => {
+    const b = this.bracket();
+    if (!b) return [];
+    const standings = this.standings();
+
+    const getSeed = (athleteId: number | null | undefined): number | null => {
+      if (athleteId == null || standings.length === 0) return null;
+      const idx = standings.findIndex(e => e.athleteId === athleteId);
+      return idx !== -1 ? idx + 1 : null;
+    };
+
+    const keys = (Object.keys(b.roundBouts) as EliminationRound[]).sort((a, c) =>
+      PouleManagerComponent.ROUND_ORDER.indexOf(a) - PouleManagerComponent.ROUND_ORDER.indexOf(c)
+    );
+
+    return keys.map(round => ({
+      roundKey: round,
+      label: ELIMINATION_ROUND_LABELS[round] ?? round,
+      bouts: (b.roundBouts[round] || [])
+        .sort((a, c) => (a.bracketPosition ?? 0) - (c.bracketPosition ?? 0))
+        .map((bout): BracketCardData => {
+          const winnerSide: 'left' | 'right' | null = bout.winnerId
+            ? (bout.winnerId === bout.athleteLeft?.id ? 'left' : 'right')
+            : null;
+          return {
+            id: bout.id,
+            bracketPosition: bout.bracketPosition ?? 0,
+            leftName: bout.athleteLeft
+              ? `${bout.athleteLeft.firstName} ${bout.athleteLeft.lastName}`
+              : '?',
+            leftSeed: getSeed(bout.athleteLeft?.id),
+            rightName: bout.athleteRight
+              ? `${bout.athleteRight.firstName} ${bout.athleteRight.lastName}`
+              : null,
+            rightSeed: getSeed(bout.athleteRight?.id),
+            scoreLeft: bout.scoreLeft ?? null,
+            scoreRight: bout.scoreRight ?? null,
+            winnerId: bout.winnerId ?? null,
+            leftId: bout.athleteLeft?.id ?? null,
+            rightId: bout.athleteRight?.id ?? null,
+            winnerSide,
+            piste: bout.piste ?? null,
+            refereeLabel: bout.referees?.length
+              ? bout.referees[0].fullName
+              : null,
+            status: bout.status
+          };
+        })
+    }));
+  });
 
   mapPouleToRows(poule: PouleResponse): any[] {
     return poule.athletes.map((athlete, i) => {
