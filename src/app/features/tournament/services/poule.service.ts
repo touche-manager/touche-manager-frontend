@@ -75,4 +75,10 @@ export class PouleService {
       `${this.base}/poules/my/${tournamentId}`
     ).pipe(map(r => r.data));
   }
+
+  startPoule(pouleId: number): Observable<PouleResponse> {
+    return this.http.post<ApiResponse<PouleResponse>>(
+      `${this.base}/poules/${pouleId}/start`, {}
+    ).pipe(map(r => r.data));
+  }
 }

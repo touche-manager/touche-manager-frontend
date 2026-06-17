@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import { PouleResponse, BoutResponse } from '../../../../core/models/tournament.models';
+import { PouleService } from '../../../tournament/services/poule.service';
 
 interface ApiResponse<T> { success: boolean; data: T; }
 
@@ -68,7 +69,35 @@ interface ApiResponse<T> { success: boolean; data: T; }
           </div>
         </div>
 
-        <!-- Bouts list -->
+        <!-- ── Comenzar Poule banner ─────────────────────────────── -->
+        @if (poule()!.status === 'PENDING') {
+          <div class="mb-6 bg-white border-2 border-touche-celeste/40 rounded-2xl p-5 shadow-sm"
+               [class.opacity-50]="isStarting()">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 class="font-bold text-touche-navy text-base">La poule está lista para comenzar</h2>
+                <p class="text-sm text-slate-500 mt-0.5">Verificá la presencia de los atletas y luego iniciá la poule. Se notificará a los primeros competidores.</p>
+              </div>
+              <button
+                id="btn-start-poule"
+                (click)="startPoule()"
+                [disabled]="isStarting()"
+                class="btn-navy px-5 py-2.5 flex items-center gap-2 flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                @if (isStarting()) {
+                  <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                  Iniciando...
+                } @else {
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Comenzar Poule
+                }
+              </button>
+            </div>
+          </div>
+        }
         <div class="space-y-3">
           <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Asaltos</h2>
           @for (bout of poule()!.bouts; track bout.id) {
@@ -154,9 +183,11 @@ export class PouleDetailRefereeComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly pouleService = inject(PouleService);
 
   readonly poule = signal<PouleResponse | null>(null);
   readonly loading = signal(true);
+  readonly isStarting = signal(false);
 
   ngOnInit(): void {
     const pouleId = +this.route.snapshot.paramMap.get('pouleId')!;
@@ -176,6 +207,23 @@ export class PouleDetailRefereeComponent implements OnInit {
 
   scoreBout(boutId: number): void {
     this.router.navigate(['/bout', boutId, 'score']);
+  }
+
+  startPoule(): void {
+    const poule = this.poule();
+    if (!poule) return;
+    this.isStarting.set(true);
+    this.pouleService.startPoule(poule.id).subscribe({
+      next: (updated) => {
+        this.poule.set(updated);
+        this.isStarting.set(false);
+      },
+      error: (err) => {
+        console.error('Error al iniciar la poule', err);
+        alert(err?.error?.message || 'No se pudo iniciar la poule. Verificá que estés asignado como árbitro.');
+        this.isStarting.set(false);
+      }
+    });
   }
 
   goBack(): void {

@@ -5,11 +5,12 @@ import { AuthService } from './core/services/auth.service';
 import { RoleName } from './core/models/auth.models';
 import { environment } from '../environments/environment';
 import { NotificationBellComponent } from './shared/components/notification-bell/notification-bell.component';
+import { NotificationToastComponent } from './shared/components/notification-toast/notification-toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, NotificationBellComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, NotificationBellComponent, NotificationToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

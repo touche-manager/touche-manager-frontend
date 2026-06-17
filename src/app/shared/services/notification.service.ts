@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IMessage } from '@stomp/stompjs';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { NotificationDTO, NotifyUpcomingBoutRequest } from '../../core/models/notification.models';
@@ -28,6 +28,9 @@ export class NotificationService {
   readonly notifications = signal<NotificationDTO[]>([]);
   readonly unreadCount = computed(() => this.notifications().filter(n => !n.read).length);
 
+  /** Emits each new notification received via WebSocket in real time */
+  readonly newNotification$ = new Subject<NotificationDTO>();
+
   private listening = false;
 
   /** Connect the WebSocket and start receiving real-time notifications */
@@ -40,6 +43,7 @@ export class NotificationService {
     this.websocketService.subscribe(NotificationService.QUEUE_DESTINATION, (message: IMessage) => {
       const notification: NotificationDTO = JSON.parse(message.body);
       this.notifications.update(list => [notification, ...list]);
+      this.newNotification$.next(notification);  // trigger toast
     });
   }
 
