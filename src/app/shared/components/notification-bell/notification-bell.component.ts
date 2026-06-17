@@ -1,8 +1,9 @@
 import { Component, OnDestroy, effect, inject, signal, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../services/notification.service';
-import { NotificationDTO } from '../../../core/models/notification.models';
+import { NotificationDTO, NotificationType } from '../../../core/models/notification.models';
 
 @Component({
   selector: 'app-notification-bell',
@@ -65,27 +66,45 @@ import { NotificationDTO } from '../../../core/models/notification.models';
               </div>
             }
             @for (notification of notifications(); track notification.id) {
-              <button
-                (click)="onNotificationClick(notification)"
-                class="w-full text-left px-4 py-3 border-b border-touche-navy/5 transition-colors
-                       hover:bg-touche-celeste/5"
-                [class.bg-touche-celeste]="false"
+              <div
+                class="flex items-stretch border-b border-touche-navy/5 transition-colors"
                 [ngClass]="notification.read ? 'bg-white' : 'bg-touche-celeste/10'"
               >
-                <div class="flex items-start gap-2.5">
-                  <span class="mt-0.5 flex-shrink-0 w-2 h-2 rounded-full"
-                        [ngClass]="notification.read ? 'bg-transparent' : 'bg-touche-celeste'"></span>
-                  <div class="min-w-0">
-                    <p class="text-sm text-touche-navy leading-snug"
-                       [class.font-semibold]="!notification.read">
-                      {{ notification.message }}
-                    </p>
-                    <p class="text-[11px] text-touche-navy/50 mt-1">
-                      {{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}
-                    </p>
+                <!-- Main content (mark as read on click) -->
+                <button
+                  (click)="onNotificationClick(notification)"
+                  class="flex-1 text-left px-4 py-3 hover:bg-touche-celeste/5 transition-colors min-w-0"
+                >
+                  <div class="flex items-start gap-2.5">
+                    <span class="mt-1.5 flex-shrink-0 w-2 h-2 rounded-full"
+                          [ngClass]="notification.read ? 'bg-transparent' : 'bg-touche-celeste'"></span>
+                    <div class="min-w-0">
+                      <p class="text-sm text-touche-navy leading-snug"
+                         [class.font-semibold]="!notification.read">
+                        {{ notification.message }}
+                      </p>
+                      <p class="text-[11px] text-touche-navy/50 mt-1">
+                        {{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+
+                <!-- Navigation arrow -->
+                @if (hasRoute(notification)) {
+                  <button
+                    (click)="navigate(notification)"
+                    title="Ir a esta sección"
+                    class="flex-shrink-0 flex items-center px-3 text-touche-celeste
+                           hover:bg-touche-celeste/15 hover:text-touche-navy transition-colors
+                           border-l border-touche-navy/5"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                }
+              </div>
             }
           </div>
         </div>
@@ -96,13 +115,13 @@ import { NotificationDTO } from '../../../core/models/notification.models';
 export class NotificationBellComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
 
   readonly notifications = this.notificationService.notifications;
   readonly unreadCount = this.notificationService.unreadCount;
   readonly showPanel = signal(false);
 
   constructor() {
-    // Connect/disconnect the realtime channel following the session state
     effect(() => {
       const authenticated = this.authService.isAuthenticated();
       untracked(() => {
@@ -131,5 +150,56 @@ export class NotificationBellComponent implements OnDestroy {
 
   markAllAsRead(): void {
     this.notificationService.markAllAsRead().subscribe();
+  }
+
+  hasRoute(n: NotificationDTO): boolean {
+    return this.buildRoute(n) !== null;
+  }
+
+  navigate(n: NotificationDTO): void {
+    const route = this.buildRoute(n);
+    if (!route) return;
+    if (!n.read) {
+      this.notificationService.markAsRead(n.id).subscribe();
+    }
+    this.showPanel.set(false);
+    this.router.navigate(route.commands, route.extras ?? {});
+  }
+
+  private buildRoute(n: NotificationDTO): { commands: any[]; extras?: any } | null {
+    switch (n.type as NotificationType) {
+      case 'REFEREE_REQUEST':
+        // Organizer → tournament hub, árbitros tab
+        if (n.tournamentId) {
+          return {
+            commands: ['/tournament', n.tournamentId],
+            extras: { queryParams: { tab: 'referees' } }
+          };
+        }
+        return null;
+
+      case 'REFEREE_CONFIRMATION':
+      case 'REFEREE_ASSIGNMENT':
+        // Referee → their bout dashboard
+        return { commands: ['/bout'] };
+
+      case 'YOUR_TURN':
+      case 'NEXT_UP':
+      case 'UPCOMING_BOUT':
+        // Referee / Athlete → scorer if boutId available
+        if (n.boutId) {
+          return { commands: ['/bout', n.boutId, 'score'] };
+        }
+        return null;
+
+      case 'TOURNAMENT_STARTED':
+        if (n.tournamentId) {
+          return { commands: ['/tournament', n.tournamentId] };
+        }
+        return null;
+
+      default:
+        return null;
+    }
   }
 }

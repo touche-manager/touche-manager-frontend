@@ -43,6 +43,11 @@ export class TournamentHubComponent implements OnInit {
       next: (t) => this.tournament.set(t),
       error: () => {}
     });
+    // Read ?tab= query param to jump to a specific tab from a notification link
+    const tabParam = this.route.snapshot.queryParamMap.get('tab') as HubTab | null;
+    if (tabParam && ['poules', 'enrollments', 'referees'].includes(tabParam)) {
+      this.activeTab.set(tabParam);
+    }
   }
 
   setTab(tab: HubTab): void {

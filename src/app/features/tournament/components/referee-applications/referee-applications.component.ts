@@ -1,11 +1,13 @@
-import { Component, Input, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { RefereeApplicationService } from '../../services/referee-application.service';
 import {
   RefereeApplicationResponse,
   RefereeApplicationStatus
 } from '../../../../core/models/tournament.models';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-referee-applications',
@@ -13,9 +15,11 @@ import { LabelPipe } from '../../../../shared/pipes/label.pipe';
   imports: [CommonModule, LabelPipe],
   templateUrl: './referee-applications.component.html'
 })
-export class RefereeApplicationsComponent implements OnInit {
+export class RefereeApplicationsComponent implements OnInit, OnDestroy {
   @Input() tournamentId!: number;
   private readonly service = inject(RefereeApplicationService);
+  private readonly notificationService = inject(NotificationService);
+  private notifSub: Subscription | null = null;
 
   readonly applications = signal<RefereeApplicationResponse[]>([]);
   readonly loading = signal(true);
@@ -23,6 +27,20 @@ export class RefereeApplicationsComponent implements OnInit {
   // statusLabel handled by LabelPipe in template
 
   ngOnInit(): void {
+    this.load();
+    // Auto-reload when a referee applies to THIS tournament
+    this.notifSub = this.notificationService.newNotification$.subscribe(n => {
+      if (n.type === 'REFEREE_REQUEST' && n.tournamentId === this.tournamentId) {
+        this.load();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.notifSub?.unsubscribe();
+  }
+
+  load(): void {
     this.service.getApplicationsForTournament(this.tournamentId).subscribe({
       next: (data) => { this.applications.set(data); this.loading.set(false); },
       error: () => this.loading.set(false)
