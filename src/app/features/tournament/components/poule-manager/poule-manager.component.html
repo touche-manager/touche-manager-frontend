@@ -430,7 +430,6 @@
                     
                     <!-- Left Athlete -->
                     <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
-                         [ngClass]="{ 'bg-touche-celeste/5': bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id }"
                          [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== bout.athleteLeft.id">
                       <span class="truncate flex-grow text-touche-navy min-w-0"
                             [class.font-bold]="bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id">
@@ -441,7 +440,7 @@
                       </span>
                       @if (bout.status === 'FINISHED') {
                         <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
-                              [class.bg-touche-navy]="bout.winnerId === bout.athleteLeft.id"
+                              [class.bg-emerald-600]="bout.winnerId === bout.athleteLeft.id"
                               [class.text-white]="bout.winnerId === bout.athleteLeft.id"
                               [class.bg-slate-100]="bout.winnerId !== bout.athleteLeft.id"
                               [class.text-slate-500]="bout.winnerId !== bout.athleteLeft.id">
@@ -454,7 +453,6 @@
 
                     <!-- Right Athlete -->
                     <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
-                         [ngClass]="{ 'bg-touche-celeste/5': bout.status === 'FINISHED' && bout.winnerId === (bout.athleteRight?.id ?? -1) }"
                          [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== (bout.athleteRight?.id ?? -1)">
                       <span class="truncate flex-grow text-touche-navy min-w-0"
                             [class.font-bold]="bout.status === 'FINISHED' && bout.winnerId === (bout.athleteRight?.id ?? -1)">
@@ -469,7 +467,7 @@
                       </span>
                       @if (bout.status === 'FINISHED' && bout.athleteRight) {
                         <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
-                              [class.bg-touche-navy]="bout.winnerId === bout.athleteRight.id"
+                              [class.bg-emerald-600]="bout.winnerId === bout.athleteRight.id"
                               [class.text-white]="bout.winnerId === bout.athleteRight.id"
                               [class.bg-slate-100]="bout.winnerId !== bout.athleteRight.id"
                               [class.text-slate-500]="bout.winnerId !== bout.athleteRight.id">
@@ -549,8 +547,7 @@
                 <div class="w-12 h-12 rounded-full bg-touche-celeste/20 text-touche-navy flex items-center justify-center font-bold text-base shadow-sm border border-touche-celeste/30">
                   {{ bout.athleteLeft.firstName.charAt(0) }}{{ bout.athleteLeft.lastName.charAt(0) }}
                 </div>
-                <p class="text-sm font-bold text-touche-navy truncate w-full mt-2"
-                   [class.text-touche-celeste]="bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id">
+                <p class="text-sm font-bold text-touche-navy truncate w-full mt-2">
                   @if (getSeedNumber(bout.athleteLeft.id); as seed) {
                     <span class="text-xs text-slate-400 font-bold">({{ seed }})</span>
                   }
@@ -563,9 +560,9 @@
               <div class="flex flex-col items-center justify-center flex-shrink-0 px-2">
                 @if (bout.status === 'FINISHED') {
                   <div class="flex items-center gap-2 font-black text-xl text-touche-navy bg-white border border-slate-150 rounded-xl px-4 py-2 shadow-sm tabular-nums">
-                    <span [class.text-touche-celeste]="bout.winnerId === bout.athleteLeft.id">{{ bout.scoreLeft }}</span>
+                    <span [class.text-emerald-600]="bout.winnerId === bout.athleteLeft.id">{{ bout.scoreLeft }}</span>
                     <span class="text-slate-300 font-normal">:</span>
-                    <span [class.text-touche-celeste]="bout.winnerId === (bout.athleteRight?.id ?? -1)">{{ bout.scoreRight }}</span>
+                    <span [class.text-emerald-600]="bout.winnerId === (bout.athleteRight?.id ?? -1)">{{ bout.scoreRight }}</span>
                   </div>
                   <span class="text-[10px] text-emerald-600 font-bold mt-2">Finalizado</span>
                 } @else {
@@ -585,8 +582,7 @@
                   <div class="w-12 h-12 rounded-full bg-touche-gold/20 text-touche-navy flex items-center justify-center font-bold text-base shadow-sm border border-touche-gold/30">
                     {{ right.firstName.charAt(0) }}{{ right.lastName.charAt(0) }}
                   </div>
-                  <p class="text-sm font-bold text-touche-navy truncate w-full mt-2"
-                     [class.text-touche-celeste]="bout.status === 'FINISHED' && bout.winnerId === right.id">
+                  <p class="text-sm font-bold text-touche-navy truncate w-full mt-2">
                     @if (getSeedNumber(right.id); as seed) {
                       <span class="text-xs text-slate-400 font-bold">({{ seed }})</span>
                     }
