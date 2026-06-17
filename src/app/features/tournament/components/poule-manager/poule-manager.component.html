@@ -313,37 +313,6 @@
 
     <!-- ── STANDINGS TAB ── -->
     @if (!loading() && activeTab() === 'standings') {
-      <!-- 1. Cross tables for all poules (read-only) -->
-      @if (poules().length > 0) {
-        <div class="space-y-6 mb-10">
-          <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Grillas de Resultados por Poule</h2>
-          @for (poule of poules(); track poule.id) {
-            <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm animate-fade-up">
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-touche-celeste/15 flex items-center justify-center">
-                    <span class="text-touche-navy font-bold text-sm">{{ poule.number }}</span>
-                  </div>
-                  <h3 class="font-bold text-touche-navy">Poule {{ poule.number }}</h3>
-                </div>
-                <span class="text-xs px-2.5 py-1 rounded-full font-bold border"
-                  [class]="poule.status === 'FINISHED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                    : poule.status === 'IN_PROGRESS' ? 'bg-amber-50 text-amber-700 border-amber-100'
-                    : 'bg-slate-50 text-slate-500 border-slate-150'"
-                >
-                  {{ poule.status === 'FINISHED' ? 'Finalizada' : poule.status === 'IN_PROGRESS' ? 'En curso' : 'Pendiente' }}
-                </span>
-              </div>
-
-              <div class="overflow-x-auto border border-slate-150 rounded-xl bg-white">
-                <app-poule-table [rows]="mapPouleToRows(poule)" [colCount]="poule.athletes.length"></app-poule-table>
-              </div>
-            </div>
-          }
-        </div>
-      }
-
-      <!-- 2. General Standing List -->
       @if (standings().length === 0) {
         <div class="text-center py-16 text-slate-400 bg-white border border-slate-150 rounded-2xl shadow-sm">
           <p class="font-semibold text-touche-navy">Sin datos de clasificación</p>
@@ -352,49 +321,7 @@
       } @else {
         <div class="space-y-3">
           <h2 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Clasificación General</h2>
-          <div class="bg-white border border-slate-150 rounded-2xl overflow-hidden shadow-sm animate-fade-up">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="border-b border-slate-150 bg-slate-50/50">
-                  <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider w-16">#</th>
-                  <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Atleta</th>
-                  <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Club</th>
-                  <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">V</th>
-                  <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Ind</th>
-                  <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">T+</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                @for (entry of standings(); track entry.athleteId; let i = $index) {
-                  <tr class="hover:bg-slate-50/30 transition-colors">
-                    <td class="py-3.5 px-5">
-                      @if (i === 0) {
-                        <span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-touche-gold/20 text-touche-gold font-bold text-xs">1</span>
-                      } @else if (i === 1) {
-                        <span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 font-bold text-xs">2</span>
-                      } @else if (i === 2) {
-                        <span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-amber-700/10 text-amber-700 font-bold text-xs">3</span>
-                      } @else {
-                        <span class="text-slate-400 text-sm font-semibold pl-2">{{ i + 1 }}</span>
-                      }
-                    </td>
-                    <td class="py-3.5 px-5">
-                      <p class="font-bold text-touche-navy text-sm leading-none">{{ entry.fullName }}</p>
-                      <p class="text-[10px] text-slate-400 mt-1">Poule {{ entry.pouleNumber }}</p>
-                    </td>
-                    <td class="py-3.5 px-5 hidden sm:table-cell text-sm text-slate-500">{{ entry.club ?? '—' }}</td>
-                    <td class="py-3.5 px-5 text-center font-bold text-touche-navy text-sm">{{ entry.victories }}</td>
-                    <td class="py-3.5 px-5 text-center text-sm font-bold"
-                        [class]="entry.indicator >= 0 ? 'text-emerald-600' : 'text-red-500'">
-                      {{ entry.indicator >= 0 ? '+' : '' }}{{ entry.indicator }}
-                    </td>
-                    <td class="py-3.5 px-5 text-center text-sm text-touche-navy font-semibold">{{ entry.touchesScored }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          <p class="text-xs text-slate-400 mt-3 text-center">V = Victorias · Ind = Indicador (T+ - T-) · T+ = Tocados dados</p>
+          <app-poule-classification-table [rows]="standings()"></app-poule-classification-table>
         </div>
       }
     }

@@ -17,13 +17,21 @@ import {
   BracketRoundData,
   BracketCardData
 } from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
+import { PouleClassificationTableComponent } from '../../../../shared/components/poule-classification-table/poule-classification-table.component';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
 @Component({
   selector: 'app-tournament-public-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LabelPipe, PouleTableComponent, BracketRoundColumnComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    LabelPipe,
+    PouleTableComponent,
+    BracketRoundColumnComponent,
+    PouleClassificationTableComponent
+  ],
   templateUrl: './tournament-public-detail.page.html',
   styleUrls: ['./tournament-public-detail.page.css'],
 })

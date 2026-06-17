@@ -18,13 +18,20 @@ import {
 import { ELIMINATION_ROUND_LABELS } from '../../../../shared/utils/label.maps';
 import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
 import { BracketRoundColumnComponent, BracketRoundData, BracketCardData } from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
+import { PouleClassificationTableComponent } from '../../../../shared/components/poule-classification-table/poule-classification-table.component';
 
 type ActiveTab = 'poules' | 'standings' | 'bracket';
 
 @Component({
   selector: 'app-poule-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, PouleTableComponent, BracketRoundColumnComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    PouleTableComponent,
+    BracketRoundColumnComponent,
+    PouleClassificationTableComponent
+  ],
   templateUrl: './poule-manager.component.html'
 })
 export class PouleManagerComponent implements OnInit {
