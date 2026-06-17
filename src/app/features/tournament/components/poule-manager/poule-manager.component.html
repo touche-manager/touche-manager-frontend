@@ -413,177 +413,94 @@
         <!-- Visual Bracket Tree Layout -->
         <div class="flex gap-6 overflow-x-auto pb-6 max-w-full animate-fade-up">
           @for (round of bracketRounds(bracket()!); track round.round) {
-            <div class="flex-shrink-0 w-80 flex flex-col gap-4">
+            <div class="flex-shrink-0 w-52 flex flex-col gap-4">
               <!-- Column Header -->
               <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center py-2 bg-slate-50 border border-slate-200 rounded-xl">
                 {{ round.label }}
               </h3>
 
               <!-- Bracket bouts column spacing out vertically -->
-              <div class="flex flex-col justify-around flex-grow gap-6 min-h-[450px]">
+              <div class="flex flex-col justify-around flex-grow gap-4 min-h-[500px]">
                 @for (bout of round.bouts; track bout.id) {
-                  <div class="bg-white border rounded-2xl p-4 shadow-sm transition-all border-slate-150 relative"
+                  <!-- Compact Bout Card -->
+                  <div (click)="openBoutManager(bout, round.label)"
+                       class="bg-white border border-slate-150 rounded-xl overflow-hidden hover:shadow-md hover:border-touche-celeste transition-all cursor-pointer select-none relative"
                        [class.border-emerald-200]="bout.status === 'FINISHED'"
                        [class.border-amber-200]="bout.status === 'IN_PROGRESS'">
                     
-                    <!-- Left athlete -->
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-sm font-semibold text-touche-navy truncate flex-1">
+                    <!-- Left Athlete -->
+                    <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
+                         [ngClass]="{ 'bg-touche-celeste/5': bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id }"
+                         [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== bout.athleteLeft.id">
+                      <span class="truncate flex-grow text-touche-navy min-w-0"
+                            [class.font-bold]="bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id">
                         @if (getSeedNumber(bout.athleteLeft.id); as seed) {
-                          <span class="text-xs text-slate-400 font-bold mr-1">({{ seed }})</span>
+                          <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ seed }})</span>
                         }
                         {{ bout.athleteLeft.firstName }} {{ bout.athleteLeft.lastName }}
                       </span>
                       @if (bout.status === 'FINISHED') {
-                        <span class="text-base font-black ml-3 flex-shrink-0"
-                              [class]="bout.winnerId === bout.athleteLeft.id ? 'text-touche-gold' : 'text-slate-350'">
+                        <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
+                              [class.bg-touche-navy]="bout.winnerId === bout.athleteLeft.id"
+                              [class.text-white]="bout.winnerId === bout.athleteLeft.id"
+                              [class.bg-slate-100]="bout.winnerId !== bout.athleteLeft.id"
+                              [class.text-slate-500]="bout.winnerId !== bout.athleteLeft.id">
                           {{ bout.scoreLeft }}
                         </span>
                       }
                     </div>
 
-                    <div class="flex items-center gap-2 my-2">
-                      <div class="flex-1 h-px bg-slate-100"></div>
-                      <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">vs</span>
-                      <div class="flex-1 h-px bg-slate-100"></div>
-                    </div>
+                    <div class="h-px bg-slate-100"></div>
 
-                    <!-- Right athlete -->
-                    <div class="flex items-center justify-between">
-                      <span class="text-sm font-semibold text-touche-navy truncate flex-1">
+                    <!-- Right Athlete -->
+                    <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
+                         [ngClass]="{ 'bg-touche-celeste/5': bout.status === 'FINISHED' && bout.winnerId === (bout.athleteRight?.id ?? -1) }"
+                         [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== (bout.athleteRight?.id ?? -1)">
+                      <span class="truncate flex-grow text-touche-navy min-w-0"
+                            [class.font-bold]="bout.status === 'FINISHED' && bout.winnerId === (bout.athleteRight?.id ?? -1)">
                         @if (bout.athleteRight) {
                           @if (getSeedNumber(bout.athleteRight.id); as seed) {
-                            <span class="text-xs text-slate-400 font-bold mr-1">({{ seed }})</span>
+                            <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ seed }})</span>
                           }
                           {{ bout.athleteRight.firstName }} {{ bout.athleteRight.lastName }}
                         } @else {
-                          <span class="text-slate-350 italic">BYE</span>
+                          <span class="text-slate-350 italic font-normal">BYE</span>
                         }
                       </span>
                       @if (bout.status === 'FINISHED' && bout.athleteRight) {
-                        <span class="text-base font-black ml-3 flex-shrink-0"
-                              [class]="bout.winnerId === bout.athleteRight.id ? 'text-touche-gold' : 'text-slate-350'">
+                        <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
+                              [class.bg-touche-navy]="bout.winnerId === bout.athleteRight.id"
+                              [class.text-white]="bout.winnerId === bout.athleteRight.id"
+                              [class.bg-slate-100]="bout.winnerId !== bout.athleteRight.id"
+                              [class.text-slate-500]="bout.winnerId !== bout.athleteRight.id">
                           {{ bout.scoreRight }}
                         </span>
                       }
                     </div>
 
-                    <!-- Piste assignment (Only if not a BYE) -->
+                    <!-- Indicators Footer (Only if not a BYE) -->
                     @if (bout.athleteRight) {
-                      <div class="mt-3 pt-3 border-t border-slate-100">
-                        <div class="flex items-center gap-1.5">
+                      <div class="bg-slate-50/50 px-3 py-1 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-100 font-semibold">
+                        <div class="flex items-center gap-1.5 truncate">
                           @if (bout.piste) {
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-touche-celeste/15 text-touche-navy font-bold flex-shrink-0">
+                            <span class="text-touche-navy bg-touche-celeste/15 px-1.5 py-0.5 rounded font-bold">
                               📍 {{ bout.piste }}
                             </span>
                           }
-                          @if (bout.status !== 'FINISHED') {
-                            <input
-                              [id]="'input-elim-piste-' + bout.id"
-                              type="text"
-                              [value]="getPisteInput(bout.id)"
-                              (input)="setPisteInput(bout.id, $any($event.target).value)"
-                              [placeholder]="bout.piste ? 'Cambiar...' : 'Pista'"
-                              class="flex-1 min-w-0 text-xs bg-white border border-slate-200 rounded px-2 py-1 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-touche-celeste transition-colors"
-                            />
-                            <button
-                              [id]="'btn-assign-elim-piste-' + bout.id"
-                              (click)="assignPiste(bout.id, true)"
-                              [disabled]="!getPisteInput(bout.id).trim()"
-                              class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
-                            >
-                              OK
-                            </button>
-                            @if (bout.status === 'PENDING') {
-                              <button
-                                [id]="'btn-summon-elim-' + bout.id"
-                                (click)="summonBoutAthletes(bout.id, bout.piste)"
-                                [disabled]="summoningBoutId() === bout.id"
-                                title="Convocar atletas"
-                                class="px-2.5 py-1.5 rounded bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-600 text-xs transition-colors flex-shrink-0 disabled:opacity-30"
-                              >
-                                📣
-                              </button>
-                            }
+                          @if (bout.referees && bout.referees.length > 0) {
+                            <span class="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded truncate">
+                              👤 {{ bout.referees[0].fullName }}
+                            </span>
                           }
                         </div>
-                      </div>
-                    }
-
-                    <!-- Status badge -->
-                    <div class="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center">
-                      @if (bout.status === 'FINISHED') {
-                        <span class="badge badge-success">Finalizado</span>
-                        @if (bout.winnerId && bout.athleteRight) {
-                          <span class="text-xs text-touche-gold font-bold">
-                            🏆 {{ bout.winnerId === bout.athleteLeft.id ? bout.athleteLeft.lastName : bout.athleteRight.lastName }}
-                          </span>
-                        }
-                      } @else if (bout.status === 'IN_PROGRESS') {
-                        <span class="badge badge-warning animate-pulse">En curso</span>
-                      } @else {
-                        <span class="badge badge-neutral">{{ bout.athleteRight ? 'Pendiente' : 'Avanza por BYE' }}</span>
-                      }
-                    </div>
-
-                    <!-- Referees (Only if not a BYE) -->
-                    @if (bout.athleteRight) {
-                      <div class="mt-3 pt-3 border-t border-slate-100">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Árbitros</p>
-                        @if (!bout.referees || bout.referees.length === 0) {
-                          <p class="text-xs text-slate-400 italic mb-2">Sin árbitro asignado</p>
-                        } @else {
-                          <div class="flex flex-col gap-1.5 mb-2">
-                            @for (ref of bout.referees; track ref.userId) {
-                              <div class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded px-2.5 py-1">
-                                <div class="min-w-0 flex-1">
-                                  <p class="text-xs font-semibold text-touche-navy truncate">{{ ref.fullName }}</p>
-                                </div>
-                                <button
-                                  [id]="'btn-remove-elim-ref-' + bout.id + '-' + ref.userId"
-                                  (click)="removeRefereeFromEliminationBout(bout.id, ref.userId)"
-                                  class="ml-2 text-slate-400 hover:text-red-500 transition-colors flex-shrink-0"
-                                  title="Remover árbitro"
-                                >
-                                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                  </svg>
-                                </button>
-                              </div>
-                            }
-                          </div>
-                        }
-
-                        <!-- Add referee select for elimination bout -->
-                        <div class="flex gap-1.5">
-                          <div class="relative flex-1 min-w-0">
-                            <select
-                              [id]="'select-elim-ref-' + bout.id"
-                              [value]="getElimRefereeId(bout.id)"
-                              (change)="setElimRefereeId(bout.id, $any($event.target).value)"
-                              class="w-full text-xs bg-white border border-slate-200 rounded px-2 py-1.5 text-slate-700 focus:outline-none focus:border-touche-celeste appearance-none truncate"
-                            >
-                              <option value="" disabled selected class="text-slate-400">Asignar...</option>
-                              @for (ref of acceptedReferees(); track ref.refereeId) {
-                                <option [value]="ref.refereeId">
-                                  {{ ref.refereeName }} ({{ ref.refereeEmail }})
-                                </option>
-                              }
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-slate-400">
-                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </div>
-                          </div>
-                          <button
-                            [id]="'btn-assign-elim-ref-' + bout.id"
-                            (click)="assignRefereeToEliminationBout(bout.id)"
-                            [disabled]="!getElimRefereeId(bout.id)"
-                            class="px-2.5 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
-                          >
-                            Asignar
-                          </button>
+                        <div>
+                          @if (bout.status === 'FINISHED') {
+                            <span class="text-emerald-600">Finalizado</span>
+                          } @else if (bout.status === 'IN_PROGRESS') {
+                            <span class="text-amber-600 animate-pulse">En curso</span>
+                          } @else {
+                            <span class="text-slate-400">Gestionar</span>
+                          }
                         </div>
                       </div>
                     }
@@ -594,5 +511,241 @@
           }
         </div>
       }
+    }
+
+    <!-- ── BOUT MANAGER MODAL ── -->
+    @if (isBoutManagerOpen() && selectedBout(); as bout) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+           (click)="closeBoutManager()">
+        <div class="max-w-lg w-full bg-white rounded-2xl overflow-hidden shadow-2xl animate-fade-up flex flex-col max-h-[90vh]"
+             (click)="$event.stopPropagation()">
+          
+          <!-- Modal Header -->
+          <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-touche-celeste/15 text-touche-navy font-bold uppercase tracking-wider">
+                {{ selectedBoutRoundLabel() }}
+              </span>
+              <h3 class="text-base font-bold text-touche-navy mt-1">
+                Gestionar Asalto
+              </h3>
+            </div>
+            <button (click)="closeBoutManager()" title="Cerrar"
+                    class="p-2 text-slate-400 hover:text-touche-alert hover:bg-touche-alert/10 rounded-xl transition-colors">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Body (Scrollable if needed) -->
+          <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Face to Face Display with initials avatars -->
+            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <!-- Left Athlete -->
+              <div class="flex-1 flex flex-col items-center text-center min-w-0"
+                   [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== bout.athleteLeft.id">
+                <div class="w-12 h-12 rounded-full bg-touche-celeste/20 text-touche-navy flex items-center justify-center font-bold text-base shadow-sm border border-touche-celeste/30">
+                  {{ bout.athleteLeft.firstName.charAt(0) }}{{ bout.athleteLeft.lastName.charAt(0) }}
+                </div>
+                <p class="text-sm font-bold text-touche-navy truncate w-full mt-2"
+                   [class.text-touche-celeste]="bout.status === 'FINISHED' && bout.winnerId === bout.athleteLeft.id">
+                  @if (getSeedNumber(bout.athleteLeft.id); as seed) {
+                    <span class="text-xs text-slate-400 font-bold">({{ seed }})</span>
+                  }
+                  {{ bout.athleteLeft.firstName }} {{ bout.athleteLeft.lastName }}
+                </p>
+                <p class="text-xs text-slate-400 truncate w-full mt-0.5">{{ bout.athleteLeft.club ?? 'Sin club' }}</p>
+              </div>
+
+              <!-- VS / Score -->
+              <div class="flex flex-col items-center justify-center flex-shrink-0 px-2">
+                @if (bout.status === 'FINISHED') {
+                  <div class="flex items-center gap-2 font-black text-xl text-touche-navy bg-white border border-slate-150 rounded-xl px-4 py-2 shadow-sm tabular-nums">
+                    <span [class.text-touche-celeste]="bout.winnerId === bout.athleteLeft.id">{{ bout.scoreLeft }}</span>
+                    <span class="text-slate-300 font-normal">:</span>
+                    <span [class.text-touche-celeste]="bout.winnerId === (bout.athleteRight?.id ?? -1)">{{ bout.scoreRight }}</span>
+                  </div>
+                  <span class="text-[10px] text-emerald-600 font-bold mt-2">Finalizado</span>
+                } @else {
+                  <span class="text-xs text-slate-300 font-bold">VS</span>
+                  @if (bout.status === 'IN_PROGRESS') {
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200 font-bold animate-pulse mt-2">En curso</span>
+                  } @else {
+                    <span class="text-[10px] text-slate-400 font-semibold mt-2">Pendiente</span>
+                  }
+                }
+              </div>
+
+              <!-- Right Athlete -->
+              <div class="flex-1 flex flex-col items-center text-center min-w-0"
+                   [class.opacity-60]="bout.status === 'FINISHED' && bout.winnerId !== (bout.athleteRight?.id ?? -1)">
+                @if (bout.athleteRight; as right) {
+                  <div class="w-12 h-12 rounded-full bg-touche-gold/20 text-touche-navy flex items-center justify-center font-bold text-base shadow-sm border border-touche-gold/30">
+                    {{ right.firstName.charAt(0) }}{{ right.lastName.charAt(0) }}
+                  </div>
+                  <p class="text-sm font-bold text-touche-navy truncate w-full mt-2"
+                     [class.text-touche-celeste]="bout.status === 'FINISHED' && bout.winnerId === right.id">
+                    @if (getSeedNumber(right.id); as seed) {
+                      <span class="text-xs text-slate-400 font-bold">({{ seed }})</span>
+                    }
+                    {{ right.firstName }} {{ right.lastName }}
+                  </p>
+                  <p class="text-xs text-slate-400 truncate w-full mt-0.5">{{ right.club ?? 'Sin club' }}</p>
+                } @else {
+                  <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm shadow-sm border border-slate-200">
+                    BYE
+                  </div>
+                  <p class="text-sm font-semibold text-slate-400 mt-2">Avanza por BYE</p>
+                }
+              </div>
+            </div>
+
+            <!-- Operations (Only if not a BYE) -->
+            @if (bout.athleteRight) {
+              <!-- Piste Assignment -->
+              <div class="space-y-2">
+                <label [for]="'input-elim-piste-' + bout.id" class="text-xs font-bold text-slate-400 uppercase tracking-widest block">
+                  Pista de Esgrima
+                </label>
+                <div class="flex gap-2">
+                  @if (bout.piste) {
+                    <div class="h-10 px-3 rounded-xl bg-touche-celeste/10 text-touche-navy font-bold flex items-center justify-center border border-touche-celeste/20 text-sm">
+                      📍 Pista {{ bout.piste }}
+                    </div>
+                  }
+                  @if (bout.status === 'PENDING') {
+                    <input
+                      [id]="'input-elim-piste-' + bout.id"
+                      type="text"
+                      [value]="getPisteInput(bout.id)"
+                      (input)="setPisteInput(bout.id, $any($event.target).value)"
+                      [placeholder]="bout.piste ? 'Cambiar pista...' : 'Ej: Pista Roja / Pista A'"
+                      class="flex-1 h-10 text-sm bg-white border border-slate-200 rounded-xl px-3 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-touche-celeste transition-colors"
+                    />
+                    <button
+                      [id]="'btn-assign-elim-piste-' + bout.id"
+                      (click)="assignPiste(bout.id, true)"
+                      [disabled]="!getPisteInput(bout.id).trim()"
+                      class="h-10 px-4 rounded-xl bg-touche-navy hover:bg-touche-navy/90 text-white text-xs font-bold transition-colors flex-shrink-0 disabled:opacity-35 disabled:cursor-not-allowed"
+                    >
+                      Asignar
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Summon Section (Only if pending) -->
+              @if (bout.status === 'PENDING') {
+                <div class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div class="flex items-start gap-3 min-w-0">
+                    <span class="text-xl">📣</span>
+                    <div>
+                      <p class="text-xs font-bold text-amber-800">Convocar Atletas</p>
+                      <p class="text-[11px] text-amber-600 mt-0.5">
+                        Envía una notificación al celular de los tiradores avisando que su combate inicia en 5 minutos.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    [id]="'btn-summon-elim-' + bout.id"
+                    (click)="summonBoutAthletes(bout.id, bout.piste)"
+                    [disabled]="summoningBoutId() === bout.id"
+                    class="w-full sm:w-auto h-9 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-touche-navy text-xs font-bold transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  >
+                    @if (summoningBoutId() === bout.id) {
+                      <div class="w-3.5 h-3.5 border-2 border-touche-navy border-t-transparent rounded-full animate-spin"></div>
+                    } @else {
+                      Convocación
+                    }
+                  </button>
+                </div>
+              }
+
+              <!-- Referees Section -->
+              <div class="space-y-3 pt-4 border-t border-slate-100">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest block">
+                  Árbitros del Asalto
+                </label>
+
+                <!-- List of assigned referees -->
+                @if (!bout.referees || bout.referees.length === 0) {
+                  <p class="text-xs text-slate-400 italic bg-slate-50 border border-slate-100 rounded-xl p-3 text-center">
+                    No hay árbitros asignados a este combate.
+                  </p>
+                } @else {
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    @for (ref of bout.referees; track ref.userId) {
+                      <div class="flex items-center justify-between bg-slate-50 border border-slate-150 rounded-xl px-3 py-2">
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs font-semibold text-touche-navy truncate">{{ ref.fullName }}</p>
+                          <p class="text-[9px] text-slate-400 truncate">{{ ref.email }}</p>
+                        </div>
+                        @if (bout.status === 'PENDING') {
+                          <button
+                            [id]="'btn-remove-elim-ref-' + bout.id + '-' + ref.userId"
+                            (click)="removeRefereeFromEliminationBout(bout.id, ref.userId)"
+                            class="ml-2 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors flex-shrink-0"
+                            title="Remover árbitro"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Add referee form -->
+                @if (bout.status === 'PENDING') {
+                  <div class="flex gap-2">
+                    <div class="relative flex-1 min-w-0">
+                      <select
+                        [id]="'select-elim-ref-' + bout.id"
+                        [value]="getElimRefereeId(bout.id)"
+                        (change)="setElimRefereeId(bout.id, $any($event.target).value)"
+                        class="w-full h-10 text-xs bg-white border border-slate-200 rounded-xl pl-3 pr-8 text-slate-700 focus:outline-none focus:border-touche-celeste appearance-none truncate"
+                      >
+                        <option value="" disabled selected class="text-slate-400">Seleccionar árbitro...</option>
+                        @for (ref of acceptedReferees(); track ref.refereeId) {
+                          <option [value]="ref.refereeId">
+                            {{ ref.refereeName }} ({{ ref.refereeEmail }})
+                          </option>
+                        }
+                      </select>
+                      <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <button
+                      [id]="'btn-assign-elim-ref-' + bout.id"
+                      (click)="assignRefereeToEliminationBout(bout.id)"
+                      [disabled]="!getElimRefereeId(bout.id)"
+                      class="h-10 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition-colors flex-shrink-0 disabled:opacity-35 disabled:cursor-not-allowed"
+                    >
+                      Asignar
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+            <button (click)="closeBoutManager()"
+                    class="px-5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-colors">
+              Cerrar
+            </button>
+          </div>
+
+        </div>
+      </div>
     }
 </div>

@@ -12,7 +12,8 @@ import {
   PouleStandingEntry,
   EliminationBracketResponse,
   RefereeApplicationResponse,
-  EliminationRound
+  EliminationRound,
+  BoutResponse
 } from '../../../../core/models/tournament.models';
 import { ELIMINATION_ROUND_LABELS } from '../../../../shared/utils/label.maps';
 import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
@@ -51,6 +52,10 @@ export class PouleManagerComponent implements OnInit {
   readonly pisteInput = signal<Record<number, string>>({});
   readonly expandedPoules = signal<Record<number, boolean>>({});
   readonly summoningBoutId = signal<number | null>(null);
+
+  readonly selectedBout = signal<BoutResponse | null>(null);
+  readonly selectedBoutRoundLabel = signal<string>('');
+  readonly isBoutManagerOpen = signal<boolean>(false);
 
   /** True when every poule has status FINISHED */
   readonly allPoulesFinished = computed(() => {
@@ -94,12 +99,43 @@ export class PouleManagerComponent implements OnInit {
     });
   }
 
-  loadBracket(): void {
+  loadBracket(selectedBoutIdToUpdate?: number): void {
     this.loading.set(true);
     this.pouleService.getBracket(this.tournamentId).subscribe({
-      next: (data) => { this.bracket.set(data); this.loading.set(false); },
+      next: (data) => {
+        this.bracket.set(data);
+        this.loading.set(false);
+        if (selectedBoutIdToUpdate) {
+          let found: BoutResponse | null = null;
+          for (const round of Object.keys(data.roundBouts)) {
+            const list = data.roundBouts[round as keyof typeof data.roundBouts] || [];
+            const match = list.find(b => b.id === selectedBoutIdToUpdate);
+            if (match) {
+              found = match;
+              break;
+            }
+          }
+          if (found) {
+            this.selectedBout.set(found);
+          }
+        }
+      },
       error: () => { this.error.set('Error al cargar el bracket.'); this.loading.set(false); }
     });
+  }
+
+  openBoutManager(bout: BoutResponse, roundLabel: string): void {
+    this.selectedBout.set(bout);
+    this.selectedBoutRoundLabel.set(roundLabel);
+    this.setPisteInput(bout.id, bout.piste ?? '');
+    this.setElimRefereeId(bout.id, '');
+    this.isBoutManagerOpen.set(true);
+  }
+
+  closeBoutManager(): void {
+    this.selectedBout.set(null);
+    this.selectedBoutRoundLabel.set('');
+    this.isBoutManagerOpen.set(false);
   }
 
   setTab(tab: ActiveTab): void {
@@ -190,7 +226,28 @@ export class PouleManagerComponent implements OnInit {
     this.addElimRefereeId.update(m => ({ ...m, [boutId]: val }));
   }
 
+  private getBoutStatus(boutId: number): string | null {
+    for (const p of this.poules()) {
+      const b = p.bouts.find(x => x.id === boutId);
+      if (b) return b.status;
+    }
+    const br = this.bracket();
+    if (br) {
+      for (const round of Object.keys(br.roundBouts)) {
+        const list = br.roundBouts[round as keyof typeof br.roundBouts] || [];
+        const b = list.find(x => x.id === boutId);
+        if (b) return b.status;
+      }
+    }
+    return null;
+  }
+
   assignRefereeToEliminationBout(boutId: number): void {
+    const status = this.getBoutStatus(boutId);
+    if (status && status !== 'PENDING') {
+      this.error.set('No se puede asignar árbitro a un asalto en curso o finalizado.');
+      return;
+    }
     const idStr = this.getElimRefereeId(boutId);
     const userId = parseInt(idStr, 10);
     if (!userId) return;
@@ -211,6 +268,7 @@ export class PouleManagerComponent implements OnInit {
           }
           return { ...b, roundBouts: updatedRoundBouts };
         });
+        this.selectedBout.set(updatedBout);
         this.addElimRefereeId.update(m => ({ ...m, [boutId]: '' }));
         this.showSuccess('Árbitro asignado al asalto.');
       },
@@ -219,6 +277,11 @@ export class PouleManagerComponent implements OnInit {
   }
 
   removeRefereeFromEliminationBout(boutId: number, refereeUserId: number): void {
+    const status = this.getBoutStatus(boutId);
+    if (status && status !== 'PENDING') {
+      this.error.set('No se puede remover árbitro de un asalto en curso o finalizado.');
+      return;
+    }
     this.boutService.removeRefereeFromEliminationBout(boutId, refereeUserId).subscribe({
       next: (updatedBout) => {
         this.bracket.update(b => {
@@ -236,6 +299,7 @@ export class PouleManagerComponent implements OnInit {
           }
           return { ...b, roundBouts: updatedRoundBouts };
         });
+        this.selectedBout.set(updatedBout);
         this.showSuccess('Árbitro removido del asalto.');
       },
       error: () => this.error.set('No se pudo remover el árbitro del asalto.')
@@ -261,12 +325,17 @@ export class PouleManagerComponent implements OnInit {
   }
 
   assignPiste(boutId: number, inBracket = false): void {
+    const status = this.getBoutStatus(boutId);
+    if (status && status !== 'PENDING') {
+      this.error.set('No se puede asignar pista a un asalto en curso o finalizado.');
+      return;
+    }
     const piste = this.getPisteInput(boutId).trim();
     if (!piste) return;
     this.boutService.updatePiste(boutId, piste).subscribe({
       next: () => {
         this.pisteInput.update(m => ({ ...m, [boutId]: '' }));
-        if (inBracket) this.loadBracket(); else this.loadPoules();
+        if (inBracket) this.loadBracket(boutId); else this.loadPoules();
         this.showSuccess(`Pista "${piste}" asignada al asalto.`);
       },
       error: () => this.error.set('No se pudo asignar la pista.')
@@ -274,6 +343,11 @@ export class PouleManagerComponent implements OnInit {
   }
 
   summonBoutAthletes(boutId: number, piste: string | null): void {
+    const status = this.getBoutStatus(boutId);
+    if (status && status !== 'PENDING') {
+      this.error.set('No se puede convocar a los atletas de un asalto en curso o finalizado.');
+      return;
+    }
     if (!confirm('¿Convocar a los atletas? Recibirán una notificación de que su combate comienza en 5 minutos.')) return;
     this.summoningBoutId.set(boutId);
     this.notificationService.notifyUpcomingBout(boutId, {
