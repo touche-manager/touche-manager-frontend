@@ -32,6 +32,8 @@ export interface AthleteResponse {
 
 export type DocumentType = 'MEDICAL_CLEARANCE' | 'PAYMENT_RECEIPT';
 
+export type DocumentValidationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
 export interface AthleteDocumentResponse {
   id: number;
   athleteId: number;
@@ -39,6 +41,8 @@ export interface AthleteDocumentResponse {
   documentType: DocumentType;
   description?: string;
   uploadDate: string;
+  validationStatus: DocumentValidationStatus;
+  reviewNotes?: string;
 }
 
 export { DOCUMENT_TYPE_LABELS as DocumentTypeLabels } from '../../shared/utils/label.maps';

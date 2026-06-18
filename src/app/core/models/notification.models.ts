@@ -5,7 +5,8 @@ export type NotificationType =
   | 'REFEREE_ASSIGNMENT'
   | 'REFEREE_REQUEST'
   | 'REFEREE_CONFIRMATION'
-  | 'TOURNAMENT_STARTED';
+  | 'TOURNAMENT_STARTED'
+  | 'DOCUMENT_REJECTED';
 
 export interface NotificationDTO {
   id: number;

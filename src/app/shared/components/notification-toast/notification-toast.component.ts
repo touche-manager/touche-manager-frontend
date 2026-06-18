@@ -112,6 +112,7 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
       case 'REFEREE_CONFIRMATION': return '✅';
       case 'TOURNAMENT_STARTED': return '🏁';
       case 'UPCOMING_BOUT':      return '⏰';
+      case 'DOCUMENT_REJECTED':  return '❌';
       default:                   return '🔔';
     }
   }
@@ -125,6 +126,7 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
       case 'REFEREE_CONFIRMATION': return 'bg-emerald-100 text-emerald-700';
       case 'TOURNAMENT_STARTED': return 'bg-touche-celeste/20 text-touche-navy';
       case 'UPCOMING_BOUT':      return 'bg-orange-100 text-orange-700';
+      case 'DOCUMENT_REJECTED':  return 'bg-red-100 text-red-700';
       default:                   return 'bg-gray-100 text-gray-600';
     }
   }
@@ -138,6 +140,7 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
       case 'REFEREE_CONFIRMATION': return 'Postulación revisada';
       case 'TOURNAMENT_STARTED': return 'Torneo iniciado';
       case 'UPCOMING_BOUT':      return 'Asalto próximo';
+      case 'DOCUMENT_REJECTED':  return 'Documento rechazado';
       default:                   return 'Notificación';
     }
   }
@@ -151,6 +154,7 @@ export class NotificationToastComponent implements OnInit, OnDestroy {
       case 'REFEREE_CONFIRMATION': return 'text-emerald-600';
       case 'TOURNAMENT_STARTED':   return 'text-touche-navy';
       case 'UPCOMING_BOUT':        return 'text-orange-600';
+      case 'DOCUMENT_REJECTED':    return 'text-red-600';
       default:                     return 'text-touche-navy';
     }
   }

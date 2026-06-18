@@ -1,14 +1,16 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { AthleteService } from './services/athlete.service';
 import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../../core/models/athlete.models';
 import { AthleteBoutResponse, BoutStatus, BoutStatusLabels } from '../../core/models/bout.models';
 import { DocPreviewModalComponent } from '../../shared/components/doc-preview-modal/doc-preview-modal.component';
+import { NotificationService } from '../../shared/services/notification.service';
 
 @Component({
   selector: 'app-athlete-page',
@@ -17,10 +19,13 @@ import { DocPreviewModalComponent } from '../../shared/components/doc-preview-mo
   templateUrl: './athlete.page.html',
   styleUrl: './athlete.page.css'
 })
-export class AthletePageComponent implements OnInit {
+export class AthletePageComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly athleteService = inject(AthleteService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly route = inject(ActivatedRoute);
+  private readonly notificationService = inject(NotificationService);
+  private notifSub: Subscription | null = null;
 
   readonly loading = signal<boolean>(false);
   readonly error = signal<string | null>(null);
@@ -63,6 +68,11 @@ export class AthletePageComponent implements OnInit {
   readonly uploading = signal<boolean>(false);
   readonly documentTypeLabels = DocumentTypeLabels;
 
+  /** Documents with status REJECTED — used to show the alert banner */
+  readonly rejectedDocuments = computed(() =>
+    this.documents().filter(d => d.validationStatus === 'REJECTED')
+  );
+
   // Integrated Preview state
   readonly previewUrl = signal<SafeResourceUrl | null>(null);
   readonly previewType = signal<'pdf' | 'image' | 'unsupported' | null>(null);
@@ -79,6 +89,21 @@ export class AthletePageComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadProfile();
+    // Read ?tab= query param (e.g. from notification navigation arrow)
+    const tabParam = this.route.snapshot.queryParamMap.get('tab') as 'profile' | 'documents' | 'bouts' | null;
+    if (tabParam && ['profile', 'documents', 'bouts'].includes(tabParam)) {
+      this.activeTab.set(tabParam);
+    }
+    // Reload documents if a DOCUMENT_REJECTED notification arrives
+    this.notifSub = this.notificationService.newNotification$.subscribe(n => {
+      if (n.type === 'DOCUMENT_REJECTED') {
+        this.loadDocuments();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.notifSub?.unsubscribe();
   }
 
   private initForm(): void {
