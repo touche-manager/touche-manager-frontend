@@ -28,10 +28,12 @@ export class RefereeApplicationsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.load();
-    // Auto-reload when a referee applies to THIS tournament
+    // Auto-reload silently when a referee applies to THIS tournament
+    // Uses == instead of === to handle any JSON number/string coercion edge cases
     this.notifSub = this.notificationService.newNotification$.subscribe(n => {
-      if (n.type === 'REFEREE_REQUEST' && n.tournamentId === this.tournamentId) {
-        this.load();
+      // eslint-disable-next-line eqeqeq
+      if (n.type === 'REFEREE_REQUEST' && n.tournamentId == this.tournamentId) {
+        this.silentReload();
       }
     });
   }
@@ -40,10 +42,20 @@ export class RefereeApplicationsComponent implements OnInit, OnDestroy {
     this.notifSub?.unsubscribe();
   }
 
+  /** Initial load — shows the spinner */
   load(): void {
+    this.loading.set(true);
     this.service.getApplicationsForTournament(this.tournamentId).subscribe({
       next: (data) => { this.applications.set(data); this.loading.set(false); },
       error: () => this.loading.set(false)
+    });
+  }
+
+  /** Silent reload triggered by WebSocket — no spinner, no visual disruption */
+  private silentReload(): void {
+    this.service.getApplicationsForTournament(this.tournamentId).subscribe({
+      next: (data) => this.applications.set(data),
+      error: () => {}
     });
   }
 
