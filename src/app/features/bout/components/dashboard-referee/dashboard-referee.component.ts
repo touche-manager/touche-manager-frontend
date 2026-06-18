@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../../environments/environment';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../../../../core/models/tournament.models';
 import { RefereeApplicationService } from '../../../tournament/services/referee-application.service';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
+import { NotificationService } from '../../../../shared/services/notification.service';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -23,10 +25,12 @@ interface ApiResponse<T> {
   imports: [CommonModule, LabelPipe],
   templateUrl: './dashboard-referee.component.html'
 })
-export class DashboardRefereeComponent implements OnInit {
+export class DashboardRefereeComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly refereeApplicationService = inject(RefereeApplicationService);
+  private readonly notificationService = inject(NotificationService);
+  private notifSub: Subscription | null = null;
 
   readonly tournaments = signal<OrganizerTournamentResponse[]>([]);
   readonly loading = signal(true);
@@ -41,6 +45,21 @@ export class DashboardRefereeComponent implements OnInit {
         error: () => { this.error.set('Error al cargar los torneos.'); this.loading.set(false); }
       });
 
+    this.loadMyApplications();
+
+    // Reload silently when the organizer reviews or assigns this referee
+    this.notifSub = this.notificationService.newNotification$.subscribe(n => {
+      if (n.type === 'REFEREE_CONFIRMATION' || n.type === 'REFEREE_ASSIGNMENT') {
+        this.loadMyApplications();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.notifSub?.unsubscribe();
+  }
+
+  private loadMyApplications(): void {
     this.refereeApplicationService.getMyApplications().subscribe({
       next: (apps) => this.myApplications.set(apps),
       error: () => { /* silent – not critical */ }
