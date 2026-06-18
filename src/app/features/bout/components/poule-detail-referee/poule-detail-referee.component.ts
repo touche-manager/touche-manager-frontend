@@ -57,109 +57,56 @@ interface ApiResponse<T> { success: boolean; data: T; }
           </div>
         </div>
 
-        <!-- ── Attendance Checklist (only when PENDING) ─────────────────────── -->
-        @if (poule()!.status === 'PENDING') {
-          <div class="mb-6 bg-white border border-slate-150 rounded-2xl p-6 shadow-sm">
-            <div class="flex items-center gap-2 mb-4">
-              <div class="p-2 rounded-lg bg-touche-celeste/10 text-touche-navy">
-                <svg class="w-5 h-5 text-touche-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                </svg>
-              </div>
-              <div>
-                <h3 class="font-bold text-touche-navy text-sm">Control de Asistencia</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Confirmá la presencia de los atletas presentes en pista para comenzar la poule.</p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-              @for (athlete of poule()!.athletes; track athlete.id) {
-                <label 
-                  class="flex items-center justify-between p-3 rounded-xl border cursor-pointer select-none transition-all duration-150"
-                  [class.border-touche-celeste]="attendance()[athlete.id]"
-                  [class.bg-sky-50]="attendance()[athlete.id]"
-                  [class.border-slate-200]="!attendance()[athlete.id]"
-                  [class.bg-slate-50]="!attendance()[athlete.id]"
-                >
-                  <div class="flex items-center gap-2.5 min-w-0">
-                    <input 
-                      type="checkbox" 
-                      [checked]="attendance()[athlete.id]"
-                      (change)="toggleAttendance(athlete.id)"
-                      class="w-4.5 h-4.5 rounded border-slate-300 text-touche-navy focus:ring-touche-celeste transition"
-                    />
-                    <span 
-                      class="text-sm font-semibold truncate transition-colors"
-                      [class.text-touche-navy]="attendance()[athlete.id]"
-                      [class.text-slate-400]="!attendance()[athlete.id]"
-                    >
-                      {{ athlete.fullName }}
-                    </span>
-                  </div>
-                  @if (athlete.club) {
-                    <span 
-                      class="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border transition-colors flex-shrink-0"
-                      [class.bg-white]="attendance()[athlete.id]"
-                      [class.border-slate-200]="attendance()[athlete.id]"
-                      [class.text-slate-500]="attendance()[athlete.id]"
-                      [class.bg-slate-100]="!attendance()[athlete.id]"
-                      [class.border-slate-200]="!attendance()[athlete.id]"
-                      [class.text-slate-400]="!attendance()[athlete.id]"
-                      [title]="athlete.club"
-                    >
-                      {{ getClubAbbreviation(athlete.club) }}
-                    </span>
-                  }
-                </label>
-              }
-            </div>
-
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-slate-100">
-              <div class="text-xs text-slate-400 flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-                <span>Se requieren mínimo 2 atletas presentes para iniciar.</span>
-              </div>
-              <button
-                id="btn-start-poule"
-                (click)="startPoule()"
-                [disabled]="isStarting() || !hasMinimumPresent()"
-                class="btn-navy px-6 py-2.5 flex items-center gap-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                @if (isStarting()) {
-                  <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
-                  Iniciando poule...
-                } @else {
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  Comenzar Poule
+        <!-- Athletes list (always shown) -->
+        <div class="mb-6 bg-white border border-slate-150 rounded-2xl p-5 shadow-sm">
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Atletas de la Poule</h2>
+          <div class="flex flex-wrap gap-2">
+            @for (athlete of poule()!.athletes; track athlete.id) {
+              <span class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-sm text-touche-navy font-semibold">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
+                <span>{{ athlete.fullName }}</span>
+                @if (athlete.club) {
+                  <span 
+                    class="text-[10px] text-slate-400 font-mono font-semibold cursor-help"
+                    [title]="athlete.club"
+                  >
+                    ({{ getClubAbbreviation(athlete.club) }})
+                  </span>
                 }
-              </button>
-            </div>
+              </span>
+            }
           </div>
-        } @else {
-          <!-- Read-only Athletes List (when IN_PROGRESS or FINISHED) -->
-          <div class="mb-6 bg-white border border-slate-150 rounded-2xl p-5 shadow-sm">
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Atletas de la Poule</h2>
-            <div class="flex flex-wrap gap-2">
-              @for (athlete of poule()!.athletes; track athlete.id) {
-                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-sm text-touche-navy font-semibold">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
-                  <span>{{ athlete.fullName }}</span>
-                  @if (athlete.club) {
-                    <span 
-                      class="text-[10px] text-slate-400 font-mono font-semibold cursor-help"
-                      [title]="athlete.club"
-                    >
-                      ({{ getClubAbbreviation(athlete.club) }})
-                    </span>
-                  }
-                </span>
-              }
+        </div>
+
+        <!-- Start Poule Banner (if PENDING) -->
+        @if (poule()!.status === 'PENDING') {
+          <div class="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <div>
+                <h3 class="font-bold text-amber-900 text-sm">Poule pendiente de inicio</h3>
+                <p class="text-xs text-amber-700 mt-0.5">Podés iniciar la poule aquí para habilitar los asaltos y la carga de resultados.</p>
+              </div>
             </div>
+            <button
+              id="btn-start-poule"
+              (click)="startPoule()"
+              [disabled]="isStarting()"
+              class="btn-navy px-6 py-2.5 flex items-center gap-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              @if (isStarting()) {
+                <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                Iniciando...
+              } @else {
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Comenzar Poule
+              }
+            </button>
           </div>
         }
 
@@ -170,13 +117,13 @@ interface ApiResponse<T> { success: boolean; data: T; }
             <span class="text-xs text-slate-400">Fórmula oficial FIE</span>
           </div>
 
-          <!-- Poule Pending Warning Banner -->
+          <!-- Poule Pending Warning Banner (if PENDING) -->
           @if (poule()!.status === 'PENDING') {
             <div class="alert-warning py-3 px-4 rounded-xl flex items-center gap-3 text-xs">
               <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
               </svg>
-              <span>La poule no ha comenzado. Debés confirmar la asistencia de los atletas para habilitar el arbitraje.</span>
+              <span>Los asaltos se habilitarán cuando comience la poule.</span>
             </div>
           }
 
@@ -316,9 +263,6 @@ export class PouleDetailRefereeComponent implements OnInit {
   readonly poule = signal<PouleResponse | null>(null);
   readonly loading = signal(true);
   readonly isStarting = signal(false);
-  
-  // Track attendance
-  readonly attendance = signal<Record<number, boolean>>({});
 
   ngOnInit(): void {
     const pouleId = +this.route.snapshot.paramMap.get('pouleId')!;
@@ -328,13 +272,6 @@ export class PouleDetailRefereeComponent implements OnInit {
         next: (data) => { 
           this.poule.set(data); 
           this.loading.set(false); 
-          
-          // Initialize attendance
-          const initialAttendance: Record<number, boolean> = {};
-          data.athletes.forEach(a => {
-            initialAttendance[a.id] = true; // default present
-          });
-          this.attendance.set(initialAttendance);
         },
         error: () => this.loading.set(false)
       });
@@ -347,19 +284,10 @@ export class PouleDetailRefereeComponent implements OnInit {
   }
 
   scoreBout(boutId: number): void {
-    this.router.navigate(['/bout', boutId, 'score']);
-  }
-
-  toggleAttendance(athleteId: number): void {
-    this.attendance.update(att => ({
-      ...att,
-      [athleteId]: !att[athleteId]
-    }));
-  }
-
-  hasMinimumPresent(): boolean {
-    const counts = Object.values(this.attendance()).filter(Boolean).length;
-    return counts >= 2;
+    const p = this.poule();
+    if (p) {
+      this.router.navigate(['/bout', p.tournamentId, 'score', boutId]);
+    }
   }
 
   startPoule(): void {
@@ -403,7 +331,6 @@ export class PouleDetailRefereeComponent implements OnInit {
   isNextBout(boutId: number): boolean {
     const p = this.poule();
     if (!p) return false;
-    // Find the first non-finished bout ID
     const nextBout = p.bouts.find(b => b.status !== 'FINISHED');
     return nextBout ? nextBout.id === boutId : false;
   }

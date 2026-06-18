@@ -21,7 +21,7 @@ import { PouleResponse } from '../../../../core/models/tournament.models';
           <h1 class="page-title text-2xl md:text-3xl font-black text-touche-navy">Mis Poules Asignadas</h1>
           <p class="page-subtitle text-slate-500 mt-1">
             @if (poules().length > 0) {
-              {{ poules()[0].tournamentName }} &mdash; Seleccioná una poule para comenzar a arbitrar
+              {{ poules()[0].tournamentName }} &mdash; Seleccioná una poule para gestionar o arbitrar
             } @else {
               Gestión de asaltos de poule
             }
@@ -64,11 +64,14 @@ import { PouleResponse } from '../../../../core/models/tournament.models';
       @if (!loading() && !error() && poules().length > 0) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           @for (poule of poules(); track poule.id) {
-            <div class="bg-white border border-slate-150 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 flex flex-col h-full">
+            <div 
+              [routerLink]="['/bout', tournamentId(), 'poules', poule.id]"
+              class="bg-white border border-slate-150 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-slate-350 transition-all duration-200 flex flex-col h-full cursor-pointer group/card"
+            >
               <!-- Top Header Pill -->
               <div class="px-5 pt-5 pb-3 flex justify-between items-start gap-3">
                 <div>
-                  <h3 class="text-lg font-bold text-touche-navy flex items-center gap-1.5">
+                  <h3 class="text-lg font-bold text-touche-navy flex items-center gap-1.5 group-hover/card:text-touche-celeste transition-colors">
                     Poule #{{ poule.number }}
                   </h3>
                   <div class="flex items-center gap-1.5 mt-1 text-xs font-semibold text-slate-400">
@@ -134,29 +137,43 @@ import { PouleResponse } from '../../../../core/models/tournament.models';
                 </div>
 
                 <!-- CTA Button -->
-                <button
-                  [routerLink]="['/bout', tournamentId(), 'poules', poule.id]"
-                  [class]="getButtonClass(poule.status)"
-                >
-                  @if (poule.status === 'PENDING') {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Confirmar Asistencia</span>
-                  } @else if (poule.status === 'IN_PROGRESS') {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Arbitrar Asaltos</span>
-                  } @else {
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                    </svg>
-                    <span>Ver Resultados</span>
-                  }
-                </button>
+                @if (poule.status === 'PENDING') {
+                  <button
+                    (click)="startPoule(poule.id, $event)"
+                    [disabled]="startingPoules()[poule.id]"
+                    class="w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 btn-navy hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    @if (startingPoules()[poule.id]) {
+                      <span class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                      <span>Iniciando...</span>
+                    } @else {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>Comenzar Poule</span>
+                    }
+                  </button>
+                } @else {
+                  <button
+                    [routerLink]="['/bout', tournamentId(), 'poules', poule.id]"
+                    [class]="getButtonClass(poule.status)"
+                  >
+                    @if (poule.status === 'IN_PROGRESS') {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <span>Arbitrar Asaltos</span>
+                    } @else {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                      <span>Ver Resultados</span>
+                    }
+                  </button>
+                }
               </div>
             </div>
           }
@@ -175,6 +192,9 @@ export class PouleListRefereeComponent implements OnInit {
   readonly poules = signal<PouleResponse[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+
+  // Track which poules are in the process of starting
+  readonly startingPoules = signal<Record<number, boolean>>({});
 
   ngOnInit(): void {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -225,13 +245,28 @@ export class PouleListRefereeComponent implements OnInit {
 
   getButtonClass(status: string): string {
     const base = 'w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ';
-    if (status === 'PENDING') {
-      return base + 'btn-navy hover:scale-[1.01]';
-    }
     if (status === 'IN_PROGRESS') {
       return base + 'bg-touche-celeste text-touche-navy hover:bg-opacity-90 hover:scale-[1.01]';
     }
     return base + 'btn-ghost';
+  }
+
+  startPoule(pouleId: number, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.startingPoules.update(m => ({ ...m, [pouleId]: true }));
+    this.pouleService.startPoule(pouleId).subscribe({
+      next: (updated) => {
+        this.poules.update(list => list.map(p => p.id === updated.id ? updated : p));
+        this.startingPoules.update(m => ({ ...m, [pouleId]: false }));
+      },
+      error: (err) => {
+        console.error('Error al iniciar la poule', err);
+        alert(err?.error?.message || 'No se pudo iniciar la poule. Verificá que estés asignado como árbitro.');
+        this.startingPoules.update(m => ({ ...m, [pouleId]: false }));
+      }
+    });
   }
 
   goBack(): void {
