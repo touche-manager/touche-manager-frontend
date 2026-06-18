@@ -13,8 +13,8 @@ export const boutRoutes: Routes = [
   },
   {
     path: ':id/poules',
-    loadComponent: () => import('./components/poule-detail-referee/poule-detail-referee.component')
-      .then(m => m.PouleDetailRefereeComponent)
+    loadComponent: () => import('./components/poule-list-referee/poule-list-referee.component')
+      .then(m => m.PouleListRefereeComponent)
   },
   {
     path: ':id/poules/:pouleId',
