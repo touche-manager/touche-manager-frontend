@@ -51,7 +51,7 @@ export class RefereeApplicationsComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Silent reload triggered by WebSocket — no spinner, no visual disruption */
+  /** Silent reload triggered by SSE notification — no spinner, no visual disruption */
   private silentReload(): void {
     this.service.getApplicationsForTournament(this.tournamentId).subscribe({
       next: (data) => this.applications.set(data),

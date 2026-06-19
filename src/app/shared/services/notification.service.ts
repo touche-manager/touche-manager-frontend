@@ -1,11 +1,10 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IMessage } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { NotificationDTO, NotifyUpcomingBoutRequest } from '../../core/models/notification.models';
-import { WebsocketService } from './websocket.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -14,43 +13,44 @@ interface ApiResponse<T> {
 }
 
 /**
- * Loads the notification history and listens to the personal WebSocket queue
- * (/user/queue/notifications) for real-time pushes.
+ * Manages the notification state for the authenticated user.
+ *
+ * Real-time delivery is handled via Server-Sent Events (SSE):
+ *   GET /api/notifications/stream?token=<JWT>
+ *
+ * The JWT is passed as a query parameter because the browser's native
+ * EventSource API does not support custom request headers.
+ *
+ * Notifications are always persisted in the DB, so users who were offline
+ * will see them the next time they open the app (via loadHistory).
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly http = inject(HttpClient);
-  private readonly websocketService = inject(WebsocketService);
+  private readonly authService = inject(AuthService);
   private readonly base = `${environment.apiUrl}/notifications`;
-
-  private static readonly QUEUE_DESTINATION = '/user/queue/notifications';
 
   readonly notifications = signal<NotificationDTO[]>([]);
   readonly unreadCount = computed(() => this.notifications().filter(n => !n.read).length);
 
-  /** Emits each new notification received via WebSocket in real time */
+  /** Emits each new notification received via SSE in real time */
   readonly newNotification$ = new Subject<NotificationDTO>();
 
+  private eventSource: EventSource | null = null;
   private listening = false;
 
-  /** Connect the WebSocket and start receiving real-time notifications */
+  /** Open the SSE stream and load notification history */
   startListening(): void {
     if (this.listening) return;
     this.listening = true;
 
     this.loadHistory();
-    this.websocketService.connect();
-    this.websocketService.subscribe(NotificationService.QUEUE_DESTINATION, (message: IMessage) => {
-      const notification: NotificationDTO = JSON.parse(message.body);
-      this.notifications.update(list => [notification, ...list]);
-      this.newNotification$.next(notification);  // trigger toast
-    });
+    this.connectSse();
   }
 
   stopListening(): void {
     this.listening = false;
-    this.websocketService.unsubscribe(NotificationService.QUEUE_DESTINATION);
-    this.websocketService.disconnect();
+    this.closeSse();
     this.notifications.set([]);
   }
 
@@ -85,5 +85,37 @@ export class NotificationService {
     return this.http.post<ApiResponse<NotificationDTO[]>>(
       `${environment.apiUrl}/bouts/${boutId}/notify-upcoming`, request
     ).pipe(map(r => r.data));
+  }
+
+  // ── Private ──────────────────────────────────────────────────────────────
+
+  private connectSse(): void {
+    const token = this.authService.token();
+    if (!token) return;
+
+    this.closeSse(); // close any existing connection
+
+    const url = `${environment.apiUrl}/notifications/stream?token=${encodeURIComponent(token)}`;
+    this.eventSource = new EventSource(url);
+
+    this.eventSource.addEventListener('notification', (event: MessageEvent) => {
+      const notification: NotificationDTO = JSON.parse(event.data);
+      this.notifications.update(list => [notification, ...list]);
+      this.newNotification$.next(notification);
+    });
+
+    this.eventSource.onerror = () => {
+      // EventSource reconnects automatically on transient errors.
+      // If the token has expired the reconnect will fail with 401/403;
+      // the user will simply not receive live pushes until they log in again
+      // (they will still see all notifications on the next loadHistory call).
+    };
+  }
+
+  private closeSse(): void {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
   }
 }
