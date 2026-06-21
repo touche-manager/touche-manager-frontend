@@ -1,4 +1,4 @@
-<main class="min-h-[100dvh] bg-white text-touche-navy flex flex-col">
+<main class="h-full bg-white text-touche-navy flex flex-col overflow-hidden">
 
   <!-- ═══ Header / Navigation Bar ═══════════════════════════════════════ -->
   <header class="flex-shrink-0 bg-gradient-to-r from-touche-navy to-[#1e1e4a] shadow-lg border-b border-touche-gold/20">
@@ -96,7 +96,7 @@
   </header>
 
   <!-- ═══ Main Content ══════════════════════════════════════════════════ -->
-  <div class="flex-1 w-full mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8 flex flex-col min-h-0"
+  <div class="flex-1 w-full mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8 flex flex-col min-h-0 overflow-y-auto"
        [class.pb-24]="isAuthenticated()">
     <router-outlet />
   </div>

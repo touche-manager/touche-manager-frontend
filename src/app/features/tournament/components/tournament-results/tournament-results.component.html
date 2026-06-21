@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-touche-slate">
+<div class="min-h-full bg-touche-slate">
   @if (loading()) {
-    <div class="flex items-center justify-center h-screen">
+    <div class="flex items-center justify-center h-96">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-touche-celeste border-t-transparent"></div>
     </div>
   }
@@ -142,7 +142,7 @@
 
 
   @if (!loading() && error()) {
-    <div class="flex items-center justify-center h-screen">
+    <div class="flex items-center justify-center h-96">
       <div class="card p-8 text-center max-w-md">
         <p class="text-touche-alert text-lg font-bold mb-2">Error</p>
         <p class="text-slate-600">{{ error() }}</p>

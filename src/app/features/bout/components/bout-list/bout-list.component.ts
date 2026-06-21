@@ -11,7 +11,7 @@ import {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-touche-navy p-4 md:p-8">
+    <div class="min-h-full bg-touche-navy p-4 md:p-8">
       <div class="max-w-5xl mx-auto">
 
         <!-- Header -->

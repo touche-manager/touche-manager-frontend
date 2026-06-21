@@ -20,7 +20,7 @@ import {
     @keyframes card-pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
   `],
   template: `
-    <div class="h-screen flex flex-col bg-white overflow-hidden select-none">
+    <div class="h-full flex flex-col bg-white overflow-hidden select-none">
 
       <!-- ── Header ─────────────────────────────────────────────────── -->
       <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 flex-shrink-0">

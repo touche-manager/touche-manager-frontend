@@ -17,11 +17,33 @@
 /* ══════════════════════════════════════════════════════
    BASE
    ══════════════════════════════════════════════════════ */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 body {
   background-color: #ffffff;
   font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Ensure direct children inside the router-outlet wrapper stretch to fill height */
+main > div > *:not(router-outlet) {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
