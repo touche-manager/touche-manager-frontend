@@ -63,22 +63,22 @@ import {
           <!-- ── Names row ───────────────────────────────────────────── -->
           <div class="flex items-center justify-between px-5 pt-3 pb-0 flex-shrink-0">
             <div class="flex-1 min-w-0">
-              <p class="text-red-400 font-bold text-xs truncate">
+              <p class="text-red-600 font-bold text-xs truncate">
                 {{ bout()!.athleteLeft.firstName }} {{ bout()!.athleteLeft.lastName }}
               </p>
               @if (bout()!.athleteLeft.club) {
-                <p class="text-slate-300 text-[9px] font-mono truncate">{{ bout()!.athleteLeft.club }}</p>
+                <p class="text-slate-500 text-[9px] font-mono truncate">{{ bout()!.athleteLeft.club }}</p>
               }
             </div>
             <div class="flex-shrink-0 w-16 text-center">
-              <p class="text-slate-200 text-[10px] font-bold uppercase tracking-wider">vs</p>
+              <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">vs</p>
             </div>
             <div class="flex-1 min-w-0 text-right">
-              <p class="text-emerald-400 font-bold text-xs truncate">
+              <p class="text-emerald-600 font-bold text-xs truncate">
                 {{ bout()!.athleteRight?.firstName ?? 'BYE' }} {{ bout()!.athleteRight?.lastName ?? '' }}
               </p>
               @if (bout()!.athleteRight?.club) {
-                <p class="text-slate-300 text-[9px] font-mono truncate">{{ bout()!.athleteRight?.club }}</p>
+                <p class="text-slate-500 text-[9px] font-mono truncate">{{ bout()!.athleteRight?.club }}</p>
               }
             </div>
           </div>
@@ -107,13 +107,22 @@ import {
 
             <!-- Center: Double + timer -->
             <div class="flex flex-col items-center gap-2 flex-1">
-              <!-- Double touch -->
-              <button
-                id="btn-double"
-                (click)="recordDoubleTouch()"
-                [disabled]="disabled()"
-                class="score-btn px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 text-xs font-bold transition-colors disabled:opacity-30"
-              >Double</button>
+              <!-- Double touch and manual priority -->
+              <div class="flex items-center gap-2">
+                <button
+                  id="btn-double"
+                  (click)="recordDoubleTouch()"
+                  [disabled]="disabled()"
+                  class="score-btn px-4 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 text-xs font-bold transition-colors disabled:opacity-30"
+                >Double</button>
+                <button
+                  id="btn-manual-priority"
+                  (click)="drawPriority()"
+                  [disabled]="disabled() || bout()!.priority"
+                  class="score-btn p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 text-xs font-bold transition-colors disabled:opacity-30"
+                  title="Sortear Prioridad"
+                >🎲</button>
+              </div>
 
               <!-- Timer -->
               <div class="rounded-2xl px-6 py-3 text-center" [class]="timerBgClass()">
@@ -122,7 +131,7 @@ import {
                 </span>
               </div>
 
-              <p class="text-slate-300 text-[9px] font-bold uppercase tracking-wider">
+              <p class="text-slate-500 text-[9px] font-bold uppercase tracking-wider">
                 Meta: {{ bout()!.touchesTarget }} toques
               </p>
             </div>
@@ -244,7 +253,7 @@ import {
                 </div>
 
                 <!-- Priority banner (tied scores) -->
-                @if (bout()!.scoreLeft === bout()!.scoreRight && !bout()!.priority) {
+                @if (bout()!.scoreLeft === bout()!.scoreRight && timeEnded() && !bout()!.priority) {
                   <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 flex items-center justify-between">
                     <p class="text-amber-700 font-bold text-xs">⚠️ Empate — sortear prioridad</p>
                     <button id="btn-priority" (click)="drawPriority()" [disabled]="recording()"
@@ -267,7 +276,9 @@ import {
 
                 <!-- Finish -->
                 <button id="btn-finish" (click)="finishBout()"
-                  class="score-btn w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 font-bold text-sm">
+                  [class]="readyToFinish()
+                    ? 'score-btn w-full py-3 rounded-2xl bg-touche-navy hover:bg-[#14143A] text-white font-bold text-sm shadow-md'
+                    : 'score-btn w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 font-bold text-sm'">
                   Finalizar Combate
                 </button>
               }
@@ -341,6 +352,15 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
   readonly disabled = computed(() =>
     this.recording() || this.bout()?.status === 'PENDING' || this.bout()?.status === 'FINISHED'
   );
+
+  readonly timeEnded = computed(() => this.localElapsed() >= 180);
+
+  readonly readyToFinish = computed(() => {
+    const b = this.bout();
+    if (!b) return false;
+    const target = b.format === 'POULE' ? 5 : 15;
+    return b.scoreLeft >= target || b.scoreRight >= target || this.timeEnded();
+  });
 
   readonly formattedTime = computed(() => {
     const s = this.localElapsed();
