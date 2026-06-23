@@ -11,6 +11,7 @@ import { AthleteRequest, AthleteDocumentResponse, DocumentTypeLabels } from '../
 import { AthleteBoutResponse, BoutStatus, BoutStatusLabels } from '../../core/models/bout.models';
 import { DocPreviewModalComponent } from '../../shared/components/doc-preview-modal/doc-preview-modal.component';
 import { NotificationService } from '../../shared/services/notification.service';
+import { AlertService } from '../../shared/services/alert.service';
 
 @Component({
   selector: 'app-athlete-page',
@@ -25,6 +26,7 @@ export class AthletePageComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly route = inject(ActivatedRoute);
   private readonly notificationService = inject(NotificationService);
+  private readonly alertService = inject(AlertService);
   private notifSub: Subscription | null = null;
 
   readonly loading = signal<boolean>(false);
@@ -356,8 +358,9 @@ export class AthletePageComponent implements OnInit, OnDestroy {
     document.body.removeChild(a);
   }
 
-  onDeleteDocument(docId: number): void {
-    if (!confirm('¿Estás seguro de que deseas eliminar este documento?')) return;
+  async onDeleteDocument(docId: number): Promise<void> {
+    const confirmed = await this.alertService.confirm('Eliminar documento', '¿Estás seguro de que deseas eliminar este documento?', true);
+    if (!confirmed) return;
 
     this.documentError.set(null);
 

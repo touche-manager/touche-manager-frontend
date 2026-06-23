@@ -44,6 +44,18 @@ main > div > *:not(router-outlet) {
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  padding-bottom: 2rem;
+}
+
+/* Apply margin-bottom directly to the scroll container to prevent bottom-clipping and navigation overlap */
+main > div {
+  margin-bottom: var(--layout-mb, 1.5rem);
+}
+
+@media (min-width: 768px) {
+  main > div {
+    margin-bottom: var(--layout-mb-md, 2rem);
+  }
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -285,4 +297,17 @@ main > div > *:not(router-outlet) {
     padding: 0 !important;
     max-width: 100% !important;
   }
+}
+
+/* ══════════════════════════════════════════════════════
+   CUSTOM ANIMATIONS
+   ══════════════════════════════════════════════════════ */
+@keyframes ring {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(8deg); }
+  20%, 40%, 60%, 80% { transform: rotate(-8deg); }
+}
+.animate-ring {
+  animation: ring 1s ease-in-out;
+  transform-origin: top center;
 }

@@ -477,34 +477,34 @@
     </div>
 
     <!-- Bouts table -->
-    <div *ngIf="!loadingBouts() && filteredBouts().length > 0" class="card overflow-hidden p-0">
+    <div *ngIf="!loadingBouts() && filteredBouts().length > 0" class="table-card bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm animate-fade-up">
       <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+        <table class="data-table w-full text-sm">
           <thead>
-            <tr class="border-b border-slate-200 bg-touche-slate">
-              <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Torneo</th>
-              <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Ronda</th>
-              <th class="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Rival</th>
-              <th class="text-center py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Marcador</th>
-              <th class="text-center py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Resultado</th>
+            <tr class="bg-touche-navy text-white">
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white">Torneo</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white hidden md:table-cell">Ronda</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white">Rival</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white text-center">Marcador</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white text-center">Resultado</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let bout of filteredBouts()" class="border-b border-slate-100 hover:bg-touche-slate/60 transition-colors">
-              <td class="py-3 px-4">
-                <p class="font-medium text-touche-navy">{{ bout.tournamentName }}</p>
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let bout of filteredBouts()" class="hover:bg-slate-50/30 transition-colors">
+              <td class="py-3.5 px-4">
+                <p class="font-semibold text-touche-navy">{{ bout.tournamentName }}</p>
                 <p class="text-xs text-slate-400 mt-0.5">{{ bout.tournamentDate | date:'dd/MM/yyyy' }}</p>
               </td>
-              <td class="py-3 px-4 hidden md:table-cell text-slate-500">{{ boutRoundLabel(bout) }}</td>
-              <td class="py-3 px-4">
-                <p class="font-medium text-touche-navy">{{ bout.opponentName }}</p>
+              <td class="py-3.5 px-4 hidden md:table-cell text-slate-500">{{ boutRoundLabel(bout) }}</td>
+              <td class="py-3.5 px-4">
+                <p class="font-semibold text-touche-navy">{{ bout.opponentName }}</p>
                 <p *ngIf="bout.opponentClub" class="text-xs text-slate-400 mt-0.5">{{ bout.opponentClub }}</p>
               </td>
-              <td class="py-3 px-4 text-center font-bold tabular-nums"
+              <td class="py-3.5 px-4 text-center font-bold tabular-nums"
                   [ngClass]="bout.won === true ? 'text-emerald-600' : bout.won === false ? 'text-touche-alert' : 'text-slate-400'">
                 {{ bout.myScore }} - {{ bout.opponentScore }}
               </td>
-              <td class="py-3 px-4 text-center">
+              <td class="py-3.5 px-4 text-center">
                 <span *ngIf="bout.status === 'FINISHED' && bout.won === true"
                       class="badge bg-emerald-100 text-emerald-700">Victoria</span>
                 <span *ngIf="bout.status === 'FINISHED' && bout.won === false"

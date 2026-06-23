@@ -5,18 +5,20 @@ import { AuthService } from './core/services/auth.service';
 import { RoleName } from './core/models/auth.models';
 import { environment } from '../environments/environment';
 import { NotificationBellComponent } from './shared/components/notification-bell/notification-bell.component';
-import { NotificationToastComponent } from './shared/components/notification-toast/notification-toast.component';
+import { AlertService } from './shared/services/alert.service';
+import { AlertModalComponent } from './shared/components/alert-modal/alert-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, NotificationBellComponent, NotificationToastComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, NotificationBellComponent, AlertModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly alertService = inject(AlertService);
 
   title = 'touche-manager-frontend';
 
@@ -77,13 +79,13 @@ export class AppComponent {
 
       // Limit file size to 2MB (optional, but good practice)
       if (file.size > 2 * 1024 * 1024) {
-        alert('La imagen no debe superar los 2MB');
+        this.alertService.error('Error de archivo', 'La foto de perfil no debe superar los 2MB.');
         return;
       }
 
       // Check format
       if (!file.type.startsWith('image/')) {
-        alert('El archivo seleccionado debe ser una imagen');
+        this.alertService.error('Formato inválido', 'El archivo seleccionado debe ser una imagen (PNG o JPG).');
         return;
       }
 
@@ -91,27 +93,35 @@ export class AppComponent {
       this.authService.uploadProfilePicture(file).subscribe({
         next: () => {
           this.isUploading.set(false);
+          this.alertService.success('Foto actualizada', 'Tu foto de perfil se actualizó correctamente.');
         },
         error: (err) => {
           this.isUploading.set(false);
           console.error('Error al subir la imagen', err);
-          alert('Hubo un error al subir la foto de perfil. Intente nuevamente.');
+          this.alertService.error('Error al subir', 'Hubo un error al subir tu foto de perfil. Intentá de nuevo.');
         }
       });
     }
   }
 
-  onDeletePicture(): void {
-    if (confirm('¿Está seguro de que desea eliminar su foto de perfil?')) {
+  async onDeletePicture(): Promise<void> {
+    const confirmed = await this.alertService.confirm(
+      '¿Eliminar foto de perfil?',
+      'Esta acción quitará tu foto actual y volverá a mostrar tus iniciales. ¿Querés continuar?',
+      true // isDestructive = true
+    );
+    
+    if (confirmed) {
       this.isDeleting.set(true);
       this.authService.deleteProfilePicture().subscribe({
         next: () => {
           this.isDeleting.set(false);
+          this.alertService.success('Foto eliminada', 'Tu foto de perfil se eliminó correctamente.');
         },
         error: (err) => {
           this.isDeleting.set(false);
           console.error('Error al eliminar la imagen', err);
-          alert('Hubo un error al eliminar la foto de perfil.');
+          this.alertService.error('Error al eliminar', 'Hubo un error al eliminar tu foto de perfil.');
         }
       });
     }

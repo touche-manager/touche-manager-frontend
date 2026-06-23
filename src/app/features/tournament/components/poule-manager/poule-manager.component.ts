@@ -1,12 +1,15 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { PouleService } from '../../services/poule.service';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
 import { RefereeApplicationService } from '../../services/referee-application.service';
 import { BoutService } from '../../../bout/services/bout.service';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { TournamentLiveService } from '../../services/tournament-live.service';
 import {
   PouleResponse,
   PouleStandingEntry,
@@ -34,7 +37,7 @@ type ActiveTab = 'poules' | 'standings' | 'bracket';
   ],
   templateUrl: './poule-manager.component.html'
 })
-export class PouleManagerComponent implements OnInit {
+export class PouleManagerComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly pouleService = inject(PouleService);
@@ -42,6 +45,9 @@ export class PouleManagerComponent implements OnInit {
   private readonly refereeAppService = inject(RefereeApplicationService);
   private readonly boutService = inject(BoutService);
   private readonly notificationService = inject(NotificationService);
+  private readonly alertService = inject(AlertService);
+  private readonly liveService = inject(TournamentLiveService);
+  private liveSub: Subscription | null = null;
 
   tournamentId = 0;
   readonly phase = signal<string>('');
@@ -82,6 +88,26 @@ export class PouleManagerComponent implements OnInit {
       error: () => { this.phase.set('ENROLLMENT'); this.loadPoules(); }
     });
     this.loadAcceptedReferees();
+
+    // Connect to tournament SSE stream for live updates
+    this.liveService.connect(this.tournamentId);
+    this.liveSub = this.liveService.refresh$.subscribe(() => {
+      // Reload data based on the currently active tab
+      const tab = this.activeTab();
+      if (tab === 'poules') {
+        this.silentReloadPoules();
+      } else if (tab === 'standings') {
+        this.silentReloadStandings();
+      } else if (tab === 'bracket') {
+        const selectedId = this.selectedBout()?.id;
+        this.silentReloadBracket(selectedId);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.liveSub?.unsubscribe();
+    this.liveService.disconnect();
   }
 
   loadAcceptedReferees(): void {
@@ -99,11 +125,27 @@ export class PouleManagerComponent implements OnInit {
     });
   }
 
+  /** Refreshes poules data without showing the loading spinner (used by SSE) */
+  private silentReloadPoules(): void {
+    this.pouleService.getPoulesForTournament(this.tournamentId).subscribe({
+      next: (data) => this.poules.set(data),
+      error: () => {}
+    });
+  }
+
   loadStandings(): void {
     this.loading.set(true);
     this.pouleService.getStandings(this.tournamentId).subscribe({
       next: (data) => { this.standings.set(data); this.loading.set(false); },
       error: () => { this.error.set('Error al cargar la clasificación.'); this.loading.set(false); }
+    });
+  }
+
+  /** Refreshes standings without showing the loading spinner (used by SSE) */
+  private silentReloadStandings(): void {
+    this.pouleService.getStandings(this.tournamentId).subscribe({
+      next: (data) => this.standings.set(data),
+      error: () => {}
     });
   }
 
@@ -129,6 +171,25 @@ export class PouleManagerComponent implements OnInit {
         }
       },
       error: () => { this.error.set('Error al cargar el bracket.'); this.loading.set(false); }
+    });
+  }
+
+  /** Refreshes bracket without showing the loading spinner (used by SSE) */
+  private silentReloadBracket(selectedBoutIdToUpdate?: number): void {
+    this.pouleService.getBracket(this.tournamentId).subscribe({
+      next: (data) => {
+        this.bracket.set(data);
+        if (selectedBoutIdToUpdate) {
+          let found: BoutResponse | null = null;
+          for (const round of Object.keys(data.roundBouts)) {
+            const list = data.roundBouts[round as keyof typeof data.roundBouts] || [];
+            const match = list.find((b: BoutResponse) => b.id === selectedBoutIdToUpdate);
+            if (match) { found = match; break; }
+          }
+          if (found) this.selectedBout.set(found);
+        }
+      },
+      error: () => {}
     });
   }
 
@@ -208,8 +269,9 @@ export class PouleManagerComponent implements OnInit {
     });
   }
 
-  generateBracket(): void {
-    if (!confirm('¿Estás seguro que querés cerrar las poules y generar el bracket de eliminatorias?')) return;
+  async generateBracket(): Promise<void> {
+    const confirmed = await this.alertService.confirm('Generar eliminatorias', '¿Estás seguro que querés cerrar las poules y generar el bracket de eliminatorias?', false);
+    if (!confirmed) return;
     this.generatingBracket.set(true);
     this.pouleService.generateBracket(this.tournamentId).subscribe({
       next: (data) => {
@@ -363,13 +425,14 @@ export class PouleManagerComponent implements OnInit {
     });
   }
 
-  summonBoutAthletes(boutId: number, piste: string | null): void {
+  async summonBoutAthletes(boutId: number, piste: string | null): Promise<void> {
     const status = this.getBoutStatus(boutId);
     if (status && status !== 'PENDING') {
       this.error.set('No se puede convocar a los atletas de un asalto en curso o finalizado.');
       return;
     }
-    if (!confirm('¿Convocar a los atletas? Recibirán una notificación de que su combate comienza en 5 minutos.')) return;
+    const confirmed = await this.alertService.confirm('Convocar atletas', '¿Convocar a los atletas? Recibirán una notificación de que su combate comienza en 5 minutos.', false);
+    if (!confirmed) return;
     this.summoningBoutId.set(boutId);
     this.notificationService.notifyUpcomingBout(boutId, {
       minutesAhead: 5,

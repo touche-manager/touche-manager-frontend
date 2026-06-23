@@ -96,8 +96,9 @@
   </header>
 
   <!-- ═══ Main Content ══════════════════════════════════════════════════ -->
-  <div class="flex-1 w-full mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8 flex flex-col min-h-0 overflow-y-auto"
-       [class.pb-24]="isAuthenticated()">
+  <div class="flex-1 w-full mx-auto max-w-7xl px-4 pt-6 md:px-6 md:pt-8 flex flex-col min-h-0 overflow-y-auto"
+       [style.--layout-mb]="isAuthenticated() ? '5.5rem' : '2rem'"
+       [style.--layout-mb-md]="'2rem'">
     <router-outlet />
   </div>
 
@@ -348,5 +349,6 @@
 
 </main>
 
-<!-- Global real-time notification toast (renders above everything) -->
-<app-notification-toast />
+<!-- Global Alert/Confirmation Modal Dialog -->
+<app-alert-modal />
+

@@ -1,0 +1,380 @@
+<!-- ── Card flash overlay ── -->
+@if (cardFlashColor()) {
+  <div class="fixed inset-0 z-50 pointer-events-none card-flash"
+        [class]="cardFlashColor() === 'yellow'
+          ? 'bg-yellow-400'
+          : 'bg-red-500'">
+  </div>
+}
+
+<!-- ── Set-time modal ── -->
+@if (showSetTime()) {
+  <div class="fixed inset-0 z-40 bg-black/50 flex items-center justify-center px-6"
+        (click)="closeSetTime()">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-xs shadow-2xl"
+          (click)="$event.stopPropagation()">
+      <p class="font-bold text-slate-700 text-sm mb-3">Ajustar tiempo restante</p>
+      <input
+        type="text"
+        [(ngModel)]="setTimeInput"
+        placeholder="MM:SS"
+        maxlength="5"
+        class="w-full border border-slate-300 rounded-xl px-4 py-2.5 text-center text-2xl font-mono font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 mb-4"
+      />
+      <div class="flex gap-2">
+        <button (click)="closeSetTime()"
+          class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-500 font-bold text-sm">
+          Cancelar
+        </button>
+        <button (click)="applySetTime()"
+          class="flex-1 py-2.5 rounded-xl bg-slate-800 text-white font-bold text-sm">
+          Aplicar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="h-full flex flex-col bg-white overflow-hidden select-none">
+
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 flex-shrink-0">
+    <button (click)="goBack()" class="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-500">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <div class="text-center min-w-0 flex-1 px-2">
+      <p class="text-slate-700 font-bold text-sm truncate">{{ bout()?.tournamentName }}</p>
+      <p class="text-slate-400 text-[10px] font-semibold">
+        {{ roundLabel() }}
+        @if (bout()?.piste) { &middot; Pista {{ bout()?.piste }} }
+      </p>
+    </div>
+
+    <!-- 3-dots Menu Button -->
+    <div class="relative flex-shrink-0">
+      <button (click)="toggleMenu()" class="p-2 rounded-xl hover:bg-slate-100 transition-colors text-slate-500" title="Opciones">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+        </svg>
+      </button>
+
+      <!-- Dropdown Menu -->
+      @if (showMenu()) {
+        <!-- Backdrop to close dropdown -->
+        <div class="fixed inset-0 z-20" (click)="closeMenu()"></div>
+        <div class="absolute right-0 mt-1 w-48 bg-white border border-slate-150 rounded-xl shadow-lg py-1.5 z-30 animate-fade-in">
+          <button (click)="manualFinishBout()" class="w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+            <span>🏁</span> Finalizar Combate
+          </button>
+          <button (click)="openSetTimeDropdown()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors">
+            <span>✏️</span> Ajustar Tiempo
+          </button>
+          @if (bout()?.status === 'PENDING') {
+            <button (click)="summonAthletesDropdown()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors">
+              <span>📣</span> Convocar Atletas
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Loading ─────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="flex-grow flex items-center justify-center">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-slate-200 border-t-slate-500"></div>
+    </div>
+  }
+
+  @if (!loading() && bout()) {
+    <div class="flex-grow flex flex-col justify-between" [class.overflow-y-auto]="bout()?.status === 'FINISHED'" [class.overflow-hidden]="bout()?.status !== 'FINISHED'">
+
+      @if (bout()!.status !== 'FINISHED') {
+        <div class="flex-grow flex flex-col justify-between">
+          
+          <!-- 1. Top Area: Athlete names (Enlarged) -->
+          <div class="flex items-center justify-between px-5 pt-4 pb-1 flex-shrink-0">
+            <div class="flex-1 min-w-0">
+              <p class="text-red-600 font-black text-sm md:text-base truncate">
+                {{ bout()!.athleteLeft.firstName }} {{ bout()!.athleteLeft.lastName }}
+              </p>
+              @if (bout()!.athleteLeft.club) {
+                <p class="text-slate-400 text-xs font-semibold truncate">{{ bout()!.athleteLeft.club }}</p>
+              }
+            </div>
+            <div class="flex-shrink-0 w-12 text-center">
+              <p class="text-slate-300 text-xs font-black uppercase tracking-widest">VS</p>
+            </div>
+            <div class="flex-1 min-w-0 text-right">
+              <p class="text-emerald-600 font-black text-sm md:text-base truncate">
+                {{ bout()!.athleteRight?.firstName ?? 'BYE' }} {{ bout()!.athleteRight?.lastName ?? '' }}
+              </p>
+              @if (bout()!.athleteRight?.club) {
+                <p class="text-slate-400 text-xs font-semibold truncate">{{ bout()!.athleteRight?.club }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- 2. Middle Area: Massive Scoreboard Buttons -->
+          <div class="flex items-center justify-center gap-6 px-5 py-2 flex-shrink-0">
+            <!-- Left Score (Red) -->
+            <button
+              id="btn-score-left"
+              (pointerdown)="onScorePointerDown('LEFT', $event)"
+              (pointerup)="onScorePointerUp('LEFT')"
+              (pointerleave)="cancelHold()"
+              [disabled]="disabledAll()"
+              class="score-btn relative flex-1 h-36 max-w-[170px] rounded-3xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all disabled:opacity-30"
+              [class]="holdingSide() === 'LEFT'
+                ? 'bg-red-200 border-red-400 shadow-inner'
+                : 'bg-red-50 border-red-200 shadow-sm'"
+            >
+              @if (holdingSide() === 'LEFT') {
+                <span class="hold-ring text-red-400"></span>
+              }
+              <span class="font-black text-6xl text-red-500 leading-none relative z-10">{{ bout()!.scoreLeft }}</span>
+              <span class="text-[9px] font-bold text-red-400 uppercase tracking-widest mt-1 relative z-10">Rojo</span>
+            </button>
+
+            <!-- Right Score (Green) -->
+            <button
+              id="btn-score-right"
+              (pointerdown)="onScorePointerDown('RIGHT', $event)"
+              (pointerup)="onScorePointerUp('RIGHT')"
+              (pointerleave)="cancelHold()"
+              [disabled]="disabledAll()"
+              class="score-btn relative flex-1 h-36 max-w-[170px] rounded-3xl border-2 flex flex-col items-center justify-center overflow-hidden transition-all disabled:opacity-30"
+              [class]="holdingSide() === 'RIGHT'
+                ? 'bg-emerald-200 border-emerald-400 shadow-inner'
+                : 'bg-emerald-50 border-emerald-200 shadow-sm'"
+            >
+              @if (holdingSide() === 'RIGHT') {
+                <span class="hold-ring text-emerald-400"></span>
+              }
+              <span class="font-black text-6xl text-emerald-500 leading-none relative z-10">{{ bout()!.scoreRight }}</span>
+              <span class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mt-1 relative z-10">Verde</span>
+            </button>
+          </div>
+
+          <!-- 3. Secondary Info Strip: Timer, Double, Priority, Period -->
+          <div class="grid grid-cols-3 items-center px-5 py-3 border-t border-b border-slate-50 bg-slate-50/50 flex-shrink-0 gap-2">
+            <!-- Left Info -->
+            <div class="flex flex-col items-start gap-0.5 pl-1">
+              <span class="text-xs font-black text-slate-700 uppercase tracking-wider">
+                P.{{ bout()!.currentPeriod }}/{{ bout()!.maxPeriods }}
+              </span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {{ bout()!.touchesTarget }} toques
+              </span>
+            </div>
+
+            <!-- Center Countdown -->
+            <div class="flex flex-col items-center justify-center">
+              <div class="relative cursor-pointer px-3 py-1.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center"
+                   (click)="openSetTime()"
+                   title="Ajustar tiempo">
+                <span class="text-2xl font-mono font-black tracking-tight text-slate-700"
+                      [class.time-pulse]="timeEnded() && timerRunning()">
+                  {{ formattedTime() }}
+                </span>
+                <span class="text-[9px] ml-1.5 opacity-60">✏️</span>
+              </div>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="flex items-center justify-end gap-1.5 pr-1">
+              <button
+                id="btn-double"
+                (click)="recordDoubleTouch()"
+                [disabled]="disabledAll()"
+                class="score-btn px-3 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold shadow-sm transition-colors disabled:opacity-30"
+              >
+                Doble
+              </button>
+              <button
+                id="btn-manual-priority"
+                (click)="drawPriority()"
+                [disabled]="disabledAll() || !!bout()!.priority"
+                class="score-btn p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold shadow-sm transition-colors disabled:opacity-30"
+                title="Sortear Prioridad"
+              >
+                🎲
+              </button>
+            </div>
+          </div>
+
+          <!-- Priority Banner -->
+          @if (bout()!.status === 'IN_PROGRESS' && (bout()!.priority || (bout()!.scoreLeft === bout()!.scoreRight && timeEnded()))) {
+            <div class="px-5 pt-2.5 flex-shrink-0">
+              @if (bout()!.scoreLeft === bout()!.scoreRight && timeEnded() && !bout()!.priority) {
+                <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-center justify-between">
+                  <p class="text-amber-700 font-bold text-xs">⚠️ Empate — sortear prioridad</p>
+                  <button id="btn-priority" (click)="drawPriority()" [disabled]="recording()"
+                    class="score-btn px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs disabled:opacity-40">
+                    🎲 Sortear
+                  </button>
+                </div>
+              }
+              @if (bout()!.priority) {
+                <div class="bg-sky-50 border border-sky-200 rounded-xl px-4 py-2 text-center shadow-sm">
+                  <p class="text-sky-700 font-bold text-xs">
+                    ⭐ Prioridad:
+                    <strong [class]="bout()!.priority === 'LEFT' ? 'text-red-500' : 'text-emerald-600'">
+                      {{ priorityName() }}
+                    </strong>
+                  </p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- 4. Play/Pause Action Button area -->
+          <div class="flex-grow flex flex-col justify-center px-5 py-4">
+            @if (bout()!.status === 'PENDING') {
+              <div class="flex gap-3 w-full">
+                <button
+                  id="btn-summon"
+                  (click)="summonAthletes()"
+                  [disabled]="summoning()"
+                  class="score-btn py-4 px-5 rounded-2xl bg-slate-100 border border-slate-200 text-slate-500 font-bold text-base disabled:opacity-40 shadow-sm"
+                  title="Convocar atletas (5 min)"
+                >📣</button>
+                <button
+                  id="btn-start"
+                  (click)="startBout()"
+                  class="score-btn flex-1 py-4.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-base shadow-md"
+                >Iniciar Combate</button>
+              </div>
+            }
+
+            @if (bout()!.status === 'IN_PROGRESS') {
+              <!-- Prominent Finish Button -->
+              @if (readyToFinish()) {
+                <div class="mb-3.5 animate-fade-up">
+                  <button id="btn-finish" (click)="finishBout()"
+                    class="score-btn w-full py-4.5 rounded-2xl bg-touche-navy hover:bg-[#14143A] text-white font-black text-base shadow-md transition-all">
+                    Finalizar Combate
+                  </button>
+                </div>
+              }
+
+              <!-- Main Timer Toggle Button (Pause / Resume) -->
+              <button
+                id="btn-timer"
+                (click)="toggleTimer()"
+                class="score-btn w-full py-5 rounded-2xl font-black text-xl shadow-md transition-all flex items-center justify-center gap-2"
+                [class]="timerRunning()
+                  ? 'border-2 border-touche-navy bg-white text-touche-navy hover:bg-slate-50'
+                  : 'bg-touche-celeste hover:bg-[#5fa2d9] text-white'"
+              >
+                @if (timerRunning()) {
+                  <!-- Pause Icon -->
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Pausar</span>
+                } @else {
+                  <!-- Play Icon -->
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                  </svg>
+                  <span>Reanudar</span>
+                }
+              </button>
+            }
+          </div>
+
+          <!-- 5. Bottom Area: Cards Strip -->
+          <div class="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50/30 flex-shrink-0">
+            <!-- Left Cards -->
+            <div class="flex items-center gap-2">
+              <button
+                id="btn-yellow-left"
+                (pointerdown)="onCardPointerDown('LEFT', 'YELLOW_CARD', $event)"
+                (pointerup)="onCardPointerUp('LEFT', 'YELLOW_CARD')"
+                (pointerleave)="cancelHold()"
+                [disabled]="disabledAll()"
+                class="score-btn relative w-10 h-7.5 rounded bg-yellow-400 flex items-center justify-center text-xs font-black text-yellow-900 shadow-sm disabled:opacity-40"
+              >{{ yellowCardsLeft() }}</button>
+              <button
+                id="btn-red-left"
+                (pointerdown)="onCardPointerDown('LEFT', 'RED_CARD', $event)"
+                (pointerup)="onCardPointerUp('LEFT', 'RED_CARD')"
+                (pointerleave)="cancelHold()"
+                [disabled]="disabledAll()"
+                class="score-btn relative w-10 h-7.5 rounded bg-red-500 flex items-center justify-center text-xs font-black text-white shadow-sm disabled:opacity-40"
+              >{{ redCardsLeft() }}</button>
+            </div>
+
+            <!-- Label -->
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tarjetas Disciplinarias</span>
+
+            <!-- Right Cards -->
+            <div class="flex items-center gap-2">
+              <button
+                id="btn-red-right"
+                (pointerdown)="onCardPointerDown('RIGHT', 'RED_CARD', $event)"
+                (pointerup)="onCardPointerUp('RIGHT', 'RED_CARD')"
+                (pointerleave)="cancelHold()"
+                [disabled]="disabledAll()"
+                class="score-btn relative w-10 h-7.5 rounded bg-red-500 flex items-center justify-center text-xs font-black text-white shadow-sm disabled:opacity-40"
+              >{{ redCardsRight() }}</button>
+              <button
+                id="btn-yellow-right"
+                (pointerdown)="onCardPointerDown('RIGHT', 'YELLOW_CARD', $event)"
+                (pointerup)="onCardPointerUp('RIGHT', 'YELLOW_CARD')"
+                (pointerleave)="cancelHold()"
+                [disabled]="disabledAll()"
+                class="score-btn relative w-10 h-7.5 rounded bg-yellow-400 flex items-center justify-center text-xs font-black text-yellow-900 shadow-sm disabled:opacity-40"
+              >{{ yellowCardsRight() }}</button>
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <!-- ── Winner banner ───────────────────────────────────────── -->
+      @if (bout()!.status === 'FINISHED') {
+        <div class="flex-grow flex flex-col items-center justify-start px-6 py-6 gap-4">
+          <div class="w-16 h-16 rounded-full bg-amber-50 border-2 border-amber-300 flex items-center justify-center text-3xl flex-shrink-0">🏆</div>
+          <div class="text-center">
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Combate Finalizado</p>
+            <p class="text-slate-800 font-black text-xl">{{ winnerName() }}</p>
+            @if (bout()!.priority) {
+              <p class="text-slate-400 text-xs mt-1">por prioridad</p>
+            }
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl px-8 py-3 flex items-center gap-6 flex-shrink-0">
+            <div class="text-center">
+              <p class="text-red-400 text-[10px] font-bold truncate max-w-[80px]">{{ bout()!.athleteLeft.lastName }}</p>
+              <p class="text-red-500 font-black text-3xl">{{ bout()!.scoreLeft }}</p>
+            </div>
+            <p class="text-slate-300 font-bold text-xl">–</p>
+            <div class="text-center">
+              <p class="text-emerald-400 text-[10px] font-bold truncate max-w-[80px]">{{ bout()!.athleteRight?.lastName ?? 'BYE' }}</p>
+              <p class="text-emerald-500 font-black text-3xl">{{ bout()!.scoreRight }}</p>
+            </div>
+          </div>
+
+          <!-- Full event history -->
+          @if (boutEvents().length > 0) {
+            <div class="w-full bg-white border border-slate-100 rounded-2xl p-4 mb-4">
+              <p class="text-slate-400 text-xs font-black uppercase tracking-wider mb-3 text-center">Historial de asalto</p>
+              @for (ev of boutEvents(); track ev.id) {
+                <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                  <span class="text-xs font-bold" [class]="ev.side === 'LEFT' ? 'text-red-400' : 'text-emerald-500'">
+                    {{ ev.side === 'LEFT' ? bout()!.athleteLeft.lastName : (bout()!.athleteRight?.lastName ?? '') }}
+                  </span>
+                  <span class="text-xs text-slate-500 font-semibold">{{ eventLabel(ev.eventType) }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  }
+</div>

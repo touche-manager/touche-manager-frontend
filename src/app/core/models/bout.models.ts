@@ -3,7 +3,7 @@
 export type BoutFormat = 'POULE' | 'ELIMINATION';
 export type BoutStatus = 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
 export type EventSide = 'LEFT' | 'RIGHT';
-export type EventType = 'TOUCHE' | 'YELLOW_CARD' | 'RED_CARD' | 'SCORE_CORRECTION';
+export type EventType = 'TOUCHE' | 'YELLOW_CARD' | 'RED_CARD' | 'SCORE_CORRECTION' | 'YELLOW_CARD_REMOVAL' | 'RED_CARD_REMOVAL';
 export type EliminationRound =
   | 'ROUND_OF_64'
   | 'ROUND_OF_32'
@@ -137,5 +137,7 @@ export const EventTypeLabels: Record<EventType, string> = {
   TOUCHE: 'Touché',
   YELLOW_CARD: 'T. Amarilla',
   RED_CARD: 'T. Roja',
-  SCORE_CORRECTION: 'Corrección'
+  SCORE_CORRECTION: 'Corrección',
+  YELLOW_CARD_REMOVAL: 'Quita Amarilla',
+  RED_CARD_REMOVAL: 'Quita Roja'
 };

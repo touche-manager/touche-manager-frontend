@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
 import { OrganizerTournamentResponse } from '../../../../core/models/tournament.models';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
+import { AlertService } from '../../../../shared/services/alert.service';
 import { TournamentPhase } from '../../../../shared/utils/label.maps';
 
 @Component({
@@ -15,6 +16,7 @@ import { TournamentPhase } from '../../../../shared/utils/label.maps';
 export class DashboardOrganizerComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly tournamentService = inject(OrganizerTournamentService);
+  private readonly alertService = inject(AlertService);
 
   readonly tournaments = signal<OrganizerTournamentResponse[]>([]);
   readonly loading = signal(true);
@@ -54,11 +56,12 @@ export class DashboardOrganizerComponent implements OnInit {
     return map[phase] ?? 'bg-slate-100 text-slate-600 border border-slate-200';
   }
 
-  deleteTournament(tournament: OrganizerTournamentResponse): void {
-    if (!confirm(`¿Eliminar el torneo "${tournament.name}"? Esta acción no se puede deshacer.`)) return;
+  async deleteTournament(tournament: OrganizerTournamentResponse): Promise<void> {
+    const confirmed = await this.alertService.confirm('Eliminar torneo', `¿Eliminar el torneo "${tournament.name}"? Esta acción no se puede deshacer.`, true);
+    if (!confirmed) return;
     this.tournamentService.deleteTournament(tournament.id).subscribe({
       next: () => this.loadTournaments(),
-      error: () => alert('Error al eliminar el torneo. Intente nuevamente.')
+      error: () => this.alertService.error('Error', 'Error al eliminar el torneo. Intente nuevamente.')
     });
   }
 

@@ -46,43 +46,30 @@
 
   <!-- Tournaments table -->
   @if (!loading() && tournaments().length > 0) {
-    <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
-      <!-- Desktop view -->
-      <div class="hidden md:block overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+    <div class="table-card bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm animate-fade-up">
+      <div class="overflow-x-auto">
+        <table class="data-table w-full text-left border-collapse text-sm">
           <thead>
-            <tr class="border-b border-slate-150 bg-slate-50/50">
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Nombre</th>
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Arma</th>
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Categoría</th>
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Género</th>
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Fecha</th>
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider">Ubicación</th>
-              <th class="py-3 px-5 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Acciones</th>
+            <tr class="bg-touche-navy text-white">
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white">Nombre</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white hidden md:table-cell">Arma</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white hidden md:table-cell">Categoría</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white hidden md:table-cell">Género</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white">Fecha</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white hidden lg:table-cell">Ubicación</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white text-right">Acciones</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             @for (tournament of tournaments(); track tournament.id) {
-              <tr class="hover:bg-slate-50/80 transition-colors cursor-pointer" (click)="viewDetail(tournament.id)">
-                <td class="py-3.5 px-5 text-sm font-bold text-touche-navy">
-                  {{ tournament.name }}
-                </td>
-                <td class="py-3.5 px-5 text-sm text-slate-650 font-medium">
-                  {{ tournament.weapon | label:'weapon' }}
-                </td>
-                <td class="py-3.5 px-5 text-sm text-slate-500">
-                  {{ tournament.category | label:'category' }}
-                </td>
-                <td class="py-3.5 px-5 text-sm text-slate-500">
-                  {{ tournament.gender | label:'gender' }}
-                </td>
-                <td class="py-3.5 px-5 text-sm text-slate-600">
-                  {{ formatDate(tournament.date) }}
-                </td>
-                <td class="py-3.5 px-5 text-sm text-slate-600">
-                  {{ tournament.location }}
-                </td>
-                <td class="py-3.5 px-5 text-right" (click)="$event.stopPropagation()">
+              <tr class="hover:bg-slate-50/30 transition-colors cursor-pointer" (click)="viewDetail(tournament.id)">
+                <td class="py-3.5 px-4 font-bold text-touche-navy">{{ tournament.name }}</td>
+                <td class="py-3.5 px-4 text-slate-600 font-medium hidden md:table-cell">{{ tournament.weapon | label:'weapon' }}</td>
+                <td class="py-3.5 px-4 text-slate-500 hidden md:table-cell">{{ tournament.category | label:'category' }}</td>
+                <td class="py-3.5 px-4 text-slate-500 hidden md:table-cell">{{ tournament.gender | label:'gender' }}</td>
+                <td class="py-3.5 px-4 text-slate-600">{{ formatDate(tournament.date) }}</td>
+                <td class="py-3.5 px-4 text-slate-600 hidden lg:table-cell">{{ tournament.location }}</td>
+                <td class="py-3.5 px-4 text-right" (click)="$event.stopPropagation()">
                   <div class="flex items-center justify-end gap-2">
                     <button
                       [id]="'btn-view-' + tournament.id"
@@ -134,56 +121,6 @@
             }
           </tbody>
         </table>
-      </div>
-
-      <!-- Mobile view -->
-      <div class="md:hidden divide-y divide-slate-100">
-        @for (tournament of tournaments(); track tournament.id) {
-          <div class="p-4 hover:bg-slate-50/50 cursor-pointer" (click)="viewDetail(tournament.id)">
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <h4 class="font-bold text-touche-navy text-sm">{{ tournament.name }}</h4>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-touche-celeste/20 text-touche-navy flex-shrink-0">
-                {{ tournament.weapon | label:'weapon' }}
-              </span>
-            </div>
-            <div class="flex flex-col gap-1 text-xs text-slate-500 mb-3">
-              <span>{{ tournament.category | label:'category' }} — {{ tournament.gender | label:'gender' }}</span>
-              <span>📍 {{ tournament.location }}</span>
-              <span>📅 {{ formatDate(tournament.date) }}</span>
-            </div>
-            <div class="flex items-center justify-end gap-2" (click)="$event.stopPropagation()">
-              <button
-                (click)="viewDetail(tournament.id)"
-                class="btn-ghost py-1.5 px-3 text-xs"
-              >
-                Gestionar
-              </button>
-              @if (tournament.phase === 'FINISHED') {
-                <button
-                  (click)="viewResults(tournament.id)"
-                  class="btn-gold py-1.5 px-3 text-xs"
-                >
-                  Resultados
-                </button>
-              } @else {
-                <button
-                  (click)="editTournament(tournament.id)"
-                  class="btn-ghost py-1.5 px-3 text-xs"
-                >
-                  Editar
-                </button>
-              }
-              <button
-                (click)="deleteTournament(tournament)"
-                class="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 hover:text-touche-alert hover:bg-red-50 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        }
       </div>
     </div>
   }

@@ -13,6 +13,7 @@ import {
 import { RefereeApplicationService } from '../../../tournament/services/referee-application.service';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
 import { NotificationService } from '../../../../shared/services/notification.service';
+import { AlertService } from '../../../../shared/services/alert.service';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -30,6 +31,7 @@ export class DashboardRefereeComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly refereeApplicationService = inject(RefereeApplicationService);
   private readonly notificationService = inject(NotificationService);
+  private readonly alertService = inject(AlertService);
   private notifSub: Subscription | null = null;
 
   readonly tournaments = signal<OrganizerTournamentResponse[]>([]);
@@ -82,10 +84,11 @@ export class DashboardRefereeComponent implements OnInit, OnDestroy {
   }
 
   /** Withdraw a still-pending application */
-  withdraw(tournamentId: number): void {
+  async withdraw(tournamentId: number): Promise<void> {
     const app = this.myApplications().find(a => a.tournamentId === tournamentId);
     if (!app) return;
-    if (!confirm('¿Retirar tu postulación a este torneo?')) return;
+    const confirmed = await this.alertService.confirm('Retirar postulación', '¿Retirar tu postulación a este torneo?', true);
+    if (!confirmed) return;
     this.refereeApplicationService.cancel(app.id).subscribe({
       next: () => this.myApplications.update(apps => apps.filter(a => a.id !== app.id)),
       error: () => this.error.set('No se pudo retirar la postulación. Intentá de nuevo.')

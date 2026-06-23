@@ -12,6 +12,7 @@ import {
 } from '../../../../core/models/tournament.models';
 import { LabelPipe } from '../../../../shared/pipes/label.pipe';
 import { DocPreviewModalComponent } from '../../../../shared/components/doc-preview-modal/doc-preview-modal.component';
+import { AlertService } from '../../../../shared/services/alert.service';
 
 /**
  * Inscriptos panel — embedded in the tournament hub.
@@ -26,6 +27,7 @@ import { DocPreviewModalComponent } from '../../../../shared/components/doc-prev
 export class TournamentDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly tournamentService = inject(OrganizerTournamentService);
+  private readonly alertService = inject(AlertService);
 
   tournamentId = 0;
 
@@ -104,7 +106,7 @@ export class TournamentDetailComponent implements OnInit {
         this.isPreviewOpen.set(true);
       },
       error: () => {
-        alert('No se pudo descargar o abrir el documento.');
+        this.alertService.error('Error', 'No se pudo descargar o abrir el documento.');
       }
     });
   }
@@ -124,7 +126,7 @@ export class TournamentDetailComponent implements OnInit {
     const req: DocumentValidationRequest = { validationStatus: status };
     this.tournamentService.validateDocument(documentId, req).subscribe({
       next: () => this.loadEnrollments(),
-      error: () => alert('Error al actualizar el estado del documento.')
+      error: () => this.alertService.error('Error', 'Error al actualizar el estado del documento.')
     });
   }
 
@@ -133,7 +135,7 @@ export class TournamentDetailComponent implements OnInit {
     const req: DocumentValidationRequest = { validationStatus: 'REJECTED', reviewNotes: notes };
     this.tournamentService.validateDocument(documentId, req).subscribe({
       next: () => this.loadEnrollments(),
-      error: () => alert('Error al rechazar el documento.')
+      error: () => this.alertService.error('Error', 'Error al rechazar el documento.')
     });
   }
 
