@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TournamentService } from '../services/tournament.service';
 import { AthleteService } from '../services/athlete.service';
@@ -17,6 +17,7 @@ export class EnrollmentsPageComponent implements OnInit {
   private readonly tournamentService = inject(TournamentService);
   private readonly athleteService = inject(AthleteService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly tournaments = signal<TournamentResponse[]>([]);
   readonly loading = signal<boolean>(true);
@@ -40,6 +41,30 @@ export class EnrollmentsPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.checkPaymentStatus();
+  }
+
+  checkPaymentStatus(): void {
+    const paymentStatus = this.route.snapshot.queryParams['paymentStatus'];
+    if (paymentStatus) {
+      if (paymentStatus === 'success') {
+        this.successMessage.set('¡Inscripción confirmada! Tu pago ha sido procesado con éxito.');
+        setTimeout(() => this.successMessage.set(null), 8000);
+      } else if (paymentStatus === 'failure') {
+        this.errorMessage.set('El pago no pudo procesarse. Por favor, intenta de nuevo.');
+        setTimeout(() => this.errorMessage.set(null), 8000);
+      } else if (paymentStatus === 'pending') {
+        this.successMessage.set('Tu pago está siendo procesado por Mercado Pago. Se acreditará en unos instantes.');
+        setTimeout(() => this.successMessage.set(null), 8000);
+      }
+
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { paymentStatus: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
   }
 
   loadData(): void {
@@ -101,7 +126,11 @@ export class EnrollmentsPageComponent implements OnInit {
           this.loadData();
         } else {
           // Primera inscripción o reinscripción sin pago previo: ir al flujo de pago
-          this.router.navigateByUrl(res.paymentLink);
+          if (res.paymentLink.startsWith('http://') || res.paymentLink.startsWith('https://')) {
+            window.location.href = res.paymentLink;
+          } else {
+            this.router.navigateByUrl(res.paymentLink);
+          }
         }
       },
       error: (err: HttpErrorResponse) => {
@@ -146,6 +175,21 @@ export class EnrollmentsPageComponent implements OnInit {
   }
 
   payDirectly(enrollmentId: number): void {
-    this.router.navigate(['/athlete/enrollments/pay'], { queryParams: { id: enrollmentId } });
+    this.loading.set(true);
+    this.errorMessage.set(null);
+    this.tournamentService.getPaymentLink(enrollmentId).subscribe({
+      next: (res) => {
+        this.loading.set(false);
+        if (res.paymentLink.startsWith('http://') || res.paymentLink.startsWith('https://')) {
+          window.location.href = res.paymentLink;
+        } else {
+          this.router.navigate(['/athlete/enrollments/pay'], { queryParams: { id: enrollmentId } });
+        }
+      },
+      error: () => {
+        this.loading.set(false);
+        this.errorMessage.set('No se pudo obtener el link de pago. Intenta nuevamente.');
+      }
+    });
   }
 }
