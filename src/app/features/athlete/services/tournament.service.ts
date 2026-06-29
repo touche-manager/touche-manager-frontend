@@ -45,4 +45,10 @@ export class TournamentService {
       map(res => res.data)
     );
   }
+
+  getPaymentLink(enrollmentId: number): Observable<{ paymentLink: string }> {
+    return this.http.get<ApiResponse<{ paymentLink: string }>>(`${this.apiUrl}/enrollments/${enrollmentId}/payment-link`).pipe(
+      map(res => res.data)
+    );
+  }
 }
