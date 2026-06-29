@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 export interface PouleTableAthlete {
   id: number;
@@ -9,6 +10,8 @@ export interface PouleTableAthlete {
 export interface PouleTableCell {
   text: string;
   cssClass: string;
+  /** If set, the cell renders as a link to /live/bout/:boutId */
+  boutId?: number;
 }
 
 export interface PouleTableStats {
@@ -29,7 +32,7 @@ export interface PouleTableRowData {
 @Component({
   selector: 'app-poule-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './poule-table.component.html',
   styleUrls: ['./poule-table.component.css']
 })

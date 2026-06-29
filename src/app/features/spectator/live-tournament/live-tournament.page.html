@@ -1,0 +1,172 @@
+<div class="w-full animate-fade-up">
+
+  <!-- ══ HEADER ════════════════════════════════════════════════════════════ -->
+  <div class="flex items-start gap-4 mb-6">
+    <button id="btn-back-live" (click)="goBack()"
+            class="text-touche-navy hover:bg-slate-100 transition-colors p-2 rounded-lg flex-shrink-0">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <div class="flex-1 min-w-0">
+      @if (tournament(); as t) {
+        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+          <!-- Phase badge -->
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border"
+                [class]="phaseBadgeClass(t.phase ?? '')">
+            {{ t.phase | label:'phase' }}
+          </span>
+        </div>
+        <h1 class="page-title">{{ t.name }}</h1>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-slate-500">
+          <span class="font-semibold text-touche-navy">{{ t.weapon | label:'weapon' }}</span>
+          <span class="text-slate-300">·</span>
+          <span>{{ t.category | label:'category' }}</span>
+          <span class="text-slate-300">·</span>
+          <span>{{ t.gender | label:'gender' }}</span>
+          <span class="text-slate-300 hidden sm:inline">·</span>
+          <span class="w-full sm:w-auto">📍 {{ t.location }}</span>
+        </div>
+      } @else {
+        <h1 class="page-title">Torneo en vivo</h1>
+      }
+    </div>
+  </div>
+
+  <!-- ══ TABS ══════════════════════════════════════════════════════════════ -->
+  <div class="flex items-center gap-3 mb-6">
+    <div class="flex gap-1 bg-slate-100 border border-slate-200 rounded-xl p-1">
+      <button
+        id="tab-live-poules"
+        (click)="setTab('poules')"
+        class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+        [class]="activeTab() === 'poules'
+          ? 'bg-white text-touche-navy shadow-sm'
+          : 'text-slate-500 hover:text-touche-navy hover:bg-white/50'"
+      >
+        Poules
+      </button>
+      <button
+        id="tab-live-standings"
+        (click)="setTab('standings')"
+        class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+        [class]="activeTab() === 'standings'
+          ? 'bg-white text-touche-navy shadow-sm'
+          : 'text-slate-500 hover:text-touche-navy hover:bg-white/50'"
+      >
+        Clasificación
+      </button>
+      <button
+        id="tab-live-bracket"
+        (click)="setTab('bracket')"
+        class="px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+        [class]="activeTab() === 'bracket'
+          ? 'bg-white text-touche-navy shadow-sm'
+          : 'text-slate-500 hover:text-touche-navy hover:bg-white/50'"
+      >
+        Bracket
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ ALERTS ════════════════════════════════════════════════════════════ -->
+  @if (error()) {
+    <div class="mb-4 alert-danger">{{ error() }}</div>
+  }
+
+  <!-- ══ LOADING ═══════════════════════════════════════════════════════════ -->
+  @if (loading()) {
+    <div class="flex justify-center items-center h-48">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- POULES TAB                                                          -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  @if (!loading() && activeTab() === 'poules') {
+    @if (poules().length === 0) {
+      <div class="text-center py-16 text-slate-400 bg-white border border-slate-150 rounded-2xl shadow-sm">
+        <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        <p class="font-semibold text-touche-navy">No hay poules disponibles</p>
+        <p class="text-sm mt-1">Las poules aparecerán aquí cuando el torneo comience</p>
+      </div>
+    }
+
+    <div class="space-y-6">
+      @for (poule of poules(); track poule.id) {
+        <div class="bg-white border border-slate-150 rounded-2xl p-5 shadow-sm animate-fade-up">
+          <!-- Poule header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-touche-celeste/15 flex items-center justify-center">
+                <span class="text-touche-navy font-bold text-sm">{{ poule.number }}</span>
+              </div>
+              <h3 class="font-bold text-touche-navy">Poule {{ poule.number }}</h3>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-full font-bold border"
+                  [class]="poule.status === 'FINISHED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                    : poule.status === 'IN_PROGRESS' ? 'bg-amber-50 text-amber-700 border-amber-100'
+                    : 'bg-slate-50 text-slate-500 border-slate-150'">
+              {{ getPouleStatusLabel(poule.status) }}
+            </span>
+          </div>
+
+          <!-- Cross table — same component as organizer; EN VIVO cells are clickable -->
+          <div class="overflow-x-auto border border-slate-150 rounded-xl bg-white">
+            <app-poule-table [rows]="mapPouleToRows(poule)" [colCount]="poule.athletes.length"></app-poule-table>
+          </div>
+
+          <!-- Progress info -->
+          <div class="mt-3 text-xs text-slate-500 font-semibold">
+            Progreso: {{ poule.finishedBouts }} / {{ poule.totalBouts }} asaltos completados
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- STANDINGS TAB                                                       -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  @if (!loading() && activeTab() === 'standings') {
+    @if (standings().length === 0) {
+      <div class="text-center py-16 text-slate-400 bg-white border border-slate-150 rounded-2xl shadow-sm">
+        <p class="font-semibold text-touche-navy">Sin clasificación disponible</p>
+        <p class="text-sm mt-1">La clasificación general estará disponible cuando los asaltos progresen</p>
+      </div>
+    } @else {
+      <div class="space-y-3">
+        <app-touche-table [mode]="'poule-classification'" [rows]="standings()"></app-touche-table>
+      </div>
+    }
+  }
+
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  <!-- BRACKET TAB                                                         -->
+  <!-- ════════════════════════════════════════════════════════════════════ -->
+  @if (!loading() && activeTab() === 'bracket') {
+    @if (!bracket() || bracketRoundData().length === 0) {
+      <div class="text-center py-16 text-slate-400 bg-white border border-slate-150 rounded-2xl shadow-sm">
+        <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <p class="font-semibold text-touche-navy">Bracket no disponible</p>
+        <p class="text-sm mt-1">El bracket de eliminatorias se mostrará una vez que las poules hayan finalizado</p>
+      </div>
+    } @else {
+      <!-- readOnly=true: no management actions, but IN_PROGRESS cards emit boutLiveClick -->
+      <app-bracket-round-column
+        [rounds]="bracketRoundData()"
+        [readOnly]="true"
+        (boutLiveClick)="navigateToLiveBout($event.id)">
+      </app-bracket-round-column>
+    }
+  }
+
+</div>

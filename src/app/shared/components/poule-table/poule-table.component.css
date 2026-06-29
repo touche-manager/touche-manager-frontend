@@ -27,3 +27,22 @@
 .poule-grid-table td.loss span {
   color: #7f1d1d !important;
 }
+
+/* Live / in-progress cell */
+.live-cell-link {
+  animation: live-cell-pulse 1.8s ease-in-out infinite;
+}
+
+.live-dot-sm {
+  animation: live-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes live-cell-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.75; }
+}
+
+@keyframes live-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.4); opacity: 0.7; }
+}

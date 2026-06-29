@@ -111,7 +111,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
       case 'DOCUMENT_REJECTED':
         // Athlete → their profile, documents tab
-        return { commands: ['/athlete'], extras: { queryParams: { tab: 'documents' } } };
+        return { commands: ['/athlete/profile'], extras: { queryParams: { tab: 'documents' } } };
 
       case 'TOURNAMENT_STARTED':
         if (n.tournamentId) {

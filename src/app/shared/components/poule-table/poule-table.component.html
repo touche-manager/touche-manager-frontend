@@ -28,7 +28,19 @@
           @for (cell of row.cells; track $index) {
             <td class="text-center border-l border-slate-100 font-bold w-11 p-0.5"
                 [ngClass]="cell.cssClass">
-              @if (cell.cssClass !== 'diagonal') {
+              @if (cell.cssClass === 'diagonal') {
+                <!-- diagonal: leave empty -->
+              } @else if (cell.boutId) {
+                <!-- IN_PROGRESS: clickable live link -->
+                <a [routerLink]="['/live/bout', cell.boutId]"
+                   class="inline-flex items-center justify-center gap-1 py-1 px-1.5 rounded
+                          text-[11px] font-bold text-white bg-red-500 hover:bg-red-600
+                          transition-colors cursor-pointer leading-none live-cell-link"
+                   title="Ver en vivo">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white inline-block live-dot-sm"></span>
+                  EN VIVO
+                </a>
+              } @else {
                 <span class="inline-block py-1 px-1.5 rounded text-center text-[11px] font-bold">{{ cell.text }}</span>
               }
             </td>

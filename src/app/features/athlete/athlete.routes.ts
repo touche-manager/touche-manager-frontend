@@ -10,6 +10,10 @@ export const athleteRoutes: Routes = [
     loadComponent: () => import('./athlete.page').then(m => m.AthletePageComponent)
   },
   {
+    path: 'bouts',
+    loadComponent: () => import('./bouts/bouts.page').then(m => m.AthleteBoutsPageComponent)
+  },
+  {
     path: 'enrollments',
     loadComponent: () => import('./enrollments/enrollments.page').then(m => m.EnrollmentsPageComponent)
   },

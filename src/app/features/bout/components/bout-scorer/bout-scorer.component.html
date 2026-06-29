@@ -174,13 +174,19 @@
             <div class="flex flex-col items-center justify-center">
               <div class="relative cursor-pointer px-3 py-1.5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-center justify-center"
                    (click)="openSetTime()"
-                   title="Ajustar tiempo">
+                   title="Ajustar tiempo"
+                   [class.bg-amber-50]="inRestPeriod()"
+                   [class.border-amber-300]="inRestPeriod()">
                 <span class="text-2xl font-mono font-black tracking-tight text-slate-700"
+                      [class.text-amber-600]="inRestPeriod()"
                       [class.time-pulse]="timeEnded() && timerRunning()">
                   {{ formattedTime() }}
                 </span>
                 <span class="text-[9px] ml-1.5 opacity-60">✏️</span>
               </div>
+              @if (inRestPeriod()) {
+                <span class="text-[8px] font-extrabold text-amber-500 uppercase tracking-widest mt-1 animate-pulse">Descanso</span>
+              }
             </div>
 
             <!-- Right Controls -->
@@ -260,29 +266,59 @@
                 </div>
               }
 
+              <!-- Start Rest Button -->
+              @if (bout()!.format === 'ELIMINATION' && bout()!.currentPeriod < bout()!.maxPeriods && timeEnded() && !inRestPeriod()) {
+                <div class="mb-3.5 animate-fade-up">
+                  <button id="btn-start-rest" (click)="startRest()"
+                    class="score-btn w-full py-4.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base shadow-md transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Iniciar Descanso (1 min)</span>
+                  </button>
+                </div>
+              }
+
+              <!-- Start Next Period Button -->
+              @if (inRestPeriod() && timeEnded()) {
+                <div class="mb-3.5 animate-fade-up">
+                  <button id="btn-next-period" (click)="resumeNextPeriod()"
+                    class="score-btn w-full py-4.5 rounded-2xl bg-touche-celeste hover:bg-[#5fa2d9] text-white font-black text-base shadow-md transition-all flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>Comenzar Período {{ bout()!.currentPeriod + 1 }}</span>
+                  </button>
+                </div>
+              }
+
               <!-- Main Timer Toggle Button (Pause / Resume) -->
-              <button
-                id="btn-timer"
-                (click)="toggleTimer()"
-                class="score-btn w-full py-5 rounded-2xl font-black text-xl shadow-md transition-all flex items-center justify-center gap-2"
-                [class]="timerRunning()
-                  ? 'border-2 border-touche-navy bg-white text-touche-navy hover:bg-slate-50'
-                  : 'bg-touche-celeste hover:bg-[#5fa2d9] text-white'"
-              >
-                @if (timerRunning()) {
-                  <!-- Pause Icon -->
-                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Pausar</span>
-                } @else {
-                  <!-- Play Icon -->
-                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
-                  </svg>
-                  <span>Reanudar</span>
-                }
-              </button>
+              @if (!readyToFinish() &&
+                   !(bout()!.format === 'ELIMINATION' && bout()!.currentPeriod < bout()!.maxPeriods && timeEnded() && !inRestPeriod()) &&
+                   !(inRestPeriod() && timeEnded())) {
+                <button
+                  id="btn-timer"
+                  (click)="toggleTimer()"
+                  class="score-btn w-full py-5 rounded-2xl font-black text-xl shadow-md transition-all flex items-center justify-center gap-2"
+                  [class]="timerRunning()
+                    ? 'border-2 border-touche-navy bg-white text-touche-navy hover:bg-slate-50'
+                    : 'bg-touche-celeste hover:bg-[#5fa2d9] text-white'"
+                >
+                  @if (timerRunning()) {
+                    <!-- Pause Icon -->
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Pausar</span>
+                  } @else {
+                    <!-- Play Icon -->
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                      <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Reanudar</span>
+                  }
+                </button>
+              }
             }
           </div>
 
@@ -363,11 +399,31 @@
             <div class="w-full bg-white border border-slate-100 rounded-2xl p-4 mb-4">
               <p class="text-slate-400 text-xs font-black uppercase tracking-wider mb-3 text-center">Historial de asalto</p>
               @for (ev of boutEvents(); track ev.id) {
-                <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                  <span class="text-xs font-bold" [class]="ev.side === 'LEFT' ? 'text-red-400' : 'text-emerald-500'">
+                <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0 text-xs">
+                  <span class="font-bold" [class]="ev.side === 'LEFT' ? 'text-red-500' : 'text-emerald-600'">
                     {{ ev.side === 'LEFT' ? bout()!.athleteLeft.lastName : (bout()!.athleteRight?.lastName ?? '') }}
                   </span>
-                  <span class="text-xs text-slate-500 font-semibold">{{ eventLabel(ev.eventType) }}</span>
+                  <div class="flex items-center gap-3">
+                    <span class="text-slate-500 font-semibold">{{ eventLabel(ev.eventType) }}</span>
+                    
+                    @if (ev.eventType === 'TOUCHE') {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black min-w-[28px] justify-center"
+                            [class]="ev.side === 'LEFT' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'">
+                        +1
+                      </span>
+                    } @else if (ev.eventType === 'RED_CARD') {
+                      <!-- Red card gives a point (+1) to the opponent fencer -->
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black min-w-[28px] justify-center"
+                            [class]="ev.side === 'LEFT' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200'">
+                        +1
+                      </span>
+                    } @else if (ev.eventType === 'SCORE_CORRECTION') {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-black min-w-[28px] justify-center"
+                            [class]="ev.side === 'LEFT' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-emerald-50 text-emerald-600 border border-emerald-200'">
+                        -1
+                      </span>
+                    }
+                  </div>
                 </div>
               }
             </div>

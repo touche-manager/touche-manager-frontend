@@ -45,19 +45,34 @@ export class BracketRoundColumnComponent {
   /** Emits the card that was clicked (only when readOnly=false). */
   @Output() cardClick = new EventEmitter<BracketCardData>();
 
+  /**
+   * Emits IN_PROGRESS cards regardless of readOnly mode.
+   * Used by the live spectator view to navigate to /live/bout/:id.
+   */
+  @Output() boutLiveClick = new EventEmitter<BracketCardData>();
+
   cardClass(card: BracketCardData): string {
     const base = 'bg-white border rounded-xl overflow-hidden transition-all select-none relative';
-    const cursor = this.readOnly ? 'cursor-default' : 'cursor-pointer hover:shadow-md hover:border-touche-celeste';
+    const isLive = card.status === 'IN_PROGRESS';
+    // In readOnly mode, live bouts are still clickable; others are not.
+    const cursor = (!this.readOnly || isLive)
+      ? 'cursor-pointer hover:shadow-md hover:border-touche-celeste'
+      : 'cursor-default';
     const border = card.status === 'FINISHED'
       ? 'border-emerald-200'
-      : card.status === 'IN_PROGRESS'
-        ? 'border-amber-200'
+      : isLive
+        ? 'border-amber-300'
         : 'border-slate-150';
     return `${base} ${cursor} ${border}`;
   }
 
   onCardClick(card: BracketCardData): void {
-    if (!this.readOnly) this.cardClick.emit(card);
+    if (card.status === 'IN_PROGRESS') {
+      this.boutLiveClick.emit(card);
+    }
+    if (!this.readOnly) {
+      this.cardClick.emit(card);
+    }
   }
 
 }

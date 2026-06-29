@@ -1,0 +1,123 @@
+<div class="w-full animate-fade-up">
+
+  <!-- Back -->
+  <div class="mb-6">
+    <a routerLink="/athlete" class="back-link">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+      </svg>
+      Volver al panel
+    </a>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="page-title">Mis Combates</h1>
+    <p class="page-subtitle">Revisá tu historial de combates disputados y estadísticas de rendimiento.</p>
+  </div>
+
+  <div class="space-y-5">
+
+    <!-- Stats summary -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-touche-navy">{{ boutStats().total }}</p>
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mt-1">Disputados</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-emerald-600">{{ boutStats().won }}</p>
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mt-1">Victorias</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-touche-alert">{{ boutStats().lost }}</p>
+        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide mt-1">Derrotas</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input
+        id="filter-bout-tournament"
+        type="text"
+        [ngModel]="boutTournamentFilter()"
+        (ngModelChange)="boutTournamentFilter.set($event)"
+        placeholder="Filtrar por torneo..."
+        class="flex-1 text-sm border border-slate-200 rounded-xl px-4 py-2.5 text-touche-navy
+               placeholder-slate-400 focus:outline-none focus:border-touche-celeste transition-colors bg-white shadow-sm"
+      />
+      <select
+        id="filter-bout-status"
+        [ngModel]="boutStatusFilter()"
+        (ngModelChange)="boutStatusFilter.set($event)"
+        class="text-sm border border-slate-200 rounded-xl px-4 py-2.5 text-touche-navy
+               focus:outline-none focus:border-touche-celeste transition-colors bg-white shadow-sm"
+      >
+        <option value="">Todos los estados</option>
+        <option value="FINISHED">Finalizados</option>
+        <option value="IN_PROGRESS">En curso</option>
+        <option value="PENDING">Pendientes</option>
+      </select>
+    </div>
+
+    <div *ngIf="boutsError()" class="alert-danger">
+      <p class="text-sm font-semibold">{{ boutsError() }}</p>
+    </div>
+
+    <div *ngIf="loadingBouts()" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loadingBouts() && filteredBouts().length === 0" class="card text-center py-12">
+      <svg class="mx-auto h-10 w-10 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+      <p class="text-sm font-bold text-slate-400">No hay combates para mostrar</p>
+      <p class="text-xs text-slate-400 mt-1">Tus combates aparecerán aquí cuando participes en torneos.</p>
+    </div>
+
+    <!-- Bouts table -->
+    <div *ngIf="!loadingBouts() && filteredBouts().length > 0" class="table-card bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm animate-fade-up">
+      <div class="overflow-x-auto">
+        <table class="data-table w-full text-sm">
+          <thead>
+            <tr class="bg-touche-navy text-white">
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white">Torneo</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white hidden md:table-cell">Ronda</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white">Rival</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white text-center">Marcador</th>
+              <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-white text-center">Resultado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr *ngFor="let bout of filteredBouts()" class="hover:bg-slate-50/30 transition-colors">
+              <td class="py-3.5 px-4">
+                <p class="font-semibold text-touche-navy">{{ bout.tournamentName }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ bout.tournamentDate | date:'dd/MM/yyyy' }}</p>
+              </td>
+              <td class="py-3.5 px-4 hidden md:table-cell text-slate-500">{{ boutRoundLabel(bout) }}</td>
+              <td class="py-3.5 px-4">
+                <p class="font-semibold text-touche-navy">{{ bout.opponentName }}</p>
+                <p *ngIf="bout.opponentClub" class="text-xs text-slate-400 mt-0.5">{{ bout.opponentClub }}</p>
+              </td>
+              <td class="py-3.5 px-4 text-center font-bold tabular-nums"
+                  [ngClass]="bout.won === true ? 'text-emerald-600' : bout.won === false ? 'text-touche-alert' : 'text-slate-400'">
+                {{ bout.myScore }} - {{ bout.opponentScore }}
+              </td>
+              <td class="py-3.5 px-4 text-center">
+                <span *ngIf="bout.status === 'FINISHED' && bout.won === true"
+                      class="badge bg-emerald-100 text-emerald-700">Victoria</span>
+                <span *ngIf="bout.status === 'FINISHED' && bout.won === false"
+                      class="badge bg-red-100 text-touche-alert">Derrota</span>
+                <span *ngIf="bout.status === 'IN_PROGRESS'"
+                      class="badge bg-yellow-100 text-yellow-700">En curso</span>
+                <span *ngIf="bout.status === 'PENDING'"
+                      class="badge bg-slate-100 text-slate-500">Pendiente</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -51,6 +51,7 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
   readonly recording  = signal(false);
   readonly timerRunning = signal(false);
   readonly summoning  = signal(false);
+  readonly inRestPeriod = signal(false);
 
   /** Countdown: seconds remaining in this period */
   readonly localRemaining = signal(BOUT_DURATION);
@@ -86,7 +87,13 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
   readonly readyToFinish = computed(() => {
     const b = this.bout();
     if (!b) return false;
-    return b.scoreLeft >= this.maxScore() || b.scoreRight >= this.maxScore() || this.timeEnded();
+    if (b.scoreLeft >= this.maxScore() || b.scoreRight >= this.maxScore()) {
+      return true;
+    }
+    if (this.timeEnded() && !this.inRestPeriod() && b.currentPeriod === b.maxPeriods) {
+      return true;
+    }
+    return false;
   });
 
   readonly formattedTime = computed(() => {
@@ -156,7 +163,7 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
         this.bout.set(b);
         this.localRemaining.set(Math.max(0, BOUT_DURATION - b.elapsedSeconds));
         this.loading.set(false);
-        if (b.status === 'IN_PROGRESS') {
+        if (b.status === 'IN_PROGRESS' && !b.timerPaused) {
           this.timerRunning.set(true);
           this.startLocalTimer();
         }
@@ -190,12 +197,14 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
     if (!this.timerRunning()) return;
     this.timerRunning.set(false);
     this.clearTimerIntervals();
-    // Persist elapsed time
-    this.syncElapsed();
+    // Persist elapsed time + signal paused state to spectators
+    this.syncElapsed(true);
   }
 
   private resumeTimer(): void {
     this.timerRunning.set(true);
+    // Signal timer resumed to spectators immediately
+    this.syncElapsed(false);
     this.startLocalTimer();
   }
 
@@ -222,9 +231,10 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
     }, 10000);
   }
 
-  private syncElapsed(): void {
+  private syncElapsed(timerPaused = !this.timerRunning()): void {
+    if (this.inRestPeriod()) return; // Do not sync rest period time to backend
     const elapsed = BOUT_DURATION - this.localRemaining();
-    this.boutService.updateElapsedTime(this.boutId, { elapsedSeconds: elapsed }).subscribe();
+    this.boutService.updateElapsedTime(this.boutId, { elapsedSeconds: elapsed, timerPaused }).subscribe();
   }
 
   // ── Set time ─────────────────────────────────────────────────────────────────
@@ -253,6 +263,33 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
       }
     }
     this.showSetTime.set(false);
+  }
+
+  startRest(): void {
+    this.inRestPeriod.set(true);
+    this.localRemaining.set(60);
+    this.timerRunning.set(true);
+    this.startLocalTimer();
+  }
+
+  resumeNextPeriod(): void {
+    const b = this.bout();
+    if (!b) return;
+    const nextPeriod = b.currentPeriod + 1;
+    this.inRestPeriod.set(false);
+    this.localRemaining.set(BOUT_DURATION);
+    this.recording.set(true);
+    this.boutService.updateElapsedTime(this.boutId, {
+      elapsedSeconds: 0,
+      timerPaused: true,
+      currentPeriod: nextPeriod
+    }).subscribe({
+      next: (updated) => {
+        this.bout.set(updated);
+        this.recording.set(false);
+      },
+      error: () => this.recording.set(false)
+    });
   }
 
   // ── Score press & hold ───────────────────────────────────────────────────────
@@ -411,7 +448,7 @@ export class BoutScorerComponent implements OnInit, OnDestroy {
     if (b?.pouleId) {
       this.router.navigate(['/bout', this.tournamentId, 'poules', b.pouleId]);
     } else {
-      this.router.navigate(['/bout', this.tournamentId, 'poules']);
+      this.router.navigate(['/bout', this.tournamentId, 'bouts']);
     }
   }
 

@@ -1,4 +1,4 @@
-﻿import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { RouterModule }  from '@angular/router';
 import { FormsModule }   from '@angular/forms';
@@ -7,6 +7,7 @@ import { environment } from '../../../../environments/environment';
 import { RankingEntryResponse } from '../../../core/models/tournament.models';
 import { WEAPON_OPTIONS, CATEGORY_OPTIONS, GENDER_OPTIONS } from '../../../shared/utils/filter-options';
 import { Weapon, TournamentCategory, Gender } from '../../../shared/utils/label.maps';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -19,6 +20,11 @@ interface ApiResponse<T> { success: boolean; message: string; data: T; }
 })
 export class RankingPointsPageComponent implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
+  getBackLink(): string {
+    return this.authService.isAuthenticated() ? '/athlete' : '/spectator';
+  }
 
   // â”€â”€ Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   filterCategory: TournamentCategory | '' = '';

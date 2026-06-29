@@ -1,0 +1,92 @@
+<!-- Back link -->
+<div class="mb-4">
+  <a class="back-link" (click)="goBack()">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+    </svg>
+    Volver
+  </a>
+</div>
+
+<!-- Header -->
+<div class="mb-6 flex items-center gap-3">
+  <span class="live-dot"></span>
+  <div>
+    <h1 class="page-title">En Vivo</h1>
+    <p class="page-subtitle">Torneos en progreso — ingresá a uno para ver los asaltos en tiempo real</p>
+  </div>
+</div>
+
+<!-- Loading -->
+@if (loading()) {
+  <div class="flex justify-center items-center h-48">
+    <div class="animate-spin rounded-full h-10 w-10 border-4 border-touche-celeste border-t-transparent"></div>
+  </div>
+}
+
+<!-- Error -->
+@if (error()) {
+  <div class="alert-danger">{{ error() }}</div>
+}
+
+<!-- Empty state -->
+@if (!loading() && tournaments().length === 0) {
+  <div class="card py-16 text-center animate-fade-up">
+    <svg class="w-14 h-14 mx-auto mb-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3" fill="currentColor" class="text-slate-200"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M5.636 5.636a9 9 0 1012.728 12.728A9 9 0 005.636 5.636z"/>
+    </svg>
+    <p class="text-lg font-bold text-touche-navy">Sin torneos en vivo</p>
+    <p class="text-sm text-slate-400 mt-1">No hay torneos en progreso en este momento</p>
+  </div>
+}
+
+<!-- Tournament cards -->
+@if (!loading() && tournaments().length > 0) {
+  <div class="flex flex-col gap-4 animate-fade-up">
+    @for (tournament of tournaments(); track tournament.id) {
+      <div
+        class="card card-hover group cursor-pointer p-5 flex items-center justify-between gap-4"
+        (click)="openTournament(tournament.id)"
+      >
+        <!-- Left: info -->
+        <div class="flex items-center gap-4 min-w-0">
+          <!-- Live indicator -->
+          <div class="flex-shrink-0 flex h-11 w-11 items-center justify-center rounded-xl
+                      bg-red-50 border border-red-200">
+            <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                    d="M5.636 5.636a9 9 0 1012.728 12.728A9 9 0 005.636 5.636z"/>
+            </svg>
+          </div>
+
+          <div class="min-w-0">
+            <p class="font-bold text-touche-navy text-base leading-tight truncate">{{ tournament.name }}</p>
+            <div class="flex flex-wrap items-center gap-2 mt-1.5">
+              <!-- Phase badge -->
+              <span class="badge text-[10px]" [ngClass]="phaseBadgeClass(tournament.phase)">
+                {{ phaseLabel(tournament.phase) }}
+              </span>
+              <!-- Weapon / category / gender -->
+              <span class="text-xs text-slate-400">
+                {{ tournament.weapon | label:'weapon' }} ·
+                {{ tournament.category | label:'category' }} ·
+                {{ tournament.gender | label:'gender' }}
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">{{ tournament.location }} · {{ tournament.date | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+
+        <!-- Right: arrow -->
+        <svg class="h-5 w-5 flex-shrink-0 text-slate-300 group-hover:text-touche-celeste
+                    transition-colors group-hover:translate-x-0.5 transform duration-200"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    }
+  </div>
+}

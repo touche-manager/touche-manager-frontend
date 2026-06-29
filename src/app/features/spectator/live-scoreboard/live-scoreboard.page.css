@@ -8,7 +8,13 @@
   50% { opacity: 0.2; }
 }
 
-/* Subtle pop when the score changes */
-.score-number {
-  transition: transform 150ms ease-out;
+/* Time pulse warning under 10s */
+.time-pulse {
+  color: #ef4444 !important;
+  animation: time-blink 1s ease-in-out infinite;
+}
+
+@keyframes time-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

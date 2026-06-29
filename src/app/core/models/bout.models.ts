@@ -28,12 +28,15 @@ export interface BoutEventRequest {
 
 export interface ElapsedTimeRequest {
   elapsedSeconds: number;
+  timerPaused?: boolean;
+  currentPeriod?: number;
 }
 
 // ── Responses ─────────────────────────────────────────────────────────────────
 
 export interface AthleteSummary {
   id: number;
+  userId: number;
   firstName: string;
   lastName: string;
   club: string | null;
@@ -71,6 +74,7 @@ export interface BoutResponse {
   maxPeriods: number;
   touchesTarget: number;
   elapsedSeconds: number;
+  timerPaused: boolean;
   winnerId: number | null;
   eliminationRound: EliminationRound | null;
   bracketPosition: number | null;

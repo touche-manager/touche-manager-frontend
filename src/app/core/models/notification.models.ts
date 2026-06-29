@@ -36,4 +36,6 @@ export interface BoutLiveUpdate {
   period: number;
   piste: string | null;
   winnerName: string | null;
+  /** True when the referee's clock is actively counting down */
+  timerRunning: boolean;
 }

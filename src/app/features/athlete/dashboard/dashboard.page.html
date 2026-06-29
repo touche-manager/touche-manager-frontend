@@ -153,10 +153,35 @@
           </div>
         </a>
 
+        <!-- Mis Combates -->
+        <a
+          id="quick-access-bouts"
+          routerLink="/athlete/bouts"
+          class="card card-hover group hover:border-touche-celeste/40 p-5
+                 flex flex-col items-start gap-3 text-left
+                 focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-1"
+        >
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl
+                      border border-touche-celeste/20 bg-touche-celeste/10 text-touche-celeste
+                      transition-all duration-200
+                      group-hover:bg-touche-navy group-hover:text-white group-hover:border-touche-navy">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold leading-tight text-touche-navy">Mis Combates</p>
+            <p class="mt-1 text-[11px] text-slate-400 group-hover:text-touche-celeste/80 transition-colors">
+              Historial de mis asaltos y estadísticas
+            </p>
+          </div>
+        </a>
+
         <!-- Rankings -->
         <a
           id="quick-access-rankings"
-          routerLink="/athlete/rankings"
+          routerLink="/rankings"
           class="card card-hover group hover:border-touche-celeste/40 p-5
                  flex flex-col items-start gap-3 text-left
                  focus:outline-none focus:ring-2 focus:ring-touche-celeste focus:ring-offset-1"
@@ -182,7 +207,7 @@
         <!-- Rankings RSP -->
         <a
           id="quick-access-ranking-points"
-          routerLink="/athlete/rankings/points"
+          routerLink="/rankings/points"
           class="card card-hover group hover:border-touche-gold/40 p-5
                  flex flex-col items-start gap-3 text-left
                  focus:outline-none focus:ring-2 focus:ring-touche-gold focus:ring-offset-1"
@@ -200,6 +225,31 @@
             <p class="text-sm font-bold leading-tight text-touche-navy">Rankings RSP</p>
             <p class="mt-1 text-[11px] text-slate-400 group-hover:text-touche-celeste/80 transition-colors">
               Ranking por puntos acumulados
+            </p>
+          </div>
+        </a>
+        <!-- LIVE torneos -->
+        <a
+          id="quick-access-live"
+          routerLink="/live"
+          class="card card-hover group hover:border-red-400/40 p-5
+                 flex flex-col items-start gap-3 text-left
+                 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1"
+        >
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl
+                      border border-red-400/30 bg-red-50 text-red-500
+                      transition-all duration-200
+                      group-hover:bg-touche-navy group-hover:text-white group-hover:border-touche-navy">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"
+                d="M5.636 5.636a9 9 0 1012.728 12.728A9 9 0 005.636 5.636z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold leading-tight text-touche-navy">En Vivo</p>
+            <p class="mt-1 text-[11px] text-slate-400 group-hover:text-touche-celeste/80 transition-colors">
+              Torneos y asaltos en curso
             </p>
           </div>
         </a>

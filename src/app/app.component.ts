@@ -136,4 +136,8 @@ export class AppComponent {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
+
+  showLoginButton(): boolean {
+    return !this.isAuthenticated() && !this.router.url.startsWith('/auth');
+  }
 }

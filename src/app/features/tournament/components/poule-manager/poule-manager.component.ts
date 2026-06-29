@@ -19,7 +19,7 @@ import {
   BoutResponse
 } from '../../../../core/models/tournament.models';
 import { ELIMINATION_ROUND_LABELS } from '../../../../shared/utils/label.maps';
-import { PouleTableComponent } from '../../../../shared/components/poule-table/poule-table.component';
+import { PouleTableComponent, PouleTableRowData } from '../../../../shared/components/poule-table/poule-table.component';
 import { BracketRoundColumnComponent, BracketRoundData, BracketCardData } from '../../../../shared/components/bracket-round-column/bracket-round-column.component';
 import { ToucheTableComponent } from '../../../../shared/components/touche-table/touche-table.component';
 
@@ -478,7 +478,7 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
     }));
   }
 
-  getBoutCell(poule: PouleResponse, athleteId: number, opponentId: number): { text: string; class: string } {
+  getBoutCell(poule: PouleResponse, athleteId: number, opponentId: number): { text: string; class: string; boutId?: number } {
     const bout = poule.bouts.find(b =>
       (b.athleteLeft.id === athleteId && b.athleteRight?.id === opponentId) ||
       (b.athleteRight?.id === athleteId && b.athleteLeft.id === opponentId)
@@ -494,7 +494,8 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
       };
     }
     if (bout.status === 'IN_PROGRESS') {
-      return { text: '⏱️', class: 'text-amber-600 bg-amber-50/30 font-bold' };
+      // boutId triggers the EN VIVO link in PouleTableComponent
+      return { text: '', class: 'in-progress', boutId: bout.id };
     }
     return { text: '', class: '' };
   }
@@ -619,7 +620,7 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
     }));
   });
 
-  mapPouleToRows(poule: PouleResponse): any[] {
+  mapPouleToRows(poule: PouleResponse): PouleTableRowData[] {
     return poule.athletes.map((athlete, i) => {
       const cells = poule.athletes.map((opponent, j) => {
         if (i === j) {
@@ -631,8 +632,10 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
           cssClass = 'win';
         } else if (cell.text.startsWith('D')) {
           cssClass = 'loss';
+        } else if (cell.class === 'in-progress') {
+          cssClass = 'in-progress';
         }
-        return { text: cell.text, cssClass };
+        return { text: cell.text, cssClass, boutId: cell.boutId };
       });
 
       const stats = this.getPouleAthleteStats(poule, athlete.id);

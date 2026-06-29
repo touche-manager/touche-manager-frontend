@@ -92,7 +92,7 @@ export class PouleDetailRefereeComponent implements OnInit {
 
   goBack(): void {
     const poule = this.poule();
-    if (poule) this.router.navigate(['/bout', poule.tournamentId, 'poules']);
+    if (poule) this.router.navigate(['/bout', poule.tournamentId, 'bouts']);
     else this.router.navigate(['/bout']);
   }
 

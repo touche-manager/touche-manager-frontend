@@ -96,7 +96,7 @@ export class DashboardRefereeComponent implements OnInit, OnDestroy {
   }
 
   selectTournament(id: number): void {
-    this.router.navigate(['/bout', id, 'poules']);
+    this.router.navigate(['/bout', id, 'bouts']);
   }
 
   formatDate(dateStr: string): string {

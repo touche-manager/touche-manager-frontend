@@ -8,6 +8,7 @@ import { TournamentResultResponse, PodiumEntry } from '../../../core/models/tour
 import { LabelPipe } from '../../../shared/pipes/label.pipe';
 import { WEAPON_OPTIONS, CATEGORY_OPTIONS, GENDER_OPTIONS } from '../../../shared/utils/filter-options';
 import { Weapon, TournamentCategory, Gender } from '../../../shared/utils/label.maps';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -20,6 +21,11 @@ interface ApiResponse<T> { success: boolean; message: string; data: T; }
 })
 export class RankingsPageComponent {
   private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
+
+  getBackLink(): string {
+    return this.authService.isAuthenticated() ? '/athlete' : '/spectator';
+  }
 
   // ── Filter state ─────────────────────────────────────────────────
   filterCategory: TournamentCategory | '' = '';
