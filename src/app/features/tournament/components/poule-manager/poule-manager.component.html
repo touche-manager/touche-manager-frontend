@@ -263,7 +263,8 @@
         <app-bracket-round-column
           [rounds]="bracketRoundData()"
           [readOnly]="false"
-          (cardClick)="onBracketCardClick($event)">
+          (cardClick)="onBracketCardClick($event)"
+          (boutLiveClick)="navigateToLiveBout($event.id)">
         </app-bracket-round-column>
       }
     }

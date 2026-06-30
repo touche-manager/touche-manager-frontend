@@ -97,7 +97,10 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
       case 'REFEREE_CONFIRMATION':
       case 'REFEREE_ASSIGNMENT':
-        // Referee → their bout dashboard
+        // Referee → their bout dashboard (or tournament bout list if tournamentId is available)
+        if (n.tournamentId) {
+          return { commands: ['/bout', n.tournamentId, 'bouts'] };
+        }
         return { commands: ['/bout'] };
 
       case 'YOUR_TURN':

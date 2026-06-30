@@ -213,6 +213,10 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
     if (bout) this.openBoutManager(bout, roundData.label);
   }
 
+  navigateToLiveBout(boutId: number): void {
+    this.router.navigate(['/live/bout', boutId]);
+  }
+
 
   closeBoutManager(): void {
     this.selectedBout.set(null);
@@ -568,42 +572,109 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
     return idx !== -1 ? idx + 1 : null;
   }
 
+  private getBracketSeeds(tableauSize: number): Record<string, { leftSeed: number; rightSeed: number }[]> {
+    const result: Record<string, { leftSeed: number; rightSeed: number }[]> = {};
+    let list = [1];
+    while (list.length < tableauSize) {
+      const nextList: number[] = [];
+      const doubleLen = list.length * 2;
+      for (const x of list) {
+        nextList.push(x);
+        nextList.push(doubleLen + 1 - x);
+      }
+      list = nextList;
+    }
+
+    const roundKeys: EliminationRound[] = [
+      'ROUND_OF_64',
+      'ROUND_OF_32',
+      'ROUND_OF_16',
+      'QUARTERFINAL',
+      'SEMIFINAL',
+      'FINAL'
+    ];
+
+    const totalRounds = Math.log2(tableauSize);
+    const startIdx = 6 - totalRounds;
+
+    const firstRoundKey = roundKeys[startIdx];
+    const firstRoundBouts: { leftSeed: number; rightSeed: number }[] = [];
+    for (let p = 1; p <= tableauSize / 2; p++) {
+      firstRoundBouts.push({
+        leftSeed: list[2 * p - 2],
+        rightSeed: list[2 * p - 1]
+      });
+    }
+    result[firstRoundKey] = firstRoundBouts;
+
+    let prevRoundBouts = firstRoundBouts;
+    for (let idx = startIdx + 1; idx < 6; idx++) {
+      const roundKey = roundKeys[idx];
+      const roundBouts: { leftSeed: number; rightSeed: number }[] = [];
+      const numBouts = prevRoundBouts.length / 2;
+      for (let p = 1; p <= numBouts; p++) {
+        const leftMatch = prevRoundBouts[2 * p - 2];
+        const rightMatch = prevRoundBouts[2 * p - 1];
+        roundBouts.push({
+          leftSeed: Math.min(leftMatch.leftSeed, leftMatch.rightSeed),
+          rightSeed: Math.min(rightMatch.leftSeed, rightMatch.rightSeed)
+        });
+      }
+      result[roundKey] = roundBouts;
+      prevRoundBouts = roundBouts;
+    }
+
+    return result;
+  }
+
   /** Converts the current bracket signal into the shared BracketRoundData[] format. */
   readonly bracketRoundData = computed<BracketRoundData[]>(() => {
     const b = this.bracket();
     if (!b) return [];
-    const standings = this.standings();
+    const tableauSize = b.tableauSize ?? 16;
+    const seedsMap = this.getBracketSeeds(tableauSize);
 
-    const getSeed = (athleteId: number | null | undefined): number | null => {
-      if (athleteId == null || standings.length === 0) return null;
-      const idx = standings.findIndex(e => e.athleteId === athleteId);
-      return idx !== -1 ? idx + 1 : null;
-    };
+    const roundKeys: EliminationRound[] = [
+      'ROUND_OF_64',
+      'ROUND_OF_32',
+      'ROUND_OF_16',
+      'QUARTERFINAL',
+      'SEMIFINAL',
+      'FINAL'
+    ];
+    const totalRounds = Math.log2(tableauSize);
+    const startIdx = 6 - totalRounds;
+    const activeRounds = roundKeys.slice(startIdx);
 
-    const keys = (Object.keys(b.roundBouts) as EliminationRound[]).sort((a, c) =>
-      PouleManagerComponent.ROUND_ORDER.indexOf(a) - PouleManagerComponent.ROUND_ORDER.indexOf(c)
-    );
+    return activeRounds.map(round => {
+      const isFirstRound = round === activeRounds[0];
+      const roundSeeds = seedsMap[round] || [];
+      const relativeRoundIndex = activeRounds.indexOf(round);
+      const numBouts = (tableauSize / 2) / Math.pow(2, relativeRoundIndex);
 
-    return keys.map(round => ({
-      roundKey: round,
-      label: ELIMINATION_ROUND_LABELS[round] ?? round,
-      bouts: (b.roundBouts[round] || [])
-        .sort((a, c) => (a.bracketPosition ?? 0) - (c.bracketPosition ?? 0))
-        .map((bout): BracketCardData => {
+      const existingBouts = b.roundBouts[round] || [];
+      const bouts: BracketCardData[] = [];
+
+      for (let p = 1; p <= numBouts; p++) {
+        const bout = existingBouts.find(x => x.bracketPosition === p);
+        const theoreticalSeeds = roundSeeds[p - 1] || { leftSeed: null, rightSeed: null };
+
+        if (bout) {
           const winnerSide: 'left' | 'right' | null = bout.winnerId
             ? (bout.winnerId === bout.athleteLeft?.id ? 'left' : 'right')
             : null;
-          return {
+
+          bouts.push({
             id: bout.id,
-            bracketPosition: bout.bracketPosition ?? 0,
+            bracketPosition: p,
             leftName: bout.athleteLeft
               ? `${bout.athleteLeft.firstName} ${bout.athleteLeft.lastName}`
-              : '?',
-            leftSeed: getSeed(bout.athleteLeft?.id),
+              : 'A confirmar',
+            leftSeed: theoreticalSeeds.leftSeed,
             rightName: bout.athleteRight
               ? `${bout.athleteRight.firstName} ${bout.athleteRight.lastName}`
-              : null,
-            rightSeed: getSeed(bout.athleteRight?.id),
+              : (isFirstRound ? null : 'A confirmar'),
+            rightSeed: theoreticalSeeds.rightSeed,
             scoreLeft: bout.scoreLeft ?? null,
             scoreRight: bout.scoreRight ?? null,
             winnerId: bout.winnerId ?? null,
@@ -615,9 +686,34 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
               ? bout.referees[0].fullName
               : null,
             status: bout.status
-          };
-        })
-    }));
+          });
+        } else {
+          bouts.push({
+            id: -(relativeRoundIndex * 100 + p),
+            bracketPosition: p,
+            leftName: 'A confirmar',
+            leftSeed: theoreticalSeeds.leftSeed,
+            rightName: isFirstRound ? null : 'A confirmar',
+            rightSeed: theoreticalSeeds.rightSeed,
+            scoreLeft: null,
+            scoreRight: null,
+            winnerId: null,
+            leftId: null,
+            rightId: null,
+            winnerSide: null,
+            piste: null,
+            refereeLabel: null,
+            status: 'PENDING'
+          });
+        }
+      }
+
+      return {
+        roundKey: round,
+        label: ELIMINATION_ROUND_LABELS[round] ?? round,
+        bouts
+      };
+    });
   });
 
   mapPouleToRows(poule: PouleResponse): PouleTableRowData[] {

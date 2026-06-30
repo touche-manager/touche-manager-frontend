@@ -55,22 +55,22 @@ export class BracketRoundColumnComponent {
     const base = 'bg-white border rounded-xl overflow-hidden transition-all select-none relative';
     const isLive = card.status === 'IN_PROGRESS';
     // In readOnly mode, live bouts are still clickable; others are not.
-    const cursor = (!this.readOnly || isLive)
-      ? 'cursor-pointer hover:shadow-md hover:border-touche-celeste'
+    // Placeholder cards (with negative ID) are not clickable.
+    const isClickable = card.id > 0 && (!this.readOnly || isLive);
+    const cursor = isClickable
+      ? 'cursor-pointer hover:shadow-md hover:border-touche-celeste/60'
       : 'cursor-default';
-    const border = card.status === 'FINISHED'
-      ? 'border-emerald-200'
-      : isLive
-        ? 'border-amber-300'
-        : 'border-slate-150';
+    const border = isLive
+      ? 'border-touche-celeste/60 ring-1 ring-touche-celeste/30 shadow-sm'
+      : 'border-slate-200/80';
     return `${base} ${cursor} ${border}`;
   }
 
   onCardClick(card: BracketCardData): void {
+    if (card.id <= 0) return;
     if (card.status === 'IN_PROGRESS') {
       this.boutLiveClick.emit(card);
-    }
-    if (!this.readOnly) {
+    } else if (!this.readOnly) {
       this.cardClick.emit(card);
     }
   }

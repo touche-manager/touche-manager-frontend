@@ -21,19 +21,28 @@
             <!-- Left athlete row -->
             <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
                  [class.opacity-60]="card.status === 'FINISHED' && card.winnerSide !== 'left'">
-              <span class="truncate flex-grow text-touche-navy min-w-0"
+              <span class="truncate flex-grow text-touche-navy min-w-0 flex items-center"
                     [class.font-bold]="card.status === 'FINISHED' && card.winnerSide === 'left'">
                 @if (card.leftSeed) {
-                  <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ card.leftSeed }})</span>
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-black mr-2 flex-shrink-0"
+                        [class]="card.status === 'FINISHED' && card.winnerSide === 'left'
+                          ? 'bg-touche-celeste/20 text-touche-celeste'
+                          : 'bg-slate-100 text-slate-500'">
+                    {{ card.leftSeed }}
+                  </span>
                 }
-                {{ card.leftName }}
+                <span [class.italic]="card.leftName === 'A confirmar'"
+                      [class.text-slate-400]="card.leftName === 'A confirmar'"
+                      [class.font-normal]="card.leftName === 'A confirmar'">
+                  {{ card.leftName }}
+                </span>
               </span>
               @if (card.status === 'FINISHED' && card.scoreLeft !== null) {
                 <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
-                      [class.bg-emerald-600]="card.winnerSide === 'left'"
+                      [class.bg-touche-navy]="card.winnerSide === 'left'"
                       [class.text-white]="card.winnerSide === 'left'"
                       [class.bg-slate-100]="card.winnerSide !== 'left'"
-                      [class.text-slate-500]="card.winnerSide !== 'left'">
+                      [class.text-slate-400]="card.winnerSide !== 'left'">
                   {{ card.scoreLeft }}
                 </span>
               }
@@ -44,58 +53,73 @@
             <!-- Right athlete row (or BYE) -->
             <div class="flex items-center justify-between px-3 py-2 text-sm font-semibold min-w-0"
                  [class.opacity-60]="card.status === 'FINISHED' && card.winnerSide !== 'right'">
-              <span class="truncate flex-grow text-touche-navy min-w-0"
+              <span class="truncate flex-grow text-touche-navy min-w-0 flex items-center"
                     [class.font-bold]="card.status === 'FINISHED' && card.winnerSide === 'right'">
                 @if (card.rightName) {
                   @if (card.rightSeed) {
-                    <span class="text-xs text-slate-400 font-bold mr-1 flex-shrink-0">({{ card.rightSeed }})</span>
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-black mr-2 flex-shrink-0"
+                          [class]="card.status === 'FINISHED' && card.winnerSide === 'right'
+                            ? 'bg-touche-celeste/20 text-touche-celeste'
+                            : 'bg-slate-100 text-slate-500'">
+                      {{ card.rightSeed }}
+                    </span>
                   }
-                  {{ card.rightName }}
+                  <span [class.italic]="card.rightName === 'A confirmar'"
+                        [class.text-slate-400]="card.rightName === 'A confirmar'"
+                        [class.font-normal]="card.rightName === 'A confirmar'">
+                    {{ card.rightName }}
+                  </span>
                 } @else {
+                  @if (card.rightSeed) {
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-slate-400 text-[9px] font-black mr-2 flex-shrink-0">
+                      {{ card.rightSeed }}
+                    </span>
+                  }
                   <span class="text-slate-400 italic font-normal">BYE</span>
                 }
               </span>
               @if (card.status === 'FINISHED' && card.rightName && card.scoreRight !== null) {
                 <span class="text-xs font-black px-1.5 py-0.5 rounded ml-2 flex-shrink-0"
-                      [class.bg-emerald-600]="card.winnerSide === 'right'"
+                      [class.bg-touche-navy]="card.winnerSide === 'right'"
                       [class.text-white]="card.winnerSide === 'right'"
                       [class.bg-slate-100]="card.winnerSide !== 'right'"
-                      [class.text-slate-500]="card.winnerSide !== 'right'">
+                      [class.text-slate-400]="card.winnerSide !== 'right'">
                   {{ card.scoreRight }}
                 </span>
               }
             </div>
 
-            <!-- Footer: piste / referee pill (only when there is a right athlete) -->
-            @if (card.rightName) {
-              <div class="bg-slate-50/50 px-3 py-1 flex items-center justify-between
-                          text-[10px] text-slate-400 border-t border-slate-100 font-semibold">
-                <div class="flex items-center gap-1.5 truncate">
-                  @if (card.piste) {
-                    <span class="text-touche-navy bg-touche-celeste/15 px-1.5 py-0.5 rounded font-bold">
-                      📍 {{ card.piste }}
-                    </span>
-                  }
-                  @if (card.refereeLabel) {
-                    <span class="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded truncate">
-                      👤 {{ card.refereeLabel }}
-                    </span>
-                  }
-                </div>
-                <!-- Status hint — hidden in read-only mode since all bouts are finished -->
-                @if (!readOnly) {
-                  <div>
-                    @if (card.status === 'FINISHED') {
-                      <span class="text-emerald-600">Finalizado</span>
-                    } @else if (card.status === 'IN_PROGRESS') {
-                      <span class="text-amber-600 animate-pulse">En curso</span>
-                    } @else {
-                      <span class="text-slate-400">Gestionar</span>
-                    }
-                  </div>
+            <!-- Footer: piste / referee pill -->
+            <div class="bg-slate-50/50 px-3 py-1 flex items-center justify-between
+                        text-[10px] text-slate-400 border-t border-slate-100 font-semibold">
+              <div class="flex items-center gap-1.5 truncate">
+                @if (card.piste) {
+                  <span class="text-touche-navy bg-touche-celeste/15 px-1.5 py-0.5 rounded font-bold">
+                    📍 {{ card.piste }}
+                  </span>
+                }
+                @if (card.refereeLabel) {
+                  <span class="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded truncate">
+                    👤 {{ card.refereeLabel }}
+                  </span>
                 }
               </div>
-            }
+              <!-- Status hint -->
+              <div class="flex items-center">
+                @if (card.status === 'IN_PROGRESS') {
+                  <span class="relative flex h-2 w-2" title="En vivo / En curso">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                } @else if (!readOnly) {
+                  @if (card.status === 'FINISHED') {
+                    <span class="text-slate-400">Finalizado</span>
+                  } @else if (card.id > 0) {
+                    <span class="text-touche-celeste hover:underline">Gestionar</span>
+                  }
+                }
+              </div>
+            </div>
 
           </div>
         }

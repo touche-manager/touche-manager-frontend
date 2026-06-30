@@ -364,9 +364,13 @@
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   PRINT STYLES — @media print
-════════════════════════════════════════════════════════════════════════ */
+/* ── Mobile Responsive Scale-down ───────────────────────────────────── */
+@media (max-width: 767px) {
+  .detail-page {
+    zoom: 0.42;
+    padding: 1rem 0.5rem 3rem;
+  }
+}
 
 @media print {
   @page {

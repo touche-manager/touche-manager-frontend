@@ -61,7 +61,40 @@ export class BoutListComponent implements OnInit {
       next: (res) => {
         this.poules.set(res.poules);
         // Bouts with pouleId == null are elimination matches
-        this.eliminationBouts.set(res.bouts.filter(b => b.pouleId == null));
+        const sortedEliminations = res.bouts
+          .filter(b => b.pouleId == null)
+          .sort((a, b) => {
+            // 1. Status: IN_PROGRESS first, PENDING second, FINISHED third
+            const statusWeight = {
+              'IN_PROGRESS': 0,
+              'PENDING': 1,
+              'FINISHED': 2
+            };
+            const weightA = statusWeight[a.status] ?? 3;
+            const weightB = statusWeight[b.status] ?? 3;
+            if (weightA !== weightB) {
+              return weightA - weightB;
+            }
+
+            // 2. Round: furthest from final first (ROUND_OF_64 -> FINAL)
+            const roundOrder = [
+              'ROUND_OF_64',
+              'ROUND_OF_32',
+              'ROUND_OF_16',
+              'QUARTERFINAL',
+              'SEMIFINAL',
+              'FINAL'
+            ];
+            const roundA = a.eliminationRound ? roundOrder.indexOf(a.eliminationRound) : 99;
+            const roundB = b.eliminationRound ? roundOrder.indexOf(b.eliminationRound) : 99;
+            if (roundA !== roundB) {
+              return roundA - roundB;
+            }
+
+            // 3. Bracket position
+            return (a.bracketPosition ?? 0) - (b.bracketPosition ?? 0);
+          });
+        this.eliminationBouts.set(sortedEliminations);
         this.loading.set(false);
       },
       error: (err) => {
