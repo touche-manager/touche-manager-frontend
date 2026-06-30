@@ -82,7 +82,8 @@
             },
             "local": {
               "buildTarget": "touche-manager-frontend:build:local",
-              "proxyConfig": "proxy.conf.js"
+              "proxyConfig": "proxy.conf.js",
+              "ssl": true
             }
           },
           "defaultConfiguration": "development"
