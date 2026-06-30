@@ -51,4 +51,13 @@ export class TournamentService {
       map(res => res.data)
     );
   }
+
+  /**
+   * Fallback: confirms a payment using the payment_id returned in Mercado Pago's back_url redirect.
+   * Called when the webhook (ngrok) is not reachable and the payment needs to be confirmed manually.
+   */
+  confirmPaymentFromRedirect(paymentId: string): Observable<void> {
+    const paymentsUrl = `${environment.apiUrl}/payments/webhook/confirm-from-redirect`;
+    return this.http.post<void>(paymentsUrl, null, { params: { payment_id: paymentId } });
+  }
 }

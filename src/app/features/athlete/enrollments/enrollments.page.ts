@@ -45,11 +45,28 @@ export class EnrollmentsPageComponent implements OnInit {
   }
 
   checkPaymentStatus(): void {
-    const paymentStatus = this.route.snapshot.queryParams['paymentStatus'];
+    const params = this.route.snapshot.queryParams;
+    const paymentStatus = params['paymentStatus'];
     if (paymentStatus) {
       if (paymentStatus === 'success') {
         this.successMessage.set('¡Inscripción confirmada! Tu pago ha sido procesado con éxito.');
         setTimeout(() => this.successMessage.set(null), 8000);
+
+        // Fallback: if the webhook didn't reach the backend (e.g. ngrok not running),
+        // confirm the payment using the payment_id returned by Mercado Pago in the redirect URL.
+        const paymentId = params['payment_id'] ?? params['collection_id'];
+        if (paymentId) {
+          this.tournamentService.confirmPaymentFromRedirect(paymentId).subscribe({
+            next: () => {
+              // Reload after a short delay to allow the DB update to propagate
+              setTimeout(() => this.loadData(), 1000);
+            },
+            error: (err) => {
+              // Non-fatal: webhook may have already handled it
+              console.warn('Redirect payment confirmation returned error (may already be handled by webhook):', err);
+            }
+          });
+        }
       } else if (paymentStatus === 'failure') {
         this.errorMessage.set('El pago no pudo procesarse. Por favor, intenta de nuevo.');
         setTimeout(() => this.errorMessage.set(null), 8000);
