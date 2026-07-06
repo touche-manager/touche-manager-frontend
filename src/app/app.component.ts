@@ -7,6 +7,7 @@ import { environment } from '../environments/environment';
 import { NotificationBellComponent } from './shared/components/notification-bell/notification-bell.component';
 import { AlertService } from './shared/services/alert.service';
 import { AlertModalComponent } from './shared/components/alert-modal/alert-modal.component';
+import { FcmService } from './core/services/fcm.service';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly alertService = inject(AlertService);
+  private readonly fcmService = inject(FcmService);
 
   title = 'touche-manager-frontend';
 
@@ -37,6 +39,10 @@ export class AppComponent {
       if (this.isAuthenticated() && !this.profile()) {
         untracked(() => {
           this.authService.fetchProfile().subscribe({
+            next: () => {
+              // Set up push notifications after login (non-blocking)
+              this.fcmService.requestPermissionAndRegister();
+            },
             error: () => this.logout()
           });
         });
@@ -133,6 +139,7 @@ export class AppComponent {
 
   logout(): void {
     this.showProfileModal.set(false);
+    this.fcmService.unregister();
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
