@@ -1,4 +1,4 @@
-﻿import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -56,7 +56,6 @@ export class LoginComponent {
       case 'ATHLETE':   this.router.navigate(['/athlete'], { replaceUrl: true }); break;
       case 'REFEREE':   this.router.navigate(['/bout'], { replaceUrl: true }); break;
       case 'ORGANIZER': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
-      case 'ADMIN':     this.router.navigate(['/admin'], { replaceUrl: true }); break;
       default:            this.router.navigate(['/auth/login'], { replaceUrl: true });
     }
   }

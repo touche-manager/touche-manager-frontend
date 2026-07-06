@@ -72,8 +72,7 @@ export class AppComponent {
     const labels: Record<RoleName, string> = {
       ATHLETE:  'Atleta',
       REFEREE:  'Árbitro',
-      ORGANIZER: 'Organizador',
-      ADMIN:    'Administrador'
+      ORGANIZER: 'Organizador'
     };
     return role ? (labels[role] ?? role) : '';
   }

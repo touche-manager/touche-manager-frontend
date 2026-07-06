@@ -1,4 +1,4 @@
-export type RoleName = 'ATHLETE' | 'REFEREE' | 'ORGANIZER' | 'ADMIN';
+export type RoleName = 'ATHLETE' | 'REFEREE' | 'ORGANIZER';
 
 // Registration
 export interface RegisterRequest {

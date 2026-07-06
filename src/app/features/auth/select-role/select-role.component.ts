@@ -1,4 +1,4 @@
-﻿import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { RoleName } from '../../../core/models/auth.models';
@@ -6,15 +6,13 @@ import { RoleName } from '../../../core/models/auth.models';
 const ROLE_LABELS: Record<RoleName, string> = {
   ATHLETE:  'Atleta',
   REFEREE:  'Árbitro',
-  ORGANIZER:'Organizador',
-  ADMIN:    'Administrador'
+  ORGANIZER:'Organizador'
 };
 
 const ROLE_DESCRIPTIONS: Record<RoleName, string> = {
   ATHLETE:  'Gestiona tu perfil y documentos',
   REFEREE:  'Puntuá asaltos en tiempo real',
-  ORGANIZER:'Crea y gestiona torneos',
-  ADMIN:    'Administración total del sistema'
+  ORGANIZER:'Crea y gestiona torneos'
 };
 
 @Component({
@@ -66,7 +64,6 @@ export class SelectRoleComponent {
       case 'ATHLETE':   this.router.navigate(['/athlete'], { replaceUrl: true }); break;
       case 'REFEREE':   this.router.navigate(['/bout'], { replaceUrl: true }); break;
       case 'ORGANIZER': this.router.navigate(['/tournament'], { replaceUrl: true }); break;
-      case 'ADMIN':     this.router.navigate(['/admin'], { replaceUrl: true }); break;
     }
   }
 }

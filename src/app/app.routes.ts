@@ -11,22 +11,17 @@ export const routes: Routes = [
   {
     path: 'athlete',
     loadChildren: () => import('./features/athlete/athlete.routes').then(m => m.athleteRoutes),
-    canActivate: [authGuard, roleGuard(['ATHLETE', 'ADMIN'])]
+    canActivate: [authGuard, roleGuard(['ATHLETE'])]
   },
   {
     path: 'tournament',
     loadChildren: () => import('./features/tournament/tournament.routes').then(m => m.tournamentRoutes),
-    canActivate: [authGuard, roleGuard(['ORGANIZER', 'ADMIN'])]
+    canActivate: [authGuard, roleGuard(['ORGANIZER'])]
   },
   {
     path: 'bout',
     loadChildren: () => import('./features/bout/bout.routes').then(m => m.boutRoutes),
-    canActivate: [authGuard, roleGuard(['REFEREE', 'ADMIN'])]
-  },
-  {
-    path: 'admin',
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes),
-    canActivate: [authGuard, roleGuard(['ADMIN'])]
+    canActivate: [authGuard, roleGuard(['REFEREE'])]
   },
 
   // ── Public routes — no auth required ────────────────────────────────────────

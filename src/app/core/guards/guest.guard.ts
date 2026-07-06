@@ -23,7 +23,6 @@ function getDefaultRouteForRole(role: RoleName): string {
     case 'ATHLETE':   return '/athlete';
     case 'ORGANIZER': return '/tournament';
     case 'REFEREE':   return '/bout';
-    case 'ADMIN':     return '/tournament';
     default:          return '/auth/login';
   }
 }
