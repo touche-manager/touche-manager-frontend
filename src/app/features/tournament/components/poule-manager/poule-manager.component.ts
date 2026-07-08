@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { PouleService } from '../../services/poule.service';
 import { OrganizerTournamentService } from '../../services/organizer-tournament.service';
 import { RefereeApplicationService } from '../../services/referee-application.service';
@@ -66,8 +66,12 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
   readonly pisteInput = signal<Record<number, string>>({});
   readonly expandedPoules = signal<Record<number, boolean>>({});
   readonly summoningBoutId = signal<number | null>(null);
+  readonly poulePisteInput = signal<Record<number, string>>({});
+  readonly savingBout = signal<boolean>(false);
 
   readonly selectedBout = signal<BoutResponse | null>(null);
+  readonly workingPiste = signal<string>('');
+  readonly workingReferees = signal<any[]>([]); // Current referees in the modal (draft)
   readonly selectedBoutRoundLabel = signal<string>('');
   readonly isBoutManagerOpen = signal<boolean>(false);
 
@@ -99,8 +103,9 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
       } else if (tab === 'standings') {
         this.silentReloadStandings();
       } else if (tab === 'bracket') {
-        const selectedId = this.selectedBout()?.id;
-        this.silentReloadBracket(selectedId);
+        // If the modal is open, we only update the bracket data in the background,
+        // but we DON'T update selectedBout to avoid flickering or losing unsaved changes.
+        this.silentReloadBracket();
       }
     });
   }
@@ -175,20 +180,9 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
   }
 
   /** Refreshes bracket without showing the loading spinner (used by SSE) */
-  private silentReloadBracket(selectedBoutIdToUpdate?: number): void {
+  private silentReloadBracket(): void {
     this.pouleService.getBracket(this.tournamentId).subscribe({
-      next: (data) => {
-        this.bracket.set(data);
-        if (selectedBoutIdToUpdate) {
-          let found: BoutResponse | null = null;
-          for (const round of Object.keys(data.roundBouts)) {
-            const list = data.roundBouts[round as keyof typeof data.roundBouts] || [];
-            const match = list.find((b: BoutResponse) => b.id === selectedBoutIdToUpdate);
-            if (match) { found = match; break; }
-          }
-          if (found) this.selectedBout.set(found);
-        }
-      },
+      next: (data) => this.bracket.set(data),
       error: () => {}
     });
   }
@@ -196,8 +190,12 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
   openBoutManager(bout: BoutResponse, roundLabel: string): void {
     this.selectedBout.set(bout);
     this.selectedBoutRoundLabel.set(roundLabel);
-    this.setPisteInput(bout.id, bout.piste ?? '');
+
+    // Initialize working (draft) state
+    this.workingPiste.set(bout.piste ?? '');
+    this.workingReferees.set(bout.referees ? [...bout.referees] : []);
     this.setElimRefereeId(bout.id, '');
+
     this.isBoutManagerOpen.set(true);
   }
 
@@ -219,10 +217,96 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
 
 
   closeBoutManager(): void {
+    if (this.savingBout()) return;
     this.selectedBout.set(null);
     this.selectedBoutRoundLabel.set('');
     this.isBoutManagerOpen.set(false);
   }
+
+  // --- Draft actions inside the modal ---
+
+  addRefereeToDraft(): void {
+    const bout = this.selectedBout();
+    if (!bout) return;
+
+    const idStr = this.getElimRefereeId(bout.id);
+    const userId = parseInt(idStr, 10);
+    if (!userId) return;
+
+    // Check if already added
+    if (this.workingReferees().some(r => r.userId === userId)) {
+      this.setElimRefereeId(bout.id, '');
+      return;
+    }
+
+    const refInfo = this.acceptedReferees().find(r => r.refereeId === userId);
+    if (refInfo) {
+      this.workingReferees.update(refs => [...refs, {
+        userId: refInfo.refereeId,
+        fullName: refInfo.refereeName,
+        email: refInfo.refereeEmail
+      }]);
+      this.setElimRefereeId(bout.id, '');
+    }
+  }
+
+  removeRefereeFromDraft(userId: number): void {
+    this.workingReferees.update(refs => refs.filter(r => r.userId !== userId));
+  }
+
+  async saveBoutChanges(): Promise<void> {
+    const original = this.selectedBout();
+    if (!original) return;
+
+    this.savingBout.set(true);
+    const boutId = original.id;
+
+    try {
+      // 1. Update Piste if changed
+      const newPiste = this.workingPiste().trim();
+      if (newPiste !== (original.piste ?? '')) {
+        await this.boutService.updatePiste(boutId, newPiste).toPromise();
+      }
+
+      // 2. Manage Referees diff
+      const originalIds = (original.referees ?? []).map(r => r.userId);
+      const workingIds = this.workingReferees().map(r => r.userId);
+
+      const toAdd = workingIds.filter(id => !originalIds.includes(id));
+      const toRemove = originalIds.filter(id => !workingIds.includes(id));
+
+      // Execute assignments
+      for (const userId of toAdd) {
+        await this.boutService.assignRefereeToEliminationBout(boutId, userId).toPromise();
+      }
+
+      // Execute removals
+      for (const userId of toRemove) {
+        await this.boutService.removeRefereeFromEliminationBout(boutId, userId).toPromise();
+      }
+
+      this.showSuccess('Cambios guardados correctamente.');
+      this.loadBracket(); // Final refresh
+      this.closeBoutManager();
+    } catch (error) {
+      this.error.set('Ocurrió un error al guardar algunos cambios.');
+    } finally {
+      this.savingBout.set(false);
+    }
+  }
+
+  hasUnsavedChanges = computed(() => {
+    const original = this.selectedBout();
+    if (!original) return false;
+
+    const pisteChanged = this.workingPiste().trim() !== (original.piste ?? '');
+
+    const originalIds = (original.referees ?? []).map(r => r.userId).sort().join(',');
+    const workingIds = this.workingReferees().map(r => r.userId).sort().join(',');
+    const refsChanged = originalIds !== workingIds;
+
+    return pisteChanged || refsChanged;
+  });
 
   setTab(tab: ActiveTab): void {
     this.activeTab.set(tab);
@@ -270,6 +354,44 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
     this.pouleService.removeRefereeFromPoule(pouleId, refereeUserId).subscribe({
       next: (updated) => this.poules.update(ps => ps.map(p => p.id === pouleId ? updated : p)),
       error: () => this.error.set('No se pudo remover el árbitro.')
+    });
+  }
+
+  getPoulePiste(poule: PouleResponse): string {
+    const boutWithPiste = poule.bouts.find(b => b.piste);
+    return boutWithPiste?.piste || 'A confirmar';
+  }
+
+  getPoulePisteInput(pouleId: number): string {
+    return this.poulePisteInput()[pouleId] ?? '';
+  }
+
+  setPoulePisteInput(pouleId: number, val: string): void {
+    this.poulePisteInput.update(m => ({ ...m, [pouleId]: val }));
+  }
+
+  assignPisteToPoule(pouleId: number): void {
+    const piste = this.getPoulePisteInput(pouleId).trim();
+    if (!piste) return;
+
+    const poule = this.poules().find(p => p.id === pouleId);
+    if (!poule) return;
+
+    // Filter to only update if status is PENDING or IN_PROGRESS (optional, user said "todos")
+    const obs = poule.bouts.map(b => this.boutService.updatePiste(b.id, piste));
+
+    if (obs.length === 0) {
+      this.showSuccess('Poule sin asaltos para asignar pista.');
+      return;
+    }
+
+    forkJoin(obs).subscribe({
+      next: () => {
+        this.setPoulePisteInput(pouleId, '');
+        this.silentReloadPoules();
+        this.showSuccess(`Pista "${piste}" asignada a todos los asaltos de la poule.`);
+      },
+      error: () => this.error.set('Error al asignar la pista a algunos asaltos.')
     });
   }
 
@@ -524,7 +646,7 @@ export class PouleManagerComponent implements OnInit, OnDestroy {
 
     const isFinished = poule.status === 'FINISHED';
     const indicatorStr = isFinished ? (touchesScored - touchesReceived).toString() : '—';
-    
+
     let classificationStr = '—';
     if (isFinished) {
       const list = poule.athletes.map(ath => {
