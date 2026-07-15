@@ -163,6 +163,24 @@
             }
           </div>
 
+          <!-- Accept Terms -->
+          <div>
+            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+              <input type="checkbox" formControlName="acceptTerms"
+                     class="mt-0.5 w-4 h-4 rounded accent-touche-celeste" />
+              <span class="text-sm text-slate-600">
+                Acepto los
+                <a routerLink="/terms" target="_blank" rel="noopener noreferrer"
+                   class="font-semibold text-touche-celeste hover:underline underline-offset-2">
+                  Términos y Condiciones
+                </a>
+              </span>
+            </label>
+            @if (form.get('acceptTerms')?.invalid && form.get('acceptTerms')?.touched) {
+              <p class="mt-1.5 text-xs text-red-500">Debés aceptar los términos y condiciones.</p>
+            }
+          </div>
+
           <!-- Backend error -->
           @if (errorMessage()) {
             <div class="alert-danger py-3 text-sm">
@@ -174,7 +192,7 @@
           }
 
           <!-- Submit -->
-          <button type="submit" [disabled]="loading()" class="btn-gold w-full py-3">
+          <button type="submit" [disabled]="loading() || form.get('acceptTerms')?.invalid" class="btn-gold w-full py-3">
             @if (loading()) {
               <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

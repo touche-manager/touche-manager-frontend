@@ -83,5 +83,18 @@ export const routes: Routes = [
     redirectTo: 'live/bout/:boutId',
     pathMatch: 'full'
   },
+
+  // ── Legal pages — public ───────────────────────────────────────────────
+  {
+    path: 'terms',
+    loadComponent: () =>
+      import('./features/legal/terms/terms.component').then(m => m.TermsComponent)
+  },
+  {
+    path: 'faq',
+    loadComponent: () =>
+      import('./features/legal/faq/faq.component').then(m => m.FaqComponent)
+  },
+
   { path: '**', redirectTo: 'auth' }
 ];

@@ -41,7 +41,8 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
-      roles: this.fb.array(this.availableRoles.map(() => this.fb.control(false)))
+      roles: this.fb.array(this.availableRoles.map(() => this.fb.control(false))),
+      acceptTerms: [false, Validators.requiredTrue]
     },
     { validators: passwordsMatchValidator }
   );

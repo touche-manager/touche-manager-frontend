@@ -120,6 +120,17 @@
     <router-outlet />
   </div>
 
+  <!-- ═══ Footer ═══════════════════════════════════════════════════════ -->
+  <footer class="flex-shrink-0 border-t border-slate-100 py-4 px-4 text-center">
+    <div class="flex items-center justify-center gap-4 text-xs text-touche-celeste/60">
+      <a routerLink="/terms" target="_blank" rel="noopener noreferrer"
+         class="hover:text-touche-celeste transition-colors">Términos y Condiciones</a>
+      <span class="text-slate-200">|</span>
+      <a routerLink="/faq" target="_blank" rel="noopener noreferrer"
+         class="hover:text-touche-celeste transition-colors">Preguntas Frecuentes</a>
+    </div>
+  </footer>
+
   <!-- ═══ Mobile Bottom Navigation ════════════════════════════════════ -->
   @if (isAuthenticated()) {
     <nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden
