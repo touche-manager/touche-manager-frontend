@@ -33,6 +33,7 @@ export class AppComponent {
   readonly showProfileModal = signal(false);
   readonly isUploading = signal(false);
   readonly isDeleting = signal(false);
+  readonly showLegalLinks = signal(false);
 
   constructor() {
     effect(() => {

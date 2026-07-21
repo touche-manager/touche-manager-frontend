@@ -1,19 +1,19 @@
-<div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
+<div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden -mb-8">
 
   <!-- ═══ Left decorative panel (desktop only) ════════════════════════ -->
-  <div class="hidden md:flex md:w-5/12 auth-panel-bg flex-col items-center justify-center
-              p-10 relative overflow-hidden flex-shrink-0">
+  <div class="hidden md:flex md:w-4/12 auth-panel-bg flex-col items-center justify-center
+              p-8 relative overflow-hidden flex-shrink-0">
     <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-touche-gold/60 to-transparent"></div>
     <div class="absolute -bottom-20 -left-20 h-64 w-64 rounded-full border border-touche-celeste/10"></div>
     <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full border border-touche-gold/10"></div>
 
-    <div class="relative flex flex-col items-center text-center gap-6 z-10">
+    <div class="relative flex flex-col items-center text-center gap-5 z-10">
       <img src="/logo.png" alt="Touché Manager"
            class="h-20 w-20 rounded-full border-2 border-touche-gold/60 object-cover shadow-2xl" />
       <div>
-        <h2 class="font-display text-4xl font-bold text-white leading-tight">Touché Manager</h2>
-        <div class="mt-2 w-12 h-0.5 bg-touche-gold mx-auto rounded-full"></div>
-        <p class="mt-4 text-sm text-white/70 leading-relaxed max-w-xs">
+        <h2 class="font-display text-3xl font-bold text-white leading-tight">Touché Manager</h2>
+        <div class="mt-2 w-10 h-0.5 bg-touche-gold mx-auto rounded-full"></div>
+        <p class="mt-3 text-sm text-white/70 leading-relaxed max-w-xs">
           Creá tu cuenta y empezá a gestionar tu actividad deportiva en la plataforma oficial de esgrima.
         </p>
       </div>
@@ -21,21 +21,23 @@
   </div>
 
   <!-- ═══ Right form panel ═════════════════════════════════════════════ -->
-  <div class="flex-1 flex items-center justify-center
+  <div class="flex-1 flex flex-col items-center justify-center
               bg-white
-              px-5 py-10 md:px-14 md:py-12 overflow-y-auto">
+              px-5 py-6 md:px-8 md:py-8 overflow-y-auto">
 
-    <div class="w-full max-w-sm animate-fade-up">
+    <div class="w-full max-w-md animate-fade-up flex flex-col">
 
       <!-- Heading -->
-      <div class="mb-8">
-        <h1 class="font-display text-4xl font-bold text-touche-navy leading-tight">Crear cuenta</h1>
-        <p class="mt-2 text-sm text-slate-500">Completá tus datos para registrarte</p>
+      <div class="mb-4 flex items-baseline justify-between">
+        <div>
+          <h1 class="font-display text-3xl font-bold text-touche-navy leading-tight">Crear cuenta</h1>
+          <p class="mt-0.5 text-sm text-slate-500">Completá tus datos para registrarte</p>
+        </div>
       </div>
 
       <!-- Card -->
-      <div class="bg-white rounded-2xl shadow-auth border border-slate-200 p-7">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="space-y-4">
+      <div class="bg-white rounded-2xl shadow-auth border border-slate-200 p-5">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="space-y-3">
 
           <!-- Email -->
           <div>
@@ -55,120 +57,121 @@
               />
             </div>
             @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <p class="mt-1.5 text-xs text-red-500">
+              <p class="mt-1 text-xs text-red-500">
                 @if (form.get('email')?.hasError('required')) { El correo es obligatorio. }
                 @else { Ingresá un correo válido. }
               </p>
             }
           </div>
 
-          <!-- Password -->
-          <div>
-            <label for="password" class="label">Contraseña</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </span>
-              <input
-                id="password" [type]="showPassword() ? 'text' : 'password'"
-                formControlName="password" autocomplete="new-password"
-                placeholder="Mínimo 8 caracteres"
-                class="input-field-icon pr-10"
-                [class.input-error]="form.get('password')?.invalid && form.get('password')?.touched"
-              />
-              <button type="button" (click)="showPassword.set(!showPassword())"
-                      class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                      tabindex="-1">
-                @if (showPassword()) {
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+          <!-- Password + Confirm (2 columns on md+) -->
+          <div class="flex flex-col md:flex-row gap-3">
+            <div class="flex-1 min-w-0">
+              <label for="password" class="label">Contraseña</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                } @else {
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                }
-              </button>
+                </span>
+                <input
+                  id="password" [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password" autocomplete="new-password"
+                  placeholder="Mínimo 8 caracteres"
+                  class="input-field-icon pr-10"
+                  [class.input-error]="form.get('password')?.invalid && form.get('password')?.touched"
+                />
+                <button type="button" (click)="showPassword.set(!showPassword())"
+                        class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                        tabindex="-1">
+                  @if (showPassword()) {
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  } @else {
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (form.get('password')?.invalid && form.get('password')?.touched) {
+                <p class="mt-1 text-xs text-red-500">
+                  @if (form.get('password')?.hasError('required')) { La contraseña es obligatoria. }
+                  @else { Mínimo 8 caracteres. }
+                </p>
+              }
             </div>
-            @if (form.get('password')?.invalid && form.get('password')?.touched) {
-              <p class="mt-1.5 text-xs text-red-500">
-                @if (form.get('password')?.hasError('required')) { La contraseña es obligatoria. }
-                @else { Mínimo 8 caracteres. }
-              </p>
-            }
-          </div>
 
-          <!-- Confirm Password -->
-          <div>
-            <label for="confirmPassword" class="label">Confirmar contraseña</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </span>
-              <input
-                id="confirmPassword" [type]="showConfirm() ? 'text' : 'password'"
-                formControlName="confirmPassword" autocomplete="new-password"
-                placeholder="Repetí tu contraseña"
-                class="input-field-icon pr-10"
-                [class.input-error]="passwordsMismatch"
-              />
-              <button type="button" (click)="showConfirm.set(!showConfirm())"
-                      class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                      tabindex="-1">
-                @if (showConfirm()) {
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            <div class="flex-1 min-w-0">
+              <label for="confirmPassword" class="label">Confirmar</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                } @else {
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                }
-              </button>
+                </span>
+                <input
+                  id="confirmPassword" [type]="showConfirm() ? 'text' : 'password'"
+                  formControlName="confirmPassword" autocomplete="new-password"
+                  placeholder="Repetí tu contraseña"
+                  class="input-field-icon pr-10"
+                  [class.input-error]="passwordsMismatch"
+                />
+                <button type="button" (click)="showConfirm.set(!showConfirm())"
+                        class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                        tabindex="-1">
+                  @if (showConfirm()) {
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  } @else {
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  }
+                </button>
+              </div>
+              @if (passwordsMismatch) {
+                <p class="mt-1 text-xs text-red-500">Las contraseñas no coinciden.</p>
+              }
             </div>
-            @if (passwordsMismatch) {
-              <p class="mt-1.5 text-xs text-red-500">Las contraseñas no coinciden.</p>
-            }
           </div>
 
           <!-- Roles -->
           <div>
             <span class="label">Rol(es)</span>
-            <div class="flex flex-wrap gap-2" formArrayName="roles">
+            <div class="flex flex-wrap gap-1.5" formArrayName="roles">
               @for (rol of availableRoles; track rol.value; let i = $index) {
                 <label
-                  class="flex items-center gap-2 cursor-pointer select-none rounded-xl border
-                         px-3.5 py-2 text-sm font-medium transition-all duration-150
+                  class="flex items-center gap-1.5 cursor-pointer select-none rounded-lg border
+                         px-2.5 py-1.5 text-xs font-semibold transition-all duration-150
                          hover:border-touche-celeste hover:bg-touche-celeste/5"
                   [ngClass]="rolesArray.at(i).value
                     ? 'bg-touche-celeste/10 border-touche-celeste text-touche-navy'
                     : 'bg-white border-slate-300 text-slate-600'"
                 >
                   <input type="checkbox" [formControlName]="i"
-                         class="w-4 h-4 rounded accent-touche-celeste" />
+                         class="w-3.5 h-3.5 rounded accent-touche-celeste" />
                   {{ rol.label }}
                 </label>
               }
             </div>
             @if (form.touched && selectedRoles.length === 0) {
-              <p class="mt-1.5 text-xs text-red-500">Seleccioná al menos un rol.</p>
+              <p class="mt-1 text-xs text-red-500">Seleccioná al menos un rol.</p>
             }
           </div>
 
           <!-- Accept Terms -->
           <div>
-            <label class="flex items-start gap-2.5 cursor-pointer select-none">
+            <label class="flex items-start gap-2 cursor-pointer select-none">
               <input type="checkbox" formControlName="acceptTerms"
                      class="mt-0.5 w-4 h-4 rounded accent-touche-celeste" />
-              <span class="text-sm text-slate-600">
+              <span class="text-xs text-slate-600 leading-snug">
                 Acepto los
                 <a routerLink="/terms" target="_blank" rel="noopener noreferrer"
                    class="font-semibold text-touche-celeste hover:underline underline-offset-2">
@@ -177,13 +180,13 @@
               </span>
             </label>
             @if (form.get('acceptTerms')?.invalid && form.get('acceptTerms')?.touched) {
-              <p class="mt-1.5 text-xs text-red-500">Debés aceptar los términos y condiciones.</p>
+              <p class="mt-1 text-xs text-red-500">Debés aceptar los términos y condiciones.</p>
             }
           </div>
 
           <!-- Backend error -->
           @if (errorMessage()) {
-            <div class="alert-danger py-3 text-sm">
+            <div class="alert-danger py-2.5 text-xs">
               <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
@@ -192,7 +195,7 @@
           }
 
           <!-- Submit -->
-          <button type="submit" [disabled]="loading() || form.get('acceptTerms')?.invalid" class="btn-gold w-full py-3">
+          <button type="submit" [disabled]="loading() || form.get('acceptTerms')?.invalid" class="btn-gold w-full py-2.5 text-sm">
             @if (loading()) {
               <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -207,29 +210,23 @@
         </form>
       </div>
 
-      <!-- Footer link -->
-      <p class="mt-5 text-center text-sm">
-        <span class="text-slate-500">¿Ya tienes una cuenta?</span>
+      <!-- Footer links — always visible -->
+      <div class="mt-3 flex items-center justify-center gap-2 text-xs">
+        <span class="text-slate-500">¿Ya tenés cuenta?</span>
         <a routerLink="/auth/login"
-           class="ml-1 font-bold text-touche-celeste hover:underline underline-offset-2">
+           class="font-bold text-touche-celeste hover:underline underline-offset-2">
           Iniciar sesión
         </a>
-      </p>
-
-      <!-- Spectator access -->
-      <div class="mt-4 pt-4 border-t border-slate-100 text-center">
-        <p class="text-xs text-slate-400 mb-2">¿Solo querés ver los resultados?</p>
+        <span class="text-slate-200 mx-0.5">|</span>
         <a routerLink="/spectator"
-           class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500
-                  hover:text-touche-navy transition-colors group">
-          <svg class="w-4 h-4 text-touche-celeste group-hover:scale-110 transition-transform"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-1 text-slate-500 hover:text-touche-navy font-semibold transition-colors">
+          <svg class="w-3.5 h-3.5 text-touche-celeste" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
           </svg>
-          Entrar como espectador
+          Espectador
         </a>
       </div>
     </div>

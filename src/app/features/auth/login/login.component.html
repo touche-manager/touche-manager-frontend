@@ -1,20 +1,20 @@
 <!-- Auth layout: split panel (left decorative + right form) -->
-<div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
+<div class="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden -mb-8">
 
   <!-- ═══ Left decorative panel (desktop only) ════════════════════════ -->
-  <div class="hidden md:flex md:w-5/12 auth-panel-bg flex-col items-center justify-center
-              p-10 relative overflow-hidden flex-shrink-0">
+  <div class="hidden md:flex md:w-4/12 auth-panel-bg flex-col items-center justify-center
+              p-8 relative overflow-hidden flex-shrink-0">
     <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-touche-gold/60 to-transparent"></div>
     <div class="absolute -bottom-20 -left-20 h-64 w-64 rounded-full border border-touche-celeste/10"></div>
     <div class="absolute -top-16 -right-16 h-48 w-48 rounded-full border border-touche-gold/10"></div>
 
-    <div class="relative flex flex-col items-center text-center gap-6 z-10">
+    <div class="relative flex flex-col items-center text-center gap-5 z-10">
       <img src="/logo.png" alt="Touché Manager"
            class="h-20 w-20 rounded-full border-2 border-touche-gold/60 object-cover shadow-2xl" />
       <div>
-        <h2 class="font-display text-4xl font-bold text-white leading-tight">Touché Manager</h2>
-        <div class="mt-2 w-12 h-0.5 bg-touche-gold mx-auto rounded-full"></div>
-        <p class="mt-4 text-sm text-white/70 leading-relaxed max-w-xs">
+        <h2 class="font-display text-3xl font-bold text-white leading-tight">Touché Manager</h2>
+        <div class="mt-2 w-10 h-0.5 bg-touche-gold mx-auto rounded-full"></div>
+        <p class="mt-3 text-sm text-white/70 leading-relaxed max-w-xs">
           La plataforma oficial para la gestión de torneos de esgrima. Árbitros, atletas y organizadores en un mismo lugar.
         </p>
       </div>
@@ -25,22 +25,22 @@
        Desktop: white background to contrast with the slate page bg
        Mobile:  dark navy for the full-screen dark look
   ════════════════════════════════════════════════════════════════════ -->
-  <div class="flex-1 flex items-center justify-center
+  <div class="flex-1 flex flex-col items-center justify-center
               bg-white
-              px-5 py-10 md:px-14 md:py-12 overflow-y-auto">
+              px-5 py-6 md:px-8 md:py-8 overflow-y-auto">
 
-    <div class="w-full max-w-sm animate-fade-up">
+    <div class="w-full max-w-md animate-fade-up flex flex-col">
 
-      <!-- Heading above the form -->
-      <div class="mb-8">
-        <h1 class="font-display text-4xl font-bold text-touche-navy leading-tight">Iniciar sesión</h1>
-        <p class="mt-2 text-sm text-slate-500">Bienvenido de nuevo a Touché Manager</p>
+      <!-- Heading -->
+      <div class="mb-5">
+        <h1 class="font-display text-3xl font-bold text-touche-navy leading-tight">Iniciar sesión</h1>
+        <p class="mt-0.5 text-sm text-slate-500">Bienvenido de nuevo a Touché Manager</p>
       </div>
 
       <!-- Form card -->
-      <div class="bg-white rounded-2xl shadow-auth p-7
+      <div class="bg-white rounded-2xl shadow-auth p-5
                   border border-slate-200">
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="space-y-5">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate class="space-y-4">
 
           <!-- Email -->
           <div>
@@ -63,7 +63,7 @@
               />
             </div>
             @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <p class="mt-1.5 text-xs text-red-500">
+              <p class="mt-1 text-xs text-red-500">
                 @if (form.get('email')?.hasError('required')) { El correo es obligatorio. }
                 @else { Ingresá un correo válido. }
               </p>
@@ -109,13 +109,13 @@
               </button>
             </div>
             @if (form.get('password')?.invalid && form.get('password')?.touched) {
-              <p class="mt-1.5 text-xs text-red-500">La contraseña es obligatoria.</p>
+              <p class="mt-1 text-xs text-red-500">La contraseña es obligatoria.</p>
             }
           </div>
 
           <!-- Backend error -->
           @if (errorMessage()) {
-            <div class="alert-danger py-3 text-sm">
+            <div class="alert-danger py-2.5 text-xs">
               <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
@@ -127,7 +127,7 @@
           <button
             type="submit"
             [disabled]="loading()"
-            class="btn-gold w-full py-3"
+            class="btn-gold w-full py-2.5 text-sm"
           >
             @if (loading()) {
               <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -143,32 +143,25 @@
         </form>
       </div>
 
-      <!-- Footer link -->
-      <p class="mt-5 text-center text-sm">
-        <span class="text-slate-500">¿No tienes una cuenta?</span>
+      <!-- Footer links — always visible -->
+      <div class="mt-3 flex items-center justify-center gap-2 text-xs">
+        <span class="text-slate-500">¿No tenés cuenta?</span>
         <a routerLink="/auth/register"
-           class="ml-1 font-bold text-touche-celeste hover:underline underline-offset-2">
+           class="font-bold text-touche-celeste hover:underline underline-offset-2">
           Registrarse
         </a>
-      </p>
-
-      <!-- Spectator access -->
-      <div class="mt-4 pt-4 border-t border-slate-100 text-center">
-        <p class="text-xs text-slate-400 mb-2">¿Solo querés ver los resultados?</p>
+        <span class="text-slate-200 mx-0.5">|</span>
         <a routerLink="/spectator"
-           class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500
-                  hover:text-touche-navy transition-colors group">
-          <svg class="w-4 h-4 text-touche-celeste group-hover:scale-110 transition-transform"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           class="inline-flex items-center gap-1 text-slate-500 hover:text-touche-navy font-semibold transition-colors">
+          <svg class="w-3.5 h-3.5 text-touche-celeste" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
           </svg>
-          Entrar como espectador
+          Espectador
         </a>
       </div>
-
     </div>
   </div>
 
